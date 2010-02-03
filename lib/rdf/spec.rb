@@ -2,7 +2,7 @@ require 'rdf'
 
 module RDF
   ##
-  # **`RDF::Spec`** provides RSpec matchers for RDF.rb.
+  # **`RDF::Spec`** provides RSpec extensions for RDF.rb.
   #
   # @example Requiring the `RDF::Spec` module
   #   require 'rdf/spec'
@@ -20,7 +20,7 @@ module RDF
   # @author [Arto Bendiken](http://ar.to/)
   # @author [Ben Lavender](http://bhuga.net/)
   module Spec
-    # TODO
-    autoload :VERSION, 'rdf/spec/version'
+    autoload :Matchers, 'rdf/spec/matchers'
+    autoload :VERSION,  'rdf/spec/version'
   end # module Spec
 end # module RDF
