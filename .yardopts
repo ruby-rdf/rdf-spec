@@ -1,4 +1,4 @@
---title "RDF::Spec - RSpec Matchers for RDF.rb"
+--title "RDF::Spec - RSpec Extensions for RDF.rb"
 --output-dir doc/yard
 --protected
 --no-private

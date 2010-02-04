@@ -8,8 +8,8 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.name               = 'rdf-spec'
   gem.homepage           = 'http://rdf.rubyforge.org/'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
-  gem.summary            = 'RSpec matchers for RDF.rb.'
-  gem.description        = 'RDF.rb plugin that provides RSpec matchers for RDF objects.'
+  gem.summary            = 'RSpec extensions for RDF.rb.'
+  gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
   gem.rubyforge_project  = 'rdf'
 
   gem.authors            = ['Arto Bendiken', 'Ben Lavender']

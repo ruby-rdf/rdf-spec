@@ -1,8 +1,8 @@
-RSpec Matchers for RDF.rb
-=========================
+RSpec Extensions for RDF.rb
+===========================
 
 This is an [RDF.rb][] plugin that provides RDF-specific [RSpec][] matchers
-for Ruby projects that use RDF.rb and RSpec.
+and shared examples for Ruby projects that use RDF.rb and RSpec.
 
 * <http://github.com/bendiken/rdf-spec>
 
@@ -11,8 +11,6 @@ Documentation
 
 * {RDF::Spec}
   * {RDF::Spec::Matchers}
-  * {RDF::Spec::Enumerable}
-  * {RDF::Spec::Repository}
 
 Dependencies
 ------------
