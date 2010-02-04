@@ -1,4 +1,5 @@
 require 'rdf/spec'
+require 'spec'
 
 share_as :RDF_Repository do
   include RDF::Spec::Matchers
