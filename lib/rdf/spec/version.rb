@@ -2,7 +2,7 @@ module RDF; module Spec
   module VERSION
     MAJOR = 0
     MINOR = 0
-    TINY  = 0
+    TINY  = 9
     EXTRA = nil
 
     STRING = [MAJOR, MINOR, TINY].join('.')
