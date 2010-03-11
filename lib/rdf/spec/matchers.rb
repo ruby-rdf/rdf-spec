@@ -57,6 +57,13 @@ module RDF; module Spec
       end
     end
 
+    define :be_a_node do
+      match do |value|
+        value.should be_a_kind_of(RDF::Node)
+        true
+      end
+    end
+
     define :be_a_uri do
       match do |value|
         value.should be_a_kind_of(RDF::URI)
