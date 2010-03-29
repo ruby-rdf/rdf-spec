@@ -11,20 +11,6 @@ share_as :RDF_Repository do
     @enumerable = @repository
   end
 
-  it "should be empty initially" do
-    @repository.empty?.should be_true
-    @repository.count.should be_zero
-  end
-
-  it "should be readable" do
-    @repository.readable?.should be_true
-  end
-
-  it "should be mutable" do
-    @repository.immutable?.should be_false
-    @repository.mutable?.should be_true
-  end
-
   context "when updating" do
     require 'rdf/spec/mutable'
 

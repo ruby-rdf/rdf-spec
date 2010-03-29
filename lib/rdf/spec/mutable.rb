@@ -13,6 +13,24 @@ share_as :RDF_Mutable do
     raise '+@context+ must be defined in a before(:each) block' unless instance_variable_get('@context')
   end
 
+  it "should be empty initially" do
+    @repository.empty?.should be_true
+    @repository.count.should be_zero
+  end
+
+  it "should be readable" do
+    @repository.readable?.should be_true
+  end
+
+  it "should be writable" do
+    @repository.writable?.should be_true
+  end
+
+  it "should be mutable" do
+    @repository.immutable?.should be_false
+    @repository.mutable?.should be_true
+  end
+
   it "should support #load" do
     @repository.respond_to?(:load).should be_true
   end
@@ -70,6 +88,12 @@ share_as :RDF_Mutable do
     it "should insert statements successfully" do
       @repository.insert(*@statements)
       @repository.count.should == @statements.size
+    end
+
+    it "should not insert a statement twice" do
+      @repository.insert(@statements.first)
+      @repository.insert(@statements.first)
+      @repository.count.should == 1
     end
   end
 
