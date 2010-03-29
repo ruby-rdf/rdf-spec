@@ -25,38 +25,16 @@ share_as :RDF_Repository do
     @repository.mutable?.should be_true
   end
 
-  context "when inserting statements" do
-    it "should support #insert" do
-      @repository.should respond_to(:insert)
+  context "when updating" do
+    require 'rdf/spec/mutable'
+
+    before :each do
+      @subject    = RDF::URI.new("http://rubygems.org/gems/rdf")
+      @context    = RDF::URI.new("http://example.org/context")
     end
 
-    it "should not raise errors" do
-      lambda { @repository.insert(@statements.first) }.should_not raise_error
-    end
+    it_should_behave_like RDF_Mutable
 
-    it "should support inserting one statement at a time" do
-      @repository.insert(@statements.first)
-    end
-
-    it "should support inserting multiple statements at a time" do
-      @repository.insert(*@statements)
-    end
-
-    it "should insert statements successfully" do
-      @repository.insert(*@statements)
-      @repository.count.should == @statements.size
-    end
-  end
-
-  context "when deleting statements" do
-    it "should support #delete" do
-      @repository.should respond_to(:delete)
-    end
-
-    it "should not raise errors"
-    it "should support deleting one statement at a time"
-    it "should support deleting multiple statements at a time"
-    it "should delete statements successfully"
   end
 
   context "when enumerating statements" do
@@ -70,9 +48,4 @@ share_as :RDF_Repository do
     it_should_behave_like RDF_Enumerable
   end
 
-  context "when clearing all statements" do
-    it "should support #clear" do
-      @repository.should respond_to(:clear)
-    end
-  end
 end

@@ -8,39 +8,84 @@ share_as :RDF_Mutable do
 
   before :each do
     raise '+@filename+ must be defined in a before(:each) block' unless instance_variable_get('@filename')
-    raise '+@repo+ must be defined in a before(:each) block' unless instance_variable_get('@repo')
+    raise '+@repository+ must be defined in a before(:each) block' unless instance_variable_get('@repository')
     raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
     raise '+@context+ must be defined in a before(:each) block' unless instance_variable_get('@context')
   end
 
   it "should support #load" do
-    @repo.respond_to?(:load).should be_true
+    @repository.respond_to?(:load).should be_true
   end
 
   context "#load" do
     it "should require an argument" do
-      lambda { @repo.load }.should raise_error(ArgumentError)
+      lambda { @repository.load }.should raise_error(ArgumentError)
     end
 
     it "should accept a string filename argument" do
-      lambda { @repo.load(@filename) }.should_not raise_error(ArgumentError)
+      lambda { @repository.load(@filename) }.should_not raise_error(ArgumentError)
     end
 
     it "should accept an optional hash argument" do
-      lambda { @repo.load(@filename,{}) }.should_not raise_error(ArgumentError)
+      lambda { @repository.load(@filename,{}) }.should_not raise_error(ArgumentError)
     end
 
     it "should load statements" do
-      @repo.load @filename
-      @repo.size.should ==  File.readlines(@filename).size
-      @repo.should have_subject @subject
+      @repository.load @filename
+      @repository.size.should ==  File.readlines(@filename).size
+      @repository.should have_subject @subject
     end
 
     it "should load statements with a context override" do
-      @repo.load @filename, :context => @context
-      @repo.should have_context @context
-      @repo.query(:context => @context).size.should == @repo.size
+      @repository.load @filename, :context => @context
+      @repository.should have_context @context
+      @repository.query(:context => @context).size.should == @repository.size
     end
 
+  end
+
+  context "when deleting statements" do
+    it "should support #delete" do
+      @repository.should respond_to(:delete)
+    end
+
+    it "should not raise errors"
+    it "should support deleting one statement at a time"
+    it "should support deleting multiple statements at a time"
+    it "should delete statements successfully"
+  end
+
+  context "when inserting statements" do
+
+    before :each do
+      @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+    end
+
+    it "should support #insert" do
+      @repository.should respond_to(:insert)
+    end
+
+    it "should not raise errors" do
+      lambda { @repository.insert(@statements.first) }.should_not raise_error
+    end
+
+    it "should support inserting one statement at a time" do
+      @repository.insert(@statements.first)
+    end
+
+    it "should support inserting multiple statements at a time" do
+      @repository.insert(*@statements)
+    end
+
+    it "should insert statements successfully" do
+      @repository.insert(*@statements)
+      @repository.count.should == @statements.size
+    end
+  end
+
+  context "when clearing all statements" do
+    it "should support #clear" do
+      @repository.should respond_to(:clear)
+    end
   end
 end
