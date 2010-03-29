@@ -34,4 +34,14 @@ share_as :RDF_Repository do
     it_should_behave_like RDF_Enumerable
   end
 
+  context "when querying statements, " do
+    require 'rdf/spec/queryable'
+
+    before :each do
+      @subject    = RDF::URI.new("http://rubygems.org/gems/rdf")
+      @queryable = @repository
+    end
+
+    it_should_behave_like RDF_Queryable
+  end
 end
