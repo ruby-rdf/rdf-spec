@@ -5,9 +5,10 @@ share_as :RDF_Queryable do
   include RDF::Spec::Matchers
 
   before :each do
-    @statements = RDF::NTriples::Reader.new(File.open(etc_file("doap.nt"))).to_a
-    @queryable  = @statements.extend(RDF::Queryable)
-    @subject    = RDF::URI.new("http://rubygems.org/gems/rdf")
+    raise '+@file+ must be defined in a before(:each) block' unless instance_variable_get('@file')
+    raise '+@statements+ must be defined in a before(:each) block' unless instance_variable_get('@statements')
+    raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
+    raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
   end
 
   it "should support #query" do
@@ -47,16 +48,16 @@ share_as :RDF_Queryable do
     end
 
     it "should return the correct number of results for array queries" do
-      @queryable.query([nil, nil, nil]).size.should == File.readlines(etc_file("doap.nt")).size
-      @queryable.query([@subject, nil, nil]).size.should == File.readlines(etc_file("doap.nt")).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+      @queryable.query([nil, nil, nil]).size.should == File.readlines(@file).size
+      @queryable.query([@subject, nil, nil]).size.should == File.readlines(@file).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
       @queryable.query([@subject, RDF::DOAP.name, nil]).size.should == 1
       @queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size
       @queryable.query([nil, nil, RDF::DOAP.Project]).size.should == 1
     end
 
     it "should return the correct number of results for hash queries" do
-      @queryable.query({}).size.should == File.readlines(etc_file("doap.nt")).size
-      @queryable.query(:subject => @subject) .size.should == File.readlines(etc_file("doap.nt")).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+      @queryable.query({}).size.should == File.readlines(@file).size
+      @queryable.query(:subject => @subject) .size.should == File.readlines(@file).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
       @queryable.query(:subject => @subject, :predicate => RDF::DOAP.name).size.should == 1
       @queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size
       @queryable.query(:object => RDF::DOAP.Project).size.should == 1
