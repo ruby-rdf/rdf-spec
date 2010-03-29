@@ -44,17 +44,6 @@ share_as :RDF_Mutable do
 
   end
 
-  context "when deleting statements" do
-    it "should support #delete" do
-      @repository.should respond_to(:delete)
-    end
-
-    it "should not raise errors"
-    it "should support deleting one statement at a time"
-    it "should support deleting multiple statements at a time"
-    it "should delete statements successfully"
-  end
-
   context "when inserting statements" do
 
     before :each do
@@ -71,6 +60,7 @@ share_as :RDF_Mutable do
 
     it "should support inserting one statement at a time" do
       @repository.insert(@statements.first)
+      @repository.should have_statement(@statements.first)
     end
 
     it "should support inserting multiple statements at a time" do
@@ -81,6 +71,33 @@ share_as :RDF_Mutable do
       @repository.insert(*@statements)
       @repository.count.should == @statements.size
     end
+  end
+
+  context "when deleting statements" do
+
+    before :each do
+      @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+      @repository.insert(*@statements)
+    end
+
+    it "should support #delete" do
+      @repository.should respond_to(:delete)
+    end
+
+    it "should not raise errors" do
+      lambda { @repository.delete(@statements.first) }.should_not raise_error
+    end
+
+    it "should support deleting one statement at a time" do
+      @repository.delete(@statements.first)
+      @repository.should_not have_statement(@statements.first)
+    end
+
+    it "should support deleting multiple statements at a time" do
+      @repository.delete(*@statements)
+      @statements.find { |s| @repository.has_statement?(s) }.should be_false
+    end
+
   end
 
   context "when clearing all statements" do
