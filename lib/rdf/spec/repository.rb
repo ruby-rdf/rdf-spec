@@ -44,4 +44,14 @@ share_as :RDF_Repository do
 
     it_should_behave_like RDF_Queryable
   end
+
+  context "as a durable repository, " do
+    require 'rdf/spec/durable'
+
+    before :each do
+      @load_durable ||= lambda { @repository }
+    end
+
+    it_should_behave_like RDF_Durable
+  end
 end
