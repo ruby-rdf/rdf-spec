@@ -2,15 +2,15 @@ module RDF; module Spec
   module VERSION
     MAJOR = 0
     MINOR = 1
-    TINY  = 0
+    TINY  = 4
     EXTRA = nil
 
     STRING = [MAJOR, MINOR, TINY].join('.')
-    STRING << "-#{EXTRA}" if EXTRA
+    STRING << ".#{EXTRA}" if EXTRA
 
     ##
     # @return [String]
-    def self.to_s()   STRING end
+    def self.to_s() STRING end
 
     ##
     # @return [String]
