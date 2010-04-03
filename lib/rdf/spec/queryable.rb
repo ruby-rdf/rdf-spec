@@ -5,14 +5,15 @@ share_as :RDF_Queryable do
   include RDF::Spec::Matchers
 
   before :each do
-    raise '+@filename+ must be defined in a before(:each) block' unless instance_variable_get('@filename')
+    # RDF::Queryable cares about the contents of this file too much to let someone set it
+    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
     raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
     if @queryable.empty?
       if @queryable.respond_to?(:insert)
         @queryable.insert(*(RDF::NTriples::Reader.new(File.open(@filename)).to_a))
       else
-        raise "@queryable must be mutable or pre-populated with the statements in @filename in a before(:each)"
+        raise "@queryable must be mutable or pre-populated with the statements in #{@filename} in a before(:each)"
       end
     end
   end
