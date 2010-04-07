@@ -40,7 +40,8 @@ share_as :RDF_Enumerable do
         @enumerable.has_statement?(statement).should be_true
       end
 
-      @enumerable.has_statement?([RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new]).should be_false
+      unknown_statement = RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)
+      @enumerable.has_statement?(unknown_statement).should be_false
     end
 
     it "should support #each_statement" do
