@@ -131,8 +131,10 @@ share_as :RDF_Enumerable do
     it "should support #has_subject?" do
       @enumerable.respond_to?(:has_subject?).should be_true
 
+      checked = []
       @statements.each do |statement|
-        @enumerable.has_subject?(statement.subject).should be_true
+        @enumerable.has_subject?(statement.subject).should be_true unless checked.include?(statement.subject)
+        checked << statement.subject
       end
       uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
       @enumerable.has_predicate?(uri).should be_false
@@ -163,8 +165,10 @@ share_as :RDF_Enumerable do
     it "should support #has_predicate?" do
       @enumerable.respond_to?(:has_predicate?).should be_true
 
+      checked = []
       @statements.each do |statement|
-        @enumerable.has_predicate?(statement.predicate).should be_true
+        @enumerable.has_predicate?(statement.predicate).should be_true unless checked.include?(statement.object)
+        checked << statement.predicate
       end
       uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
       @enumerable.has_predicate?(uri).should be_false
@@ -195,8 +199,10 @@ share_as :RDF_Enumerable do
     it "should support #has_object?" do
       @enumerable.respond_to?(:has_object?).should be_true
 
+      checked = []
       @statements.each do |statement|
-        @enumerable.has_object?(statement.object).should be_true
+        @enumerable.has_object?(statement.object).should be_true unless checked.include?(statement.object)
+        checked << statement.object
       end
       uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
       @enumerable.has_object?(uri).should be_false
