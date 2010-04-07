@@ -133,6 +133,8 @@ share_as :RDF_Enumerable do
       @statements.each do |statement|
         @enumerable.has_subject?(statement.subject).should be_true
       end
+      uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+      @enumerable.has_predicate?(uri).should be_false
     end
 
     it "should support #each_subject" do
@@ -163,6 +165,8 @@ share_as :RDF_Enumerable do
       @statements.each do |statement|
         @enumerable.has_predicate?(statement.predicate).should be_true
       end
+      uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+      @enumerable.has_predicate?(uri).should be_false
     end
 
     it "should support #each_predicate" do
@@ -193,6 +197,8 @@ share_as :RDF_Enumerable do
       @statements.each do |statement|
         @enumerable.has_object?(statement.object).should be_true
       end
+      uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+      @enumerable.has_object?(uri).should be_false
     end
 
     it "should support #each_object" do
@@ -225,6 +231,8 @@ share_as :RDF_Enumerable do
           @enumerable.has_context?(statement.context).should be_true
         end
       end
+      uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+      @enumerable.has_context?(uri).should be_false
     end
 
     it "should support #each_context" do
