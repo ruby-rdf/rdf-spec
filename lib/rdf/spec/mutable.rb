@@ -59,11 +59,9 @@ share_as :RDF_Mutable do
       @repository.should have_context @context
       @repository.query(:context => @context).size.should == @repository.size
     end
-
   end
 
   context "when inserting statements" do
-
     before :each do
       @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
     end
@@ -98,7 +96,6 @@ share_as :RDF_Mutable do
   end
 
   context "when deleting statements" do
-
     before :each do
       @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
       @repository.insert(*@statements)
@@ -122,6 +119,18 @@ share_as :RDF_Mutable do
       @statements.find { |s| @repository.has_statement?(s) }.should be_false
     end
 
+    it "should support wildcard deletions" do
+      # nothing deleted
+      require 'digest/sha1'
+      count = @repository.count
+      @repository.delete([nil, nil, random = Digest::SHA1.hexdigest(File.read(__FILE__))])
+      @repository.should_not be_empty
+      @repository.count.should == count
+
+      # everything deleted
+      @repository.delete([nil, nil, nil])
+      @repository.should be_empty
+    end
   end
 
   context "when clearing all statements" do
