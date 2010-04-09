@@ -144,7 +144,12 @@ share_as :RDF_Enumerable do
       @enumerable.respond_to?(:each_subject).should be_true
 
       @enumerable.each_subject.should be_instance_of(Enumerable::Enumerator)
-      @enumerable.each_subject { |value| value.should be_a_resource }
+      subjects = @statements.map { |s| s.subject }.uniq
+      @enumerable.each_subject.to_a.size.should == subjects.size
+      @enumerable.each_subject do |value|
+        value.should be_a_value
+        subjects.should include value
+      end
     end
 
     it "should support #enum_subject" do
@@ -177,8 +182,13 @@ share_as :RDF_Enumerable do
     it "should support #each_predicate" do
       @enumerable.respond_to?(:each_predicate).should be_true
 
+      predicates = @statements.map { |s| s.predicate }.uniq
+      @enumerable.each_predicate.to_a.size.should == predicates.size
       @enumerable.each_predicate.should be_instance_of(Enumerable::Enumerator)
-      @enumerable.each_predicate { |value| value.should be_a_uri }
+      @enumerable.each_predicate do |value| 
+        value.should be_a_uri
+        predicates.should include value
+      end
     end
 
     it "should support #enum_predicate" do
@@ -211,8 +221,13 @@ share_as :RDF_Enumerable do
     it "should support #each_object" do
       @enumerable.respond_to?(:each_object).should be_true
 
+      objects = @statements.map { |s| s.object }.uniq
+      @enumerable.each_object.to_a.size.should == objects.size
       @enumerable.each_object.should be_instance_of(Enumerable::Enumerator)
-      @enumerable.each_object { |value| value.should be_a_value }
+      @enumerable.each_object do |value| 
+        value.should be_a_value
+        objects.should include value
+      end
     end
 
     it "should support #enum_object" do
@@ -245,8 +260,14 @@ share_as :RDF_Enumerable do
     it "should support #each_context" do
       @enumerable.respond_to?(:each_context).should be_true
 
+      contexts = @statements.map { |s| s.context }.uniq
+      contexts.delete nil
+      @enumerable.each_context.to_a.size.should == contexts.size
       @enumerable.each_context.should be_instance_of(Enumerable::Enumerator)
-      @enumerable.each_context { |value| value.should be_a_resource }
+      @enumerable.each_context do |value| 
+        value.should be_a_resource 
+        contexts.should include value
+      end
     end
 
     it "should support #enum_context" do
