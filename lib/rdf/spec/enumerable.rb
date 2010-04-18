@@ -47,14 +47,14 @@ share_as :RDF_Enumerable do
     it "should support #each_statement" do
       @enumerable.respond_to?(:each_statement).should be_true
 
-      @enumerable.each_statement.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_statement.should be_instance_of(RDF::Enumerator)
       @enumerable.each_statement { |statement| statement.should be_a_statement }
     end
 
     it "should support #enum_statement" do
       @enumerable.respond_to?(:enum_statement).should be_true
 
-      @enumerable.enum_statement.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_statement.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -78,14 +78,14 @@ share_as :RDF_Enumerable do
     it "should support #each_triple" do
       @enumerable.respond_to?(:each_triple).should be_true
 
-      @enumerable.each_triple.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_triple.should be_instance_of(RDF::Enumerator)
       @enumerable.each_triple { |*triple| triple.should be_a_triple }
     end
 
     it "should support #enum_triple" do
       @enumerable.respond_to?(:enum_triple).should be_true
 
-      @enumerable.enum_triple.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_triple.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -109,14 +109,14 @@ share_as :RDF_Enumerable do
     it "should support #each_quad" do
       @enumerable.respond_to?(:each_quad).should be_true
 
-      @enumerable.each_quad.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_quad.should be_instance_of(RDF::Enumerator)
       @enumerable.each_quad { |*quad| quad.should be_a_quad }
     end
 
     it "should support #enum_quad" do
       @enumerable.respond_to?(:enum_quad).should be_true
 
-      @enumerable.enum_quad.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_quad.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -143,7 +143,7 @@ share_as :RDF_Enumerable do
     it "should support #each_subject" do
       @enumerable.respond_to?(:each_subject).should be_true
 
-      @enumerable.each_subject.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_subject.should be_instance_of(RDF::Enumerator)
       subjects = @statements.map { |s| s.subject }.uniq
       @enumerable.each_subject.to_a.size.should == subjects.size
       @enumerable.each_subject do |value|
@@ -155,7 +155,7 @@ share_as :RDF_Enumerable do
     it "should support #enum_subject" do
       @enumerable.respond_to?(:enum_subject).should be_true
 
-      @enumerable.enum_subject.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_subject.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -184,7 +184,7 @@ share_as :RDF_Enumerable do
 
       predicates = @statements.map { |s| s.predicate }.uniq
       @enumerable.each_predicate.to_a.size.should == predicates.size
-      @enumerable.each_predicate.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_predicate.should be_instance_of(RDF::Enumerator)
       @enumerable.each_predicate do |value| 
         value.should be_a_uri
         predicates.should include value
@@ -194,7 +194,7 @@ share_as :RDF_Enumerable do
     it "should support #enum_predicate" do
       @enumerable.respond_to?(:enum_predicate).should be_true
 
-      @enumerable.enum_predicate.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_predicate.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -223,7 +223,7 @@ share_as :RDF_Enumerable do
 
       objects = @statements.map { |s| s.object }.uniq
       @enumerable.each_object.to_a.size.should == objects.size
-      @enumerable.each_object.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_object.should be_instance_of(RDF::Enumerator)
       @enumerable.each_object do |value| 
         value.should be_a_value
         objects.should include value
@@ -233,7 +233,7 @@ share_as :RDF_Enumerable do
     it "should support #enum_object" do
       @enumerable.respond_to?(:enum_object).should be_true
 
-      @enumerable.enum_object.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_object.should be_instance_of(RDF::Enumerator)
     end
   end
 
@@ -263,7 +263,7 @@ share_as :RDF_Enumerable do
       contexts = @statements.map { |s| s.context }.uniq
       contexts.delete nil
       @enumerable.each_context.to_a.size.should == contexts.size
-      @enumerable.each_context.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.each_context.should be_instance_of(RDF::Enumerator)
       @enumerable.each_context do |value| 
         value.should be_a_resource 
         contexts.should include value
@@ -273,7 +273,7 @@ share_as :RDF_Enumerable do
     it "should support #enum_context" do
       @enumerable.respond_to?(:enum_context).should be_true
 
-      @enumerable.enum_context.should be_instance_of(begin Enumerable::Enumerator rescue Enumerator end)
+      @enumerable.enum_context.should be_instance_of(RDF::Enumerator)
     end
   end
 
