@@ -18,6 +18,8 @@ share_as :RDF_Queryable do
     end
   end
 
+  # @see RDF::Queryable#query
+
   it "should support #query" do
     @queryable.respond_to?(:query).should be_true
   end
@@ -75,6 +77,111 @@ share_as :RDF_Queryable do
       original_query = query.dup
       result = @queryable.query(query)
       query.should == original_query
+    end
+  end
+
+  # @see RDF::Queryable#first_subject
+
+  it "should support #first_subject" do
+    @queryable.respond_to?(:first_subject).should be_true
+  end
+
+  context "#first_subject" do
+    before :all do
+      @failing_pattern = [RDF::Node.new, nil, nil]
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first_subject }.should_not raise_error(ArgumentError)
+      @queryable.first_subject.should == @queryable.first.subject
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = [[nil, nil, nil], [@queryable.first.subject, nil, nil]]
+      matching_patterns.each do |matching_pattern|
+        @queryable.first_subject(matching_pattern).should_not be_nil
+        @queryable.first_subject(matching_pattern).should == @queryable.query(matching_pattern).first.subject
+      end
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first_subject.should be_nil
+      queryable.first_subject(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_subject(@failing_pattern).should be_nil
+    end
+  end
+
+  # @see RDF::Queryable#first_predicate
+
+  it "should support #first_predicate" do
+    @queryable.respond_to?(:first_predicate).should be_true
+  end
+
+  context "#first_predicate" do
+    before :all do
+      @failing_pattern = [nil, RDF::Node.new, nil]
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first_predicate }.should_not raise_error(ArgumentError)
+      @queryable.first_predicate.should == @queryable.first.predicate
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = [[nil, nil, nil], [nil, @queryable.first.predicate, nil]]
+      matching_patterns.each do |matching_pattern|
+        @queryable.first_predicate(matching_pattern).should_not be_nil
+        @queryable.first_predicate(matching_pattern).should == @queryable.query(matching_pattern).first.predicate
+      end
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first_predicate.should be_nil
+      queryable.first_predicate(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_predicate(@failing_pattern).should be_nil
+    end
+  end
+
+  # @see RDF::Queryable#first_object
+
+  it "should support #first_object" do
+    @queryable.respond_to?(:first_object).should be_true
+  end
+
+  context "#first_object" do
+    before :all do
+      @failing_pattern = [nil, nil, RDF::Node.new]
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first_object }.should_not raise_error(ArgumentError)
+      @queryable.first_object.should == @queryable.first.object
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = [[nil, nil, nil], [nil, nil, @queryable.first.object]]
+      matching_patterns.each do |matching_pattern|
+        @queryable.first_object(matching_pattern).should_not be_nil
+        @queryable.first_object(matching_pattern).should == @queryable.query(matching_pattern).first.object
+      end
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first_object.should be_nil
+      queryable.first_object(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_object(@failing_pattern).should be_nil
     end
   end
 end
