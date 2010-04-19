@@ -6,7 +6,7 @@ share_as :RDF_Queryable do
 
   before :each do
     # RDF::Queryable cares about the contents of this file too much to let someone set it
-    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
+    @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
     raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
     if @queryable.empty?
@@ -18,6 +18,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#query
 
   it "should support #query" do
@@ -80,6 +81,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#first
 
   it "should support #first" do
@@ -114,6 +116,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#first_subject
 
   it "should support #first_subject" do
@@ -148,6 +151,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#first_predicate
 
   it "should support #first_predicate" do
@@ -182,6 +186,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#first_object
 
   it "should support #first_object" do
@@ -216,6 +221,7 @@ share_as :RDF_Queryable do
     end
   end
 
+  ##
   # @see RDF::Queryable#first_literal
 
   it "should support #first_literal" do
@@ -254,6 +260,47 @@ share_as :RDF_Queryable do
       queryable = [].extend(RDF::Queryable)
       queryable.first_literal.should be_nil
       queryable.first_literal(@failing_pattern).should be_nil
+    end
+  end
+
+  ##
+  # @see RDF::Queryable#first_value
+
+  it "should support #first_value" do
+    @queryable.respond_to?(:first_value).should be_true
+  end
+
+  context "#first_value" do
+    before :all do
+      @failing_pattern = [nil, nil, RDF::Node.new]
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first_value }.should_not raise_error(ArgumentError)
+      @queryable.first_value.should == @queryable.first_literal.value
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = []
+      @queryable.each do |statement|
+        if statement.object.is_a?(RDF::Literal)
+          matching_pattern = [statement.subject, statement.predicate, nil]
+          unless matching_patterns.include?(matching_pattern)
+            matching_patterns << matching_pattern
+            @queryable.first_value(matching_pattern).should == @queryable.first_literal(matching_pattern).value
+          end
+        end
+      end
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_value(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first_value.should be_nil
+      queryable.first_value(@failing_pattern).should be_nil
     end
   end
 end
