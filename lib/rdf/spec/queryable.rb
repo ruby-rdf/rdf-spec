@@ -99,19 +99,18 @@ share_as :RDF_Queryable do
     it "should return the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], @queryable.each.first]
       matching_patterns.each do |matching_pattern|
-        @queryable.first(matching_pattern).should_not be_nil
         @queryable.first(matching_pattern).should == @queryable.query(matching_pattern).each.first
       end
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first(@failing_pattern).should be_nil
     end
 
     it "should return nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first.should be_nil
       queryable.first(@failing_pattern).should be_nil
-    end
-
-    it "should return nil when the pattern fails to match anything" do
-      @queryable.first(@failing_pattern).should be_nil
     end
   end
 
@@ -134,19 +133,18 @@ share_as :RDF_Queryable do
     it "should return the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [@queryable.first.subject, nil, nil]]
       matching_patterns.each do |matching_pattern|
-        @queryable.first_subject(matching_pattern).should_not be_nil
         @queryable.first_subject(matching_pattern).should == @queryable.query(matching_pattern).first.subject
       end
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_subject(@failing_pattern).should be_nil
     end
 
     it "should return nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_subject.should be_nil
       queryable.first_subject(@failing_pattern).should be_nil
-    end
-
-    it "should return nil when the pattern fails to match anything" do
-      @queryable.first_subject(@failing_pattern).should be_nil
     end
   end
 
@@ -169,19 +167,18 @@ share_as :RDF_Queryable do
     it "should return the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [nil, @queryable.first.predicate, nil]]
       matching_patterns.each do |matching_pattern|
-        @queryable.first_predicate(matching_pattern).should_not be_nil
         @queryable.first_predicate(matching_pattern).should == @queryable.query(matching_pattern).first.predicate
       end
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_predicate(@failing_pattern).should be_nil
     end
 
     it "should return nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_predicate.should be_nil
       queryable.first_predicate(@failing_pattern).should be_nil
-    end
-
-    it "should return nil when the pattern fails to match anything" do
-      @queryable.first_predicate(@failing_pattern).should be_nil
     end
   end
 
@@ -204,9 +201,12 @@ share_as :RDF_Queryable do
     it "should return the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [nil, nil, @queryable.first.object]]
       matching_patterns.each do |matching_pattern|
-        @queryable.first_object(matching_pattern).should_not be_nil
         @queryable.first_object(matching_pattern).should == @queryable.query(matching_pattern).first.object
       end
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first_object(@failing_pattern).should be_nil
     end
 
     it "should return nil when self is empty" do
@@ -214,9 +214,46 @@ share_as :RDF_Queryable do
       queryable.first_object.should be_nil
       queryable.first_object(@failing_pattern).should be_nil
     end
+  end
+
+  # @see RDF::Queryable#first_literal
+
+  it "should support #first_literal" do
+    @queryable.respond_to?(:first_literal).should be_true
+  end
+
+  context "#first_literal" do
+    before :each do
+      # FIXME: these tests should be using the provided @queryable, if possible.
+      @queryable = RDF::Graph.new do |graph|
+        @subject = RDF::Node.new
+        graph << [subject, RDF.type, RDF::DOAP.Project]
+        graph << [subject, RDF::DC.creator, RDF::URI.new('http://example.org/#jhacker')]
+        graph << [subject, RDF::DC.creator, @literal = RDF::Literal.new('J. Random Hacker')]
+      end
+      @failing_pattern = [nil, nil, RDF::Node.new]
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first_literal }.should_not raise_error(ArgumentError)
+      @queryable.first_literal.should == @literal
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = [[nil, nil, nil], [@subject, nil, nil], [nil, RDF::DC.creator, nil], [nil, nil, @literal]]
+      matching_patterns.each do |matching_pattern|
+        @queryable.first_literal(matching_pattern).should == @literal
+      end
+    end
 
     it "should return nil when the pattern fails to match anything" do
-      @queryable.first_object(@failing_pattern).should be_nil
+      @queryable.first_literal(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first_literal.should be_nil
+      queryable.first_literal(@failing_pattern).should be_nil
     end
   end
 end
