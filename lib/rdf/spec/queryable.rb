@@ -73,10 +73,45 @@ share_as :RDF_Queryable do
     end
 
     it "should not alter a given hash argument" do
-      query = { :subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person }
+      query = {:subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
       original_query = query.dup
       result = @queryable.query(query)
       query.should == original_query
+    end
+  end
+
+  # @see RDF::Queryable#first
+
+  it "should support #first" do
+    @queryable.respond_to?(:first).should be_true
+  end
+
+  context "#first" do
+    before :all do
+      @failing_pattern = [RDF::Node.new] * 3
+    end
+
+    it "should be callable without a pattern" do
+      lambda { @queryable.first }.should_not raise_error(ArgumentError)
+      @queryable.first.should == @queryable.each.first # uses an Enumerator
+    end
+
+    it "should return the correct value when the pattern matches" do
+      matching_patterns = [[nil, nil, nil], @queryable.each.first]
+      matching_patterns.each do |matching_pattern|
+        @queryable.first(matching_pattern).should_not be_nil
+        @queryable.first(matching_pattern).should == @queryable.query(matching_pattern).each.first
+      end
+    end
+
+    it "should return nil when self is empty" do
+      queryable = [].extend(RDF::Queryable)
+      queryable.first.should be_nil
+      queryable.first(@failing_pattern).should be_nil
+    end
+
+    it "should return nil when the pattern fails to match anything" do
+      @queryable.first(@failing_pattern).should be_nil
     end
   end
 
