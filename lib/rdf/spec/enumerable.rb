@@ -40,6 +40,13 @@ share_as :RDF_Enumerable do
         @enumerable.has_statement?(statement).should be_true
       end
 
+      context = RDF::URI.new("urn:context:1")
+      @statements.each do |statement|
+        s = statement.dup
+        s.context = context
+        @enumerable.has_statement?(s).should be_false
+      end
+
       unknown_statement = RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)
       @enumerable.has_statement?(unknown_statement).should be_false
     end

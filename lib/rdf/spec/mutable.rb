@@ -93,6 +93,20 @@ share_as :RDF_Mutable do
       @repository.insert(@statements.first)
       @repository.count.should == 1
     end
+
+    it "should treat statements with a different context as distinct" do
+      s1 = @statements.first.dup
+      s1.context = nil
+      s2 = @statements.first.dup
+      s2.context = RDF::URI.new("urn:context:1")
+      s3 = @statements.first.dup
+      s3.context = RDF::URI.new("urn:context:2")
+      @repository.insert(s1)
+      @repository.insert(s2)
+      @repository.insert(s3)
+      @repository.count.should == 3
+    end
+
   end
 
   context "when deleting statements" do
@@ -130,6 +144,28 @@ share_as :RDF_Mutable do
       # everything deleted
       @repository.delete([nil, nil, nil])
       @repository.should be_empty
+    end
+
+    it "should only delete statements when the context matches" do
+      # Setup three statements identical except for context
+      count = @repository.count + 3
+      s1 = RDF::Statement.new(@subject, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
+      s2 = s1.dup
+      s2.context = RDF::URI.new("urn:context:1")
+      s3 = s1.dup
+      s3.context = RDF::URI.new("urn:context:2")
+      @repository.insert(s1)
+      @repository.insert(s2)
+      @repository.insert(s3)
+      @repository.count.should == count
+
+      # Delete one by one
+      @repository.delete(s1)
+      @repository.count.should == count - 1
+      @repository.delete(s2)
+      @repository.count.should == count - 2
+      @repository.delete(s3)
+      @repository.count.should == count - 3
     end
   end
 
