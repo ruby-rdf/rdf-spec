@@ -111,11 +111,20 @@ share_as :RDF_Statement do
       @stmt[0].should equal(@stmt.subject)
       @stmt[1].should equal(@stmt.predicate)
       @stmt[2].should equal(@stmt.object)
+      @stmt[3].should equal(@stmt.context)
     end
 
     it "should support #[]=" do
       @stmt.should respond_to(:[]=)
-      # TODO
+      stmt = @stmt.dup
+      stmt[0] = s = RDF::Node.new
+      stmt.subject.should == s
+      stmt[1] = p = RDF::URI.new("http://example.org/predicate")
+      stmt.predicate.should == p
+      stmt[2] = o = RDF::Node.new
+      stmt.object.should == o
+      stmt[3] = c = RDF::URI.new("http://example.org/context")
+      stmt.context.should == c
     end
   end
 
@@ -126,6 +135,7 @@ share_as :RDF_Statement do
         :subject   => @stmt.subject,
         :predicate => @stmt.predicate,
         :object    => @stmt.object,
+        :context   => @stmt.context,
       })
     end
   end
