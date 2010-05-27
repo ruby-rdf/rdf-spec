@@ -7,6 +7,8 @@ share_as :RDF_Enumerable do
   before :each do
     raise '+@enumerable+ must be defined in a before(:each) block' unless instance_variable_get('@enumerable')
     raise '+@statements+ must be defined in a before(:each) block' unless instance_variable_get('@statements')
+    # Assume contexts are supported unless declared otherwise
+    @supports_context = @enumerable.respond_to?(:supports?) ? @enumerable.supports?(:context) : true
   end
 
   it "should support #empty?" do

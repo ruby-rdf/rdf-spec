@@ -11,6 +11,8 @@ share_as :RDF_Mutable do
     raise '+@repository+ must be defined in a before(:each) block' unless instance_variable_get('@repository')
     raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
     raise '+@context+ must be defined in a before(:each) block' unless instance_variable_get('@context')
+    # Assume contexts are supported unless declared otherwise
+    @supports_context = @repository.respond_to?(:supports?) ? @repository.supports?(:context) : true
   end
 
   it "should be empty initially" do
@@ -104,7 +106,8 @@ share_as :RDF_Mutable do
       @repository.insert(s1)
       @repository.insert(s2)
       @repository.insert(s3)
-      @repository.count.should == 3
+      # If contexts are not suported, all three are redundant
+      @repository.count.should == (@supports_context ? 3 : 1)
     end
 
   end
@@ -148,7 +151,7 @@ share_as :RDF_Mutable do
 
     it "should only delete statements when the context matches" do
       # Setup three statements identical except for context
-      count = @repository.count + 3
+      count = @repository.count + (@supports_context ? 3 : 1)
       s1 = RDF::Statement.new(@subject, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
       s2 = s1.dup
       s2.context = RDF::URI.new("urn:context:1")
@@ -161,11 +164,11 @@ share_as :RDF_Mutable do
 
       # Delete one by one
       @repository.delete(s1)
-      @repository.count.should == count - 1
+      @repository.count.should == count - (@supports_context ? 1 : 1)
       @repository.delete(s2)
-      @repository.count.should == count - 2
+      @repository.count.should == count - (@supports_context ? 2 : 1)
       @repository.delete(s3)
-      @repository.count.should == count - 3
+      @repository.count.should == count - (@supports_context ? 3 : 1)
     end
   end
 
