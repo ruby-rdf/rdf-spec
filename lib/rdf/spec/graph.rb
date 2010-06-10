@@ -41,6 +41,16 @@ share_as :RDF_Graph do
       graph.context.should_not be_nil
       graph.contexts.size.should == 1
     end
+
+    it "should be #anonymous? with a Node context" do
+      graph = @new.call(RDF::Node.new)
+      graph.should be_anonymous
+    end
+
+    it "should not be #anonymous? with a URI context" do
+      graph = @new.call("http://rdf.rubyforge.org/")
+      graph.should_not be_anonymous
+    end
   end
 
 end

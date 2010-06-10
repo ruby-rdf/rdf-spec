@@ -46,4 +46,8 @@ share_as :RDF_URI do
     uri1.should_not be_eql(uri2)
     uri1.should_not == uri2
   end
+
+  it "should not be #anonymous?" do
+    @new.call('http://example.org').should_not be_anonymous    
+  end
 end

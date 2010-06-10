@@ -51,6 +51,10 @@ share_as :RDF_Literal do
       @empty.to_s.should eql('""')
       @hello.to_s.should eql('"Hello"')
     end
+
+    it "should not be #anonymous?" do
+      @hello.should_not be_anonymous
+    end
   end
 
   context "languaged-tagged literals" do
