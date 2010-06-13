@@ -90,7 +90,7 @@ module RDF; module Spec
 
     define :have_properties do |base_uri, properties|
       match do |vocabulary|
-        properties.map(&:to_sym).each do |property|
+        properties.map { |p| p.to_sym }.each do |property|
           vocabulary[property].should be_a_uri
           vocabulary[property].to_s.should == "#{base_uri}#{property}"
           #vocabulary.should respond_to(property) # FIXME
@@ -105,7 +105,7 @@ module RDF; module Spec
 
     define :have_subclasses do |base_uri, klasses|
       match do |vocabulary|
-        klasses.map(&:to_sym).each do |klass|
+        klasses.map { |k| k.to_sym }.each do |klass|
           # TODO
         end
         true
