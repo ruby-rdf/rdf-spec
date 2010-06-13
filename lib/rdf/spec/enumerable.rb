@@ -182,6 +182,7 @@ share_as :RDF_Enumerable do
     it "should implement #subjects" do
       @enumerable.subjects.should be_an_enumerator
       @enumerable.subjects.each { |value| value.should be_a_resource }
+      # TODO: subjects(:unique => false)
     end
 
     it "should implement #has_subject?" do
@@ -230,6 +231,7 @@ share_as :RDF_Enumerable do
     it "should implement #predicates" do
       @enumerable.predicates.should be_an_enumerator
       @enumerable.predicates.each { |value| value.should be_a_uri }
+      # TODO: predicates(:unique => false)
     end
 
     it "should implement #has_predicate?" do
@@ -278,6 +280,7 @@ share_as :RDF_Enumerable do
     it "should implement #objects" do
       @enumerable.objects.should be_an_enumerator
       @enumerable.objects.each { |value| value.should be_a_value }
+      # TODO: objects(:unique => false)
     end
 
     it "should implement #has_object?" do
@@ -326,6 +329,7 @@ share_as :RDF_Enumerable do
     it "should implement #contexts" do
       @enumerable.contexts.should be_an_enumerator
       @enumerable.contexts.each { |value| value.should be_a_resource }
+      # TODO: contexts(:unique => false)
     end
 
     it "should implement #has_context?" do
@@ -383,7 +387,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #to_hash" do
       @enumerable.to_hash.should be_instance_of(Hash)
-      @enumerable.to_hash.keys.size.should == @enumerable.subjects.size
+      @enumerable.to_hash.keys.size.should == @enumerable.subjects.to_a.size
     end
   end
 end
