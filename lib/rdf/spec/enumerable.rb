@@ -11,33 +11,51 @@ share_as :RDF_Enumerable do
     @supports_context = @enumerable.respond_to?(:supports?) ? @enumerable.supports?(:context) : true
   end
 
-  it "should support #empty?" do
-    @enumerable.respond_to?(:empty?).should be_true
+  context "when counting statements" do
+    it "should respond to #empty?" do
+      @enumerable.should respond_to(:empty?)
+    end
 
-    ([].extend(RDF::Enumerable)).empty?.should be_true
-    @enumerable.empty?.should be_false
-  end
+    it "should respond to #count and #size" do
+      @enumerable.should respond_to(*%w(count size length))
+    end
 
-  it "should support #count and #size" do
-    [:count, :size, :length].each do |method|
-      @enumerable.respond_to?(method).should be_true
+    it "should implement #empty?" do
+      ([].extend(RDF::Enumerable)).empty?.should be_true
+      @enumerable.empty?.should be_false
+    end
 
-      @enumerable.send(method).should == @statements.size
+    it "should implement #count and #size" do
+      %w(count size length).each do |method|
+        @enumerable.send(method).should == @statements.size
+      end
     end
   end
 
-  context "statements" do
-    it "should support #statements" do
-      @enumerable.respond_to?(:statements).should be_true
+  context "when enumerating statements" do
+    it "should respond to #statements" do
+      @enumerable.should respond_to(:statements)
+    end
 
-      @enumerable.statements.should be_instance_of(Array)
-      @enumerable.statements.size.should == @statements.size
+    it "should respond to #has_statement?" do
+      @enumerable.should respond_to(:has_statement?)
+    end
+
+    it "should respond to #each_statement" do
+      @enumerable.should respond_to(:each_statement)
+    end
+
+    it "should respond to #enum_statement" do
+      @enumerable.should respond_to(:enum_statement)
+    end
+
+    it "should implement #statements" do
+      @enumerable.statements.should be_an_enumerator
+      @enumerable.statements.to_a.size.should == @statements.size
       @enumerable.statements.each { |statement| statement.should be_a_statement }
     end
 
-    it "should support #has_statement?" do
-      @enumerable.respond_to?(:has_statement?).should be_true
-
+    it "should implement #has_statement?" do
       @statements.each do |statement|
         @enumerable.has_statement?(statement).should be_true
       end
@@ -53,93 +71,120 @@ share_as :RDF_Enumerable do
       @enumerable.has_statement?(unknown_statement).should be_false
     end
 
-    it "should support #each_statement" do
-      @enumerable.respond_to?(:each_statement).should be_true
-
-      @enumerable.each_statement.should be_instance_of(RDF::Enumerator)
+    it "should implement #each_statement" do
+      @enumerable.each_statement.should be_an_enumerator
       @enumerable.each_statement { |statement| statement.should be_a_statement }
     end
 
-    it "should support #enum_statement" do
-      @enumerable.respond_to?(:enum_statement).should be_true
-
-      @enumerable.enum_statement.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_statement" do
+      @enumerable.enum_statement.should be_an_enumerator
+      @enumerable.enum_statement.to_a.should == @enumerable.each_statement.to_a
     end
   end
 
-  context "triples" do
-    it "should support #triples" do
-      @enumerable.respond_to?(:triples).should be_true
+  context "when enumerating triples" do
+    it "should respond to #triples" do
+      @enumerable.should respond_to(:triples)
+    end
 
-      @enumerable.triples.should be_instance_of(Array)
-      @enumerable.triples.size.should == @statements.size
+    it "should respond to #has_triple?" do
+      @enumerable.should respond_to(:has_triple?)
+    end
+
+    it "should respond to #each_triple" do
+      @enumerable.should respond_to(:each_triple)
+    end
+
+    it "should respond to #enum_triple" do
+      @enumerable.should respond_to(:enum_triple)
+    end
+
+    it "should implement #triples" do
+      @enumerable.triples.should be_an_enumerator
+      @enumerable.triples.to_a.size.should == @statements.size
       @enumerable.triples.each { |triple| triple.should be_a_triple }
     end
 
-    it "should support #has_triple?" do
-      @enumerable.respond_to?(:has_triple?).should be_true
-
+    it "should implement #has_triple?" do
       @statements.each do |statement|
         @enumerable.has_triple?(statement.to_triple).should be_true
       end
     end
 
-    it "should support #each_triple" do
-      @enumerable.respond_to?(:each_triple).should be_true
-
-      @enumerable.each_triple.should be_instance_of(RDF::Enumerator)
+    it "should implement #each_triple" do
+      @enumerable.each_triple.should be_an_enumerator
       @enumerable.each_triple { |*triple| triple.should be_a_triple }
     end
 
-    it "should support #enum_triple" do
-      @enumerable.respond_to?(:enum_triple).should be_true
-
-      @enumerable.enum_triple.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_triple" do
+      @enumerable.enum_triple.should be_an_enumerator
+      @enumerable.enum_triple.to_a.should == @enumerable.each_triple.to_a
     end
   end
 
-  context "quads" do
-    it "should support #quads" do
-      @enumerable.respond_to?(:quads).should be_true
+  context "when enumerating quads" do
+    it "should respond to #quads" do
+      @enumerable.should respond_to(:quads)
+    end
 
-      @enumerable.quads.should be_instance_of(Array)
-      @enumerable.quads.size.should == @statements.size
+    it "should respond to #has_quad?" do
+      @enumerable.should respond_to(:has_quad?)
+    end
+
+    it "should respond to #each_quad" do
+      @enumerable.should respond_to(:each_quad)
+    end
+
+    it "should respond to #enum_quad" do
+      @enumerable.should respond_to(:enum_quad)
+    end
+
+    it "should implement #quads" do
+      @enumerable.quads.should be_an_enumerator
+      @enumerable.quads.to_a.size.should == @statements.size
       @enumerable.quads.each { |quad| quad.should be_a_quad }
     end
 
-    it "should support #has_quad?" do
-      @enumerable.respond_to?(:has_quad?).should be_true
-
+    it "should implement #has_quad?" do
       @statements.each do |statement|
         @enumerable.has_quad?(statement.to_quad).should be_true
       end
     end
 
-    it "should support #each_quad" do
-      @enumerable.respond_to?(:each_quad).should be_true
-
-      @enumerable.each_quad.should be_instance_of(RDF::Enumerator)
+    it "should implement #each_quad" do
+      @enumerable.each_quad.should be_an_enumerator
       @enumerable.each_quad { |*quad| quad.should be_a_quad }
     end
 
-    it "should support #enum_quad" do
-      @enumerable.respond_to?(:enum_quad).should be_true
-
-      @enumerable.enum_quad.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_quad" do
+      @enumerable.enum_quad.should be_an_enumerator
+      @enumerable.enum_quad.to_a.should == @enumerable.each_quad.to_a
     end
   end
 
-  context "subjects" do
-    it "should support #subjects" do
-      @enumerable.respond_to?(:subjects).should be_true
+  context "when enumerating subjects" do
+    it "should respond to #subjects" do
+      @enumerable.should respond_to(:subjects)
+    end
 
-      @enumerable.subjects.should be_instance_of(Array)
+    it "should respond to #has_subject?" do
+      @enumerable.should respond_to(:has_subject?)
+    end
+
+    it "should respond to #each_subject" do
+      @enumerable.should respond_to(:each_subject)
+    end
+
+    it "should respond to #enum_subject" do
+      @enumerable.should respond_to(:enum_subject)
+    end
+
+    it "should implement #subjects" do
+      @enumerable.subjects.should be_an_enumerator
       @enumerable.subjects.each { |value| value.should be_a_resource }
     end
 
-    it "should support #has_subject?" do
-      @enumerable.respond_to?(:has_subject?).should be_true
-
+    it "should implement #has_subject?" do
       checked = []
       @statements.each do |statement|
         @enumerable.has_subject?(statement.subject).should be_true unless checked.include?(statement.subject)
@@ -149,10 +194,8 @@ share_as :RDF_Enumerable do
       @enumerable.has_predicate?(uri).should be_false
     end
 
-    it "should support #each_subject" do
-      @enumerable.respond_to?(:each_subject).should be_true
-
-      @enumerable.each_subject.should be_instance_of(RDF::Enumerator)
+    it "should implement #each_subject" do
+      @enumerable.each_subject.should be_an_enumerator
       subjects = @statements.map { |s| s.subject }.uniq
       @enumerable.each_subject.to_a.size.should == subjects.size
       @enumerable.each_subject do |value|
@@ -161,24 +204,35 @@ share_as :RDF_Enumerable do
       end
     end
 
-    it "should support #enum_subject" do
-      @enumerable.respond_to?(:enum_subject).should be_true
-
-      @enumerable.enum_subject.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_subject" do
+      @enumerable.enum_subject.should be_an_enumerator
+      @enumerable.enum_subject.to_a.should == @enumerable.each_subject.to_a
     end
   end
 
-  context "predicates" do
-    it "should support #predicates" do
-      @enumerable.respond_to?(:predicates).should be_true
+  context "when enumerating predicates" do
+    it "should respond to #predicates" do
+      @enumerable.should respond_to(:predicates)
+    end
 
-      @enumerable.predicates.should be_instance_of(Array)
+    it "should respond to #has_predicate?" do
+      @enumerable.should respond_to(:has_predicate?)
+    end
+
+    it "should respond to #each_predicate" do
+      @enumerable.should respond_to(:each_predicate)
+    end
+
+    it "should respond to #enum_predicate" do
+      @enumerable.should respond_to(:enum_predicate)
+    end
+
+    it "should implement #predicates" do
+      @enumerable.predicates.should be_an_enumerator
       @enumerable.predicates.each { |value| value.should be_a_uri }
     end
 
-    it "should support #has_predicate?" do
-      @enumerable.respond_to?(:has_predicate?).should be_true
-
+    it "should implement #has_predicate?" do
       checked = []
       @statements.each do |statement|
         @enumerable.has_predicate?(statement.predicate).should be_true unless checked.include?(statement.object)
@@ -188,36 +242,45 @@ share_as :RDF_Enumerable do
       @enumerable.has_predicate?(uri).should be_false
     end
 
-    it "should support #each_predicate" do
-      @enumerable.respond_to?(:each_predicate).should be_true
-
+    it "should implement #each_predicate" do
       predicates = @statements.map { |s| s.predicate }.uniq
+      @enumerable.each_predicate.should be_an_enumerator
       @enumerable.each_predicate.to_a.size.should == predicates.size
-      @enumerable.each_predicate.should be_instance_of(RDF::Enumerator)
-      @enumerable.each_predicate do |value| 
+      @enumerable.each_predicate do |value|
         value.should be_a_uri
         predicates.should include value
       end
     end
 
-    it "should support #enum_predicate" do
-      @enumerable.respond_to?(:enum_predicate).should be_true
-
-      @enumerable.enum_predicate.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_predicate" do
+      @enumerable.enum_predicate.should be_an_enumerator
+      @enumerable.enum_predicate.to_a.should == @enumerable.each_predicate.to_a
     end
   end
 
-  context "objects" do
-    it "should support #objects" do
-      @enumerable.respond_to?(:objects).should be_true
+  context "when enumerating objects" do
+    it "should respond to #objects" do
+      @enumerable.should respond_to(:objects)
+    end
 
-      @enumerable.objects.should be_instance_of(Array)
+    it "should respond to #has_object?" do
+      @enumerable.should respond_to(:has_object?)
+    end
+
+    it "should respond to #each_object" do
+      @enumerable.should respond_to(:each_object)
+    end
+
+    it "should respond to #enum_object" do
+      @enumerable.should respond_to(:enum_object)
+    end
+
+    it "should implement #objects" do
+      @enumerable.objects.should be_an_enumerator
       @enumerable.objects.each { |value| value.should be_a_value }
     end
 
-    it "should support #has_object?" do
-      @enumerable.respond_to?(:has_object?).should be_true
-
+    it "should implement #has_object?" do
       checked = []
       @statements.each do |statement|
         @enumerable.has_object?(statement.object).should be_true unless checked.include?(statement.object)
@@ -227,36 +290,45 @@ share_as :RDF_Enumerable do
       @enumerable.has_object?(uri).should be_false
     end
 
-    it "should support #each_object" do
-      @enumerable.respond_to?(:each_object).should be_true
-
+    it "should implement #each_object" do
       objects = @statements.map { |s| s.object }.uniq
+      @enumerable.each_object.should be_an_enumerator
       @enumerable.each_object.to_a.size.should == objects.size
-      @enumerable.each_object.should be_instance_of(RDF::Enumerator)
-      @enumerable.each_object do |value| 
+      @enumerable.each_object do |value|
         value.should be_a_value
         objects.should include value
       end
     end
 
-    it "should support #enum_object" do
-      @enumerable.respond_to?(:enum_object).should be_true
-
-      @enumerable.enum_object.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_object" do
+      @enumerable.enum_object.should be_an_enumerator
+      @enumerable.enum_object.to_a.should == @enumerable.each_object.to_a
     end
   end
 
-  context "contexts" do
-    it "should support #contexts" do
-      @enumerable.respond_to?(:contexts).should be_true
+  context "when enumerating contexts" do
+    it "should respond to #contexts" do
+      @enumerable.should respond_to(:contexts)
+    end
 
-      @enumerable.contexts.should be_instance_of(Array)
+    it "should respond to #has_context?" do
+      @enumerable.should respond_to(:has_context?)
+    end
+
+    it "should respond to #each_context" do
+      @enumerable.should respond_to(:each_context)
+    end
+
+    it "should respond to #enum_context" do
+      @enumerable.should respond_to(:enum_context)
+    end
+
+    it "should implement #contexts" do
+      @enumerable.contexts.should be_an_enumerator
       @enumerable.contexts.each { |value| value.should be_a_resource }
     end
 
-    it "should support #has_context?" do
-      @enumerable.respond_to?(:has_context?).should be_true
-
+    it "should implement #has_context?" do
       @statements.each do |statement|
         if statement.has_context?
           @enumerable.has_context?(statement.context).should be_true
@@ -266,29 +338,52 @@ share_as :RDF_Enumerable do
       @enumerable.has_context?(uri).should be_false
     end
 
-    it "should support #each_context" do
-      @enumerable.respond_to?(:each_context).should be_true
-
+    it "should implement #each_context" do
       contexts = @statements.map { |s| s.context }.uniq
       contexts.delete nil
+      @enumerable.each_context.should be_an_enumerator
       @enumerable.each_context.to_a.size.should == contexts.size
-      @enumerable.each_context.should be_instance_of(RDF::Enumerator)
-      @enumerable.each_context do |value| 
-        value.should be_a_resource 
+      @enumerable.each_context do |value|
+        value.should be_a_resource
         contexts.should include value
       end
     end
 
-    it "should support #enum_context" do
-      @enumerable.respond_to?(:enum_context).should be_true
-
-      @enumerable.enum_context.should be_instance_of(RDF::Enumerator)
+    it "should implement #enum_context" do
+      @enumerable.enum_context.should be_an_enumerator
+      @enumerable.enum_context.to_a.should == @enumerable.each_context.to_a
     end
   end
 
-  it "should support #to_hash" do
-    @enumerable.respond_to?(:to_hash).should be_true
+  context "when enumerating graphs" do
+    it "should respond to #each_graph" do
+      @enumerable.should respond_to(:enum_graph)
+    end
 
-    # TODO
+    it "should respond to #enum_graph" do
+      @enumerable.should respond_to(:enum_graph)
+    end
+
+    it "should implement #each_graph" do
+      @enumerable.each_graph.should be_an_enumerator
+      @enumerable.each_graph { |graph| graph.should be_a_graph }
+      # TODO: relying on #contexts, check that the returned values are correct.
+    end
+
+    it "should implement #enum_graph" do
+      @enumerable.enum_graph.should be_an_enumerator
+      @enumerable.enum_graph.to_a.should == @enumerable.each_graph.to_a
+    end
+  end
+
+  context "when converting" do
+    it "should respond to #to_hash" do
+      @enumerable.should respond_to(:to_hash)
+    end
+
+    it "should implement #to_hash" do
+      @enumerable.to_hash.should be_instance_of(Hash)
+      @enumerable.to_hash.keys.size.should == @enumerable.subjects.size
+    end
   end
 end
