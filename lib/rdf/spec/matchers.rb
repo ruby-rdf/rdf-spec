@@ -17,6 +17,20 @@ module RDF; module Spec
       end
     end
 
+    define :be_enumerable do
+      match do |enumerable|
+        enumerable.should be_a_kind_of(RDF::Enumerable)
+        true
+      end
+    end
+
+    define :be_an_enumerator do
+      match do |enumerator|
+        enumerator.should be_a_kind_of(RDF::Enumerator)
+        true
+      end
+    end
+
     define :be_a_statement do
       match do |statement|
         statement.should be_instance_of(RDF::Statement)
