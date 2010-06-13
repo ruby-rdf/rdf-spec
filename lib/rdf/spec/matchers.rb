@@ -17,6 +17,13 @@ module RDF; module Spec
       end
     end
 
+    define :be_countable do
+      match do |enumerable|
+        enumerable.should be_a_kind_of(RDF::Enumerable) # TODO
+        true
+      end
+    end
+
     define :be_enumerable do
       match do |enumerable|
         enumerable.should be_a_kind_of(RDF::Enumerable)
@@ -27,6 +34,20 @@ module RDF; module Spec
     define :be_an_enumerator do
       match do |enumerator|
         enumerator.should be_a_kind_of(RDF::Enumerator)
+        true
+      end
+    end
+
+    define :be_queryable do
+      match do |enumerable|
+        enumerable.should be_a_kind_of(RDF::Queryable)
+        true
+      end
+    end
+
+    define :be_mutable do
+      match do |enumerable|
+        enumerable.should be_a_kind_of(RDF::Mutable)
         true
       end
     end
