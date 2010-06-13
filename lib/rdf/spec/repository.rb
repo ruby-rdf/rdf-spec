@@ -15,12 +15,11 @@ share_as :RDF_Repository do
     require 'rdf/spec/mutable'
 
     before :each do
-      @subject    = RDF::URI.new("http://rubygems.org/gems/rdf")
-      @context    = RDF::URI.new("http://example.org/context")
+      @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
+      @context = RDF::URI.new('http://example.org/context')
     end
 
     it_should_behave_like RDF_Mutable
-
   end
 
   context "when enumerating statements" do
@@ -34,18 +33,18 @@ share_as :RDF_Repository do
     it_should_behave_like RDF_Enumerable
   end
 
-  context "when querying statements, " do
+  context "when querying statements" do
     require 'rdf/spec/queryable'
 
     before :each do
-      @subject    = RDF::URI.new("http://rubygems.org/gems/rdf")
+      @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
       @queryable = @repository
     end
 
     it_should_behave_like RDF_Queryable
   end
 
-  context "as a durable repository, " do
+  context "as a durable repository" do
     require 'rdf/spec/durable'
 
     before :each do

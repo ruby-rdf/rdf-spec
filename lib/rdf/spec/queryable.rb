@@ -5,7 +5,7 @@ share_as :RDF_Queryable do
   include RDF::Spec::Matchers
 
   before :each do
-    # RDF::Queryable cares about the contents of this file too much to let someone set it
+    # RDF::Queryable specs care about the contents of this file too much to let someone set it
     @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
     raise '+@subject+ must be defined in a before(:each) block' unless instance_variable_get('@subject')
@@ -21,25 +21,13 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#query
 
-  it "should support #query" do
-    @queryable.respond_to?(:query).should be_true
+  it "should respond to #query" do
+    @queryable.should respond_to(:query)
   end
 
-  context "#query" do
+  context "#query when called" do
     it "should require an argument" do
       lambda { @queryable.query }.should raise_error(ArgumentError)
-    end
-
-    it "should accept a triple argument" do
-      lambda { @queryable.query([nil, nil, nil]) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a hash argument" do
-      lambda { @queryable.query({}) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a statement argument" do
-      lambda { @queryable.query(RDF::Statement.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
     end
 
     it "should accept a pattern argument" do
@@ -47,11 +35,56 @@ share_as :RDF_Queryable do
       lambda { @queryable.query(RDF::Query::Pattern.new(:s, :p, :o)) }.should_not raise_error(ArgumentError)
     end
 
-    it "should reject other arguments" do
-      lambda { @queryable.query(nil) }.should raise_error(ArgumentError)
+    it "should accept a statement argument" do
+      lambda { @queryable.query(RDF::Statement.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
     end
 
-    it "should return RDF statements" do
+    it "should accept a triple argument" do
+      lambda { @queryable.query([nil, nil, nil]) }.should_not raise_error(ArgumentError)
+    end
+
+    it "should accept a quad argument" do
+      lambda { @queryable.query([nil, nil, nil, nil]) }.should_not raise_error(ArgumentError)
+    end
+
+    it "should accept a hash argument" do
+      lambda { @queryable.query({}) }.should_not raise_error(ArgumentError)
+    end
+
+    it "should not alter a given hash argument" do
+      query = {:subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
+      original_query = query.dup
+      @queryable.query(query)
+      query.should == original_query
+    end
+
+    it "should reject other kinds of arguments" do
+      lambda { @queryable.query(nil) }.should raise_error(ArgumentError)
+    end
+  end
+
+  context "#query when called with a block" do
+    it "should yield statements" do
+      @queryable.query([nil, nil, nil]) do |statement|
+        statement.should be_a_statement
+      end
+    end
+  end
+
+  context "#query when called without a block" do
+    it "should return an enumerator" do
+      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Enumerator)
+    end
+
+    it "should return an enumerable enumerator" do
+      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Enumerable)
+    end
+
+    it "should return a queryable enumerator" do
+      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Queryable)
+    end
+
+    it "should return statements" do
       @queryable.query([nil, nil, nil]).each do |statement|
         statement.should be_a_statement
       end
@@ -72,20 +105,41 @@ share_as :RDF_Queryable do
       @queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size
       @queryable.query(:object => RDF::DOAP.Project).size.should == 1
     end
+  end
 
-    it "should not alter a given hash argument" do
-      query = {:subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
-      original_query = query.dup
-      result = @queryable.query(query)
-      query.should == original_query
+  ##
+  # @see RDF::Queryable#query_pattern
+
+  it "should respond to #query_pattern" do
+    @queryable.should respond_to(:query_pattern)
+  end
+
+  context "#query_pattern when called" do
+    it "should require an argument" do
+      lambda { @queryable.send(:query_pattern) }.should raise_error(ArgumentError)
+    end
+
+    it "should call the given block" do
+      called = false
+      @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
+        called = true
+        break
+      end
+      called.should be_true
+    end
+
+    it "should yield statements" do
+      @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
+        statement.should be_a_statement
+      end
     end
   end
 
   ##
   # @see RDF::Queryable#first
 
-  it "should support #first" do
-    @queryable.respond_to?(:first).should be_true
+  it "should respond to #first" do
+    @queryable.should respond_to(:first)
   end
 
   context "#first" do
@@ -119,8 +173,8 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_subject
 
-  it "should support #first_subject" do
-    @queryable.respond_to?(:first_subject).should be_true
+  it "should respond to #first_subject" do
+    @queryable.should respond_to(:first_subject)
   end
 
   context "#first_subject" do
@@ -154,8 +208,8 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_predicate
 
-  it "should support #first_predicate" do
-    @queryable.respond_to?(:first_predicate).should be_true
+  it "should respond to #first_predicate" do
+    @queryable.should respond_to(:first_predicate)
   end
 
   context "#first_predicate" do
@@ -189,8 +243,8 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_object
 
-  it "should support #first_object" do
-    @queryable.respond_to?(:first_object).should be_true
+  it "should respond to #first_object" do
+    @queryable.should respond_to(:first_object)
   end
 
   context "#first_object" do
@@ -224,8 +278,8 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_literal
 
-  it "should support #first_literal" do
-    @queryable.respond_to?(:first_literal).should be_true
+  it "should respond to #first_literal" do
+    @queryable.should respond_to(:first_literal)
   end
 
   context "#first_literal" do
@@ -266,8 +320,8 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_value
 
-  it "should support #first_value" do
-    @queryable.respond_to?(:first_value).should be_true
+  it "should respond to #first_value" do
+    @queryable.should respond_to(:first_value)
   end
 
   context "#first_value" do
