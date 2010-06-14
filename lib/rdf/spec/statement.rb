@@ -101,29 +101,59 @@ share_as :RDF_Statement do
   end
 
   context "when used like an Array" do
-    it "should support #to_a" do
+    it "should respond to #to_a" do
       @stmt.should respond_to(:to_a)
+    end
+
+    it "should respond to #[]" do
+      @stmt.should respond_to(:[])
+    end
+
+    it "should respond to #[]=" do
+      @stmt.should respond_to(:[]=)
+    end
+
+    it "should support #to_a" do
       @stmt.to_a.should eql([@stmt.subject, @stmt.predicate, @stmt.object])
     end
 
-    it "should support #[]" do
-      @stmt.should respond_to(:[])
+    it "should support #[] for the subject" do
       @stmt[0].should equal(@stmt.subject)
+    end
+
+    it "should support #[] for the predicate" do
       @stmt[1].should equal(@stmt.predicate)
+    end
+
+    it "should support #[] for the object" do
       @stmt[2].should equal(@stmt.object)
+    end
+
+    it "should support #[] for the context" do
       @stmt[3].should equal(@stmt.context)
     end
 
-    it "should support #[]=" do
-      @stmt.should respond_to(:[]=)
+    it "should support #[]= for the subject" do
       stmt = @stmt.dup
-      stmt[0] = s = RDF::Node.new
+      stmt[0] = s = RDF::URI("http://example.org/subject")
       stmt.subject.should == s
-      stmt[1] = p = RDF::URI.new("http://example.org/predicate")
+    end
+
+    it "should support #[]= for the predicate" do
+      stmt = @stmt.dup
+      stmt[1] = p = RDF::URI("http://example.org/predicate")
       stmt.predicate.should == p
-      stmt[2] = o = RDF::Node.new
+    end
+
+    it "should support #[]= for the object" do
+      stmt = @stmt.dup
+      stmt[2] = o = RDF::URI("http://example.org/object")
       stmt.object.should == o
-      stmt[3] = c = RDF::URI.new("http://example.org/context")
+    end
+
+    it "should support #[]= for the context" do
+      stmt = @stmt.dup
+      stmt[3] = c = RDF::URI("http://example.org/context")
       stmt.context.should == c
     end
   end
