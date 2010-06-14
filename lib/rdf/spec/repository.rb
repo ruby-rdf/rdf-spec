@@ -15,6 +15,7 @@ share_as :RDF_Repository do
     require 'rdf/spec/mutable'
 
     before :each do
+      @mutable = @repository
       @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
       @context = RDF::URI.new('http://example.org/context')
     end
@@ -26,8 +27,8 @@ share_as :RDF_Repository do
     require 'rdf/spec/enumerable'
 
     before :each do
-      @repository.insert(*@statements)
       @enumerable = @repository
+      @enumerable.insert(*@statements)
     end
 
     it_should_behave_like RDF_Enumerable
@@ -37,8 +38,8 @@ share_as :RDF_Repository do
     require 'rdf/spec/queryable'
 
     before :each do
-      @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
       @queryable = @repository
+      @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
     end
 
     it_should_behave_like RDF_Queryable

@@ -6,8 +6,19 @@ share_as :RDF_Enumerable do
 
   before :each do
     raise '+@enumerable+ must be defined in a before(:each) block' unless instance_variable_get('@enumerable')
-    raise '+@statements+ must be defined in a before(:each) block' unless instance_variable_get('@statements')
-    # Assume contexts are supported unless declared otherwise
+
+    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
+    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+
+    if @enumerable.empty?
+      if @enumerable.respond_to?(:<<)
+        @statements.each { |statement| @enumerable << statement }
+      else
+        raise "@enumerable must respond to #<< or be pre-populated with the statements in #{@filename} in a before(:each) block"
+      end
+    end
+
+    # Assume contexts are supported unless declared otherwise:
     @supports_context = @enumerable.respond_to?(:supports?) ? @enumerable.supports?(:context) : true
   end
 
