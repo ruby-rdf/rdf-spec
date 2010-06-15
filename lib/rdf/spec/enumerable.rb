@@ -89,6 +89,9 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_statement" do
       @enumerable.enum_statement.should be_an_enumerator
+      @enumerable.enum_statement.should be_countable
+      @enumerable.enum_statement.should be_enumerable
+      @enumerable.enum_statement.should be_queryable
       @enumerable.enum_statement.to_a.should == @enumerable.each_statement.to_a
     end
   end
@@ -129,6 +132,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_triple" do
       @enumerable.enum_triple.should be_an_enumerator
+      @enumerable.enum_triple.should be_countable
       @enumerable.enum_triple.to_a.should == @enumerable.each_triple.to_a
     end
   end
@@ -169,6 +173,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_quad" do
       @enumerable.enum_quad.should be_an_enumerator
+      @enumerable.enum_quad.should be_countable
       @enumerable.enum_quad.to_a.should == @enumerable.each_quad.to_a
     end
   end
@@ -218,6 +223,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_subject" do
       @enumerable.enum_subject.should be_an_enumerator
+      @enumerable.enum_subject.should be_countable
       @enumerable.enum_subject.to_a.should == @enumerable.each_subject.to_a
     end
   end
@@ -267,6 +273,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_predicate" do
       @enumerable.enum_predicate.should be_an_enumerator
+      @enumerable.enum_predicate.should be_countable
       @enumerable.enum_predicate.to_a.should == @enumerable.each_predicate.to_a
     end
   end
@@ -316,6 +323,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_object" do
       @enumerable.enum_object.should be_an_enumerator
+      @enumerable.enum_object.should be_countable
       @enumerable.enum_object.to_a.should == @enumerable.each_object.to_a
     end
   end
@@ -366,6 +374,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_context" do
       @enumerable.enum_context.should be_an_enumerator
+      @enumerable.enum_context.should be_countable
       @enumerable.enum_context.to_a.should == @enumerable.each_context.to_a
     end
   end
@@ -387,6 +396,7 @@ share_as :RDF_Enumerable do
 
     it "should implement #enum_graph" do
       @enumerable.enum_graph.should be_an_enumerator
+      @enumerable.enum_graph.should be_countable
       @enumerable.enum_graph.to_a.should == @enumerable.each_graph.to_a
     end
   end
