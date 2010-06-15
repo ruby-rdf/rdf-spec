@@ -18,8 +18,8 @@ module RDF; module Spec
     end
 
     define :be_countable do
-      match do |enumerable|
-        enumerable.should be_a_kind_of(RDF::Enumerable) # TODO
+      match do |countable|
+        countable.should be_a_kind_of(RDF::Countable)
         true
       end
     end

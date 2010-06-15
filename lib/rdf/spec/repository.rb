@@ -11,16 +11,15 @@ share_as :RDF_Repository do
     @enumerable = @repository
   end
 
-  context "when updating" do
-    require 'rdf/spec/mutable'
+  context "when counting statements" do
+    require 'rdf/spec/countable'
 
     before :each do
-      @mutable = @repository
-      @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
-      @context = RDF::URI.new('http://example.org/context')
+      @countable = @repository
+      @countable.insert(*@statements)
     end
 
-    it_should_behave_like RDF_Mutable
+    it_should_behave_like RDF_Countable
   end
 
   context "when enumerating statements" do
@@ -43,6 +42,18 @@ share_as :RDF_Repository do
     end
 
     it_should_behave_like RDF_Queryable
+  end
+
+  context "when updating" do
+    require 'rdf/spec/mutable'
+
+    before :each do
+      @mutable = @repository
+      @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
+      @context = RDF::URI.new('http://example.org/context')
+    end
+
+    it_should_behave_like RDF_Mutable
   end
 
   context "as a durable repository" do
