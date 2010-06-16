@@ -97,7 +97,7 @@ share_as :RDF_Queryable do
       @queryable.query([nil, nil, nil]).size.should == File.readlines(@filename).size
       @queryable.query([@subject, nil, nil]).size.should == File.readlines(@filename).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
       @queryable.query([@subject, RDF::DOAP.name, nil]).size.should == 1
-      @queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size
+      #@queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size # FIXME: assumes too much about the doap.nt data
       @queryable.query([nil, nil, RDF::DOAP.Project]).size.should == 1
     end
 
@@ -105,7 +105,7 @@ share_as :RDF_Queryable do
       @queryable.query({}).size.should == File.readlines(@filename).size
       @queryable.query(:subject => @subject) .size.should == File.readlines(@filename).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
       @queryable.query(:subject => @subject, :predicate => RDF::DOAP.name).size.should == 1
-      @queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size
+      #@queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size # FIXME: assumes too much about the doap.nt data
       @queryable.query(:object => RDF::DOAP.Project).size.should == 1
     end
   end
