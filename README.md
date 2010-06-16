@@ -15,14 +15,14 @@ Documentation
 Dependencies
 ------------
 
-* [RDF.rb](http://gemcutter.org/gems/rdf) (>= 0.1.9)
+* [RDF.rb](http://gemcutter.org/gems/rdf) (>= 0.2.0)
 * [RSpec](http://gemcutter.org/gems/rspec) (>= 1.3.0)
 
 Installation
 ------------
 
-The recommended installation method is via RubyGems. To install the latest
-official release from Gemcutter, do:
+The recommended installation method is via [RubyGems](http://rubygems.org/).
+To install the latest official release of `RDF::Spec`, do:
 
     % [sudo] gem install rdf-spec
 
