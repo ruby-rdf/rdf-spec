@@ -38,11 +38,16 @@ as follows:
 
     % wget http://github.com/bendiken/rdf-spec/tarball/master
 
-Author
-------
+Authors
+-------
 
 * [Arto Bendiken](mailto:arto.bendiken@gmail.com) - <http://ar.to/>
 * [Ben Lavender](mailto:blavender@gmail.com) - <http://bhuga.net/>
+
+Contributors
+------------
+
+* [John Fieber](mailto:jrf@ursamaris.org) - <http://github.com/jfieber>
 
 License
 -------
