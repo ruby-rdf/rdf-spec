@@ -55,12 +55,12 @@ share_as :RDF_Mutable do
     it "should load statements" do
       @mutable.load @filename
       @mutable.size.should ==  File.readlines(@filename).size
-      @mutable.should have_subject @subject
+      @mutable.should have_subject(@subject)
     end
 
     it "should load statements with a context override" do
       @mutable.load @filename, :context => @context
-      @mutable.should have_context @context
+      @mutable.should have_context(@context)
       @mutable.query(:context => @context).size.should == @mutable.size
     end
   end

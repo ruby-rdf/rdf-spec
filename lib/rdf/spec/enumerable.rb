@@ -217,7 +217,7 @@ share_as :RDF_Enumerable do
       @enumerable.each_subject.to_a.size.should == subjects.size
       @enumerable.each_subject do |value|
         value.should be_a_value
-        subjects.should include value
+        subjects.should include(value)
       end
     end
 
@@ -267,7 +267,7 @@ share_as :RDF_Enumerable do
       @enumerable.each_predicate.to_a.size.should == predicates.size
       @enumerable.each_predicate do |value|
         value.should be_a_uri
-        predicates.should include value
+        predicates.should include(value)
       end
     end
 
@@ -317,7 +317,7 @@ share_as :RDF_Enumerable do
       @enumerable.each_object.to_a.size.should == objects.size
       @enumerable.each_object do |value|
         value.should be_a_value
-        objects.should include value
+        objects.should include(value)
       end
     end
 
@@ -368,7 +368,7 @@ share_as :RDF_Enumerable do
       @enumerable.each_context.to_a.size.should == contexts.size
       @enumerable.each_context do |value|
         value.should be_a_resource
-        contexts.should include value
+        contexts.should include(value)
       end
     end
 

@@ -191,7 +191,7 @@ share_as :RDF_Statement do
     end
 
     it "should not be eql? with differing contexts" do
-      @stmt.should_not be_eql @other_stmt
+      @stmt.should_not be_eql(@other_stmt)
     end
 
     it "should match (===) a statement with a missing component to one with that component" do
@@ -204,9 +204,8 @@ share_as :RDF_Statement do
 
     it "should only equals? with object equality" do
       @same_stmt = RDF::Statement.new @s, @p, @o
-      @stmt.should_not equal @same_stmt
-      @stmt.should equal @stmt
+      @stmt.should_not equal(@same_stmt)
+      @stmt.should equal(@stmt)
     end
-
   end
 end
