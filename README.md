@@ -47,6 +47,7 @@ Authors
 Contributors
 ------------
 
+* [Gregg Kellogg](mailto:gregg@kellogg-assoc.com) - <http://kellogg-assoc.com/>
 * [John Fieber](mailto:jrf@ursamaris.org) - <http://github.com/jfieber>
 
 License
