@@ -76,15 +76,15 @@ share_as :RDF_Queryable do
 
   context "#query when called without a block" do
     it "should return an enumerator" do
-      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Enumerator)
+      @queryable.query([nil, nil, nil]).should be_an_enumerator
     end
 
     it "should return an enumerable enumerator" do
-      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Enumerable)
+      @queryable.query([nil, nil, nil]).should be_enumerable
     end
 
     it "should return a queryable enumerator" do
-      @queryable.query([nil, nil, nil]).should be_a_kind_of(RDF::Queryable)
+      @queryable.query([nil, nil, nil]).should be_queryable
     end
 
     it "should return statements" do
