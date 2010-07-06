@@ -8,7 +8,7 @@ share_as :RDF_Enumerable do
     raise '+@enumerable+ must be defined in a before(:each) block' unless instance_variable_get('@enumerable')
 
     @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+    @statements ||= RDF::NTriples::Reader.new(File.open(@filename)).to_a
 
     if @enumerable.empty?
       if @enumerable.respond_to?(:<<)
