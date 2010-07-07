@@ -2,7 +2,6 @@ require 'rdf'
 require 'rdf/spec'
 
 share_as :RDF_Graph do
-
   before :each do
     raise '+@new+ must be defined in a before(:each) block' unless instance_variable_get('@new')
   end
@@ -52,5 +51,4 @@ share_as :RDF_Graph do
       graph.should_not be_anonymous
     end
   end
-
 end

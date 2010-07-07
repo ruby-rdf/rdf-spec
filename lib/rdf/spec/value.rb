@@ -2,7 +2,6 @@ require 'rdf'
 require 'rdf/spec'
 
 share_as :RDF_Value do
-
   before :each do
     raise '+@value+ must be defined in a before(:each) block' unless instance_variable_get('@value')
     raise '+@resource+ must be defined in a before(:each) block' unless instance_variable_get('@resource')
