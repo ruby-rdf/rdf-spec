@@ -50,11 +50,28 @@ Contributors
 * [Gregg Kellogg](mailto:gregg@kellogg-assoc.com) - <http://kellogg-assoc.com/>
 * [John Fieber](mailto:jrf@ursamaris.org) - <http://github.com/jfieber>
 
+Contributing
+------------
+* Do your best to adhere to the existing coding conventions and idioms.
+* Don't use hard tabs, and don't leave trailing whitespace on any line.
+* Do refer to the [RubySpec Style Guide][RubySpec] for best practices.
+* Don't touch the `.gemspec` or `VERSION` files. If you need to change them,
+  do so on your private branch only.
+* Do feel free to add yourself to the `CONTRIBUTORS` file and the
+  corresponding list in the the `README`. Alphabetical order applies.
+* Don't touch the `AUTHORS` file. If your contributions are significant
+  enough, be assured we will eventually add you in there.
+* Do note that in order for us to merge any non-trivial changes (as a rule
+  of thumb, additions larger than about 15 lines of code), we need an
+  explicit [public domain dedication][PDD] on record from you.
+
 License
 -------
 
 `RDF::Spec` is free and unencumbered public domain software. For more
 information, see <http://unlicense.org/> or the accompanying UNLICENSE file.
 
-[RDF.rb]: http://rdf.rubyforge.org/
-[RSpec]:  http://rspec.info/
+[RDF.rb]:    http://rdf.rubyforge.org/
+[RSpec]:     http://rspec.info/
+[RubySpec]:  http://rubyspec.org/wiki/rubyspec/Style_Guide
+[PDD]:       http://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html
