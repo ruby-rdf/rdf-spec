@@ -6,3 +6,8 @@ begin
 rescue LoadError => e
 end
 require 'rdf/spec'
+
+desc "Build the rdf-spec-#{File.read('VERSION').chomp}.gem file"
+task :build do
+  sh "gem build .gemspec"
+end
