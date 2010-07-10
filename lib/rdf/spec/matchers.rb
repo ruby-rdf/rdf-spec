@@ -113,6 +113,13 @@ module RDF; module Spec
       end
     end
 
+    define :be_a_list do
+      match do |value|
+        value.should be_an(RDF::List)
+        true
+      end
+    end
+
     define :be_a_vocabulary do |base_uri|
       match do |vocabulary|
         vocabulary.should be_a_kind_of(Module)
