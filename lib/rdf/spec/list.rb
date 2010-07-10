@@ -1,5 +1,5 @@
-require 'rdf'
 require 'rdf/spec'
+require 'spec'
 
 share_as :RDF_List do
   before :all do
@@ -37,6 +37,63 @@ share_as :RDF_List do
       RDF::List[1, 2, 3].should be_an(RDF::List)
       RDF::List[1, 2, 3].should_not be_empty
     end
+
+    it "accepts list arguments" do
+      lambda { RDF::List[RDF::List[]] }.should_not raise_error
+    end
+
+    it "accepts array arguments" do
+      lambda { RDF::List[[]] }.should_not raise_error
+      RDF::List[[]].should == RDF::List[RDF::List[]]
+    end
+
+    it "accepts blank node arguments" do
+      lambda { RDF::List[RDF::Node.new] }.should_not raise_error
+    end
+
+    it "accepts URI arguments" do
+      lambda { RDF::List[RDF.nil] }.should_not raise_error
+    end
+
+    it "accepts nil arguments" do
+      lambda { RDF::List[nil] }.should_not raise_error
+    end
+
+    it "accepts literal arguments" do
+      lambda { RDF::List[RDF::Literal.new("Hello, world!", :language => :en)] }.should_not raise_error
+    end
+
+    it "accepts boolean arguments" do
+      lambda { RDF::List[true, false] }.should_not raise_error
+    end
+
+    it "accepts string arguments" do
+      lambda { RDF::List["foo", "bar"] }.should_not raise_error
+    end
+
+    it "accepts integer arguments" do
+      lambda { RDF::List[1, 2, 3] }.should_not raise_error
+    end
+
+    it "accepts float arguments" do
+      lambda { RDF::List[3.1415] }.should_not raise_error
+    end
+
+    it "accepts decimal arguments" do
+      lambda { RDF::List[BigDecimal("3.1415")] }.should_not raise_error
+    end
+
+    it "accepts time arguments" do
+      lambda { RDF::List[Time.now] }.should_not raise_error
+    end
+
+    it "accepts date arguments" do
+      lambda { RDF::List[Date.new(2010)] }.should_not raise_error
+    end
+
+    it "accepts datetime arguments" do
+      lambda { RDF::List[DateTime.new(2010)] }.should_not raise_error
+    end
   end
 
   describe RDF::List, "#subject" do
@@ -69,8 +126,9 @@ share_as :RDF_List do
     end
 
     it "returns the set intersection of self and the given argument" do
-      list = RDF::List[1, 1, 3, 5] & RDF::List[1, 2, 3]
-      list.should == RDF::List[1, 3]
+      (RDF::List[1, 2] & RDF::List[1, 2]).should == RDF::List[1, 2]
+      (RDF::List[1, 2] & RDF::List[2, 3]).should == RDF::List[2]
+      (RDF::List[1, 2] & RDF::List[3, 4]).should == RDF::List[]
     end
   end
 
@@ -84,8 +142,9 @@ share_as :RDF_List do
     end
 
     it "returns the set union of self and the given argument" do
-      list = RDF::List[1, 2, 3] | RDF::List[3, 4, 5]
-      list.should == RDF::List[1, 2, 3, 4, 5]
+      (RDF::List[1, 2] | RDF::List[1, 2]).should == RDF::List[1, 2]
+      (RDF::List[1, 2] | RDF::List[2, 3]).should == RDF::List[1, 2, 3]
+      (RDF::List[1, 2] | RDF::List[3, 4]).should == RDF::List[1, 2, 3, 4]
     end
   end
 
@@ -97,6 +156,10 @@ share_as :RDF_List do
     it "rejects fewer arguments" do
       lambda { @nil.__send__(:+) }.should raise_error(ArgumentError)
     end
+
+    it "returns the concatenation of self and the given argument" do
+      (RDF::List[1, 2] + RDF::List[3, 4]).should == RDF::List[1, 2, 3, 4]
+    end
   end
 
   describe RDF::List, "#-" do
@@ -107,6 +170,10 @@ share_as :RDF_List do
     it "rejects fewer arguments" do
       lambda { @nil.__send__(:-) }.should raise_error(ArgumentError)
     end
+
+    it "returns the difference between self and the given argument" do
+      (RDF::List[1, 2, 2, 3] - RDF::List[2]).should == RDF::List[1, 3]
+    end
   end
 
   describe RDF::List, "#*" do
@@ -116,6 +183,18 @@ share_as :RDF_List do
 
     it "rejects fewer arguments" do
       lambda { @nil.__send__(:*) }.should raise_error(ArgumentError)
+    end
+  end
+
+  describe RDF::List, "#* with an integer argument" do
+    it "returns a repetition of self" do
+      (RDF::List[1, 2, 3] * 2).should == RDF::List[1, 2, 3, 1, 2, 3]
+    end
+  end
+
+  describe RDF::List, "#* with a string argument" do
+    it "returns the string concatenation of all elements" do
+      (RDF::List[1, 2, 3] * ",").should == "1,2,3"
     end
   end
 
@@ -139,21 +218,7 @@ share_as :RDF_List do
   end
 
   describe RDF::List, "#[]=" do
-    it "accepts two arguments" do
-      lambda { @ten[0] = -1 }.should_not raise_error(ArgumentError)
-    end
-
-    it "rejects fewer arguments" do
-      lambda { @ten.__send__(:[]=) }.should raise_error(ArgumentError)
-      lambda { @ten.__send__(:[]=, 0) }.should raise_error(ArgumentError)
-    end
-
-    it "replaces the value for valid indexes"
-
-    it "returns the new value" do
-      (@ten[0] = -1).should_not be_nil
-      (@ten[0] = -1).should == -1
-    end
+    # TODO
   end
 
   describe RDF::List, "#<<" do
@@ -180,34 +245,64 @@ share_as :RDF_List do
     end
   end
 
-  #describe RDF::List, "#shift" do
-  #  it "accepts one argument" do
-  #    # TODO
-  #  end
-  #end
+  describe RDF::List, "#shift" do
+    # TODO
+  end
 
-  #describe RDF::List, "#unshift" do
-  #  it "accepts one argument" do
-  #    # TODO
-  #  end
-  #end
+  describe RDF::List, "#unshift" do
+    # TODO
+  end
 
-  #describe RDF::List, "#clear" do
-  #  it "requires no arguments" do
-  #    # TODO
-  #  end
-  #end
+  describe RDF::List, "#clear" do
+    # TODO
+  end
 
   describe RDF::List, "#eql?" do
+    it "requires an argument" do
+      lambda { @nil.send(:eql?) }.should raise_error(ArgumentError)
+    end
+
+    it "returns true when given the same list" do
+      @ten.should eql(@ten)
+    end
+
+    # TODO
   end
 
   describe RDF::List, "#<=>" do
+    it "requires an argument" do
+      lambda { @nil.send(:<=>) }.should raise_error(ArgumentError)
+    end
+
+    it "returns 0 when given the same list" do
+      @ten.should == @ten
+    end
+
+    # TODO
   end
 
   describe RDF::List, "#==" do
+    it "requires an argument" do
+      lambda { @nil.send(:==) }.should raise_error(ArgumentError)
+    end
+
+    it "returns true when given the same list" do
+      @ten.should == @ten
+    end
+
+    # TODO
   end
 
   describe RDF::List, "#===" do
+    it "requires an argument" do
+      lambda { @nil.send(:===) }.should raise_error(ArgumentError)
+    end
+
+    it "returns true when given the same list" do
+      @ten.should == @ten
+    end
+
+    # TODO
   end
 
   describe RDF::List, "#empty?" do
@@ -248,6 +343,32 @@ share_as :RDF_List do
   describe RDF::List, "#index" do
     it "accepts one argument" do
       lambda { @ten.index(nil) }.should_not raise_error(ArgumentError)
+    end
+  end
+
+  describe RDF::List, "#slice using an element index" do
+    it "accepts one argument" do
+      lambda { @ten.slice(0) }.should_not raise_error(ArgumentError)
+    end
+
+    it "returns a value" do
+      @ten.slice(0).should be_a_value
+    end
+  end
+
+  describe RDF::List, "#slice using a start index and a length" do
+    it "accepts two arguments" do
+      lambda { @ten.slice(0, 9) }.should_not raise_error(ArgumentError)
+    end
+
+    it "returns a value" do
+      @ten.slice(0).should be_a_value
+    end
+  end
+
+  describe RDF::List, "#slice using a range" do
+    it "accepts one argument" do
+      lambda { @ten.slice(0..9) }.should_not raise_error(ArgumentError)
     end
   end
 
@@ -292,6 +413,14 @@ share_as :RDF_List do
   describe RDF::List, "#at" do
     it "accepts one argument" do
       lambda { @ten.at(0) }.should_not raise_error(ArgumentError)
+    end
+  end
+
+  describe RDF::List, "#nth" do
+    it "aliases #at" do
+      (1..10).each do |n|
+        @ten.nth(n).should == @ten.at(n)
+      end
     end
   end
 
@@ -488,30 +617,6 @@ share_as :RDF_List do
     it "returns a list" do
       @ten.sort_by(&:to_i).should be_a_list
     end
-  end
-
-  describe RDF::List, "#zip without a block" do
-    it "requires no arguments" do
-      lambda { @ten.zip }.should_not raise_error(ArgumentError)
-    end
-
-    it "returns a list" do
-      @ten.zip.should be_a_list
-    end
-
-    # TODO
-  end
-
-  describe RDF::List, "#zip with a block" do
-    it "requires no arguments" do
-      lambda { @ten.zip { |list| } }.should_not raise_error(ArgumentError)
-    end
-
-    it "returns nil" do
-      @ten.zip { |list| }.should be_nil
-    end
-
-    # TODO
   end
 
   describe RDF::List, "#uniq" do
