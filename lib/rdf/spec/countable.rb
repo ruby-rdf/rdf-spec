@@ -10,10 +10,12 @@ share_as :RDF_Countable do
     @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
     @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
 
-    if (@countable.empty? rescue false) && @countable.respond_to?(:<<)
-      @statements.each { |statement| @countable << statement }
-    else
-      raise "+@countable+ must respond to #<< or be pre-populated with the statements in #{@filename} in a before(:each) block"
+    if @countable.empty?
+      if @countable.respond_to?(:<<)
+        @statements.each { |statement| @countable << statement }
+      else
+        raise "+@countable+ must respond to #<< or be pre-populated with the statements in #{@filename} in a before(:each) block"
+      end
     end
   end
 
