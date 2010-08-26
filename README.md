@@ -15,7 +15,7 @@ Documentation
 Dependencies
 ------------
 
-* [RDF.rb](http://gemcutter.org/gems/rdf) (>= 0.2.2)
+* [RDF.rb](http://gemcutter.org/gems/rdf) (>= 0.2.3)
 * [RSpec](http://gemcutter.org/gems/rspec) (>= 1.3.0)
 
 Installation
