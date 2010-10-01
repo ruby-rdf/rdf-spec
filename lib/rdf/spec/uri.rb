@@ -117,4 +117,22 @@ share_as :RDF_URI do
       lambda { RDF::URI.new('http://example.org') / RDF::URI.new('http://example.com') }.should raise_error ArgumentError
     end
   end
+
+  context "using concatenation (#+)" do
+    {
+      %w(http://foo/ a) => "http://foo/a",
+      %w(http://foo/ /a) => "http://foo//a",
+      %w(http://foo/ #a) => "http://foo/#a",
+
+      %w(urn:isbn :0451450523) => "urn:isbn:0451450523",
+      %w(urn:isbn 0451450523) => "urn:isbn0451450523",
+
+      %w(http://example.org/test test) => "http://example.org/testtest",
+    }.each_pair do |input, result|
+      it "should create <#{result}> from <#{input[0]}> and '#{input[1]}'" do
+        (RDF::URI.new(input[0]) + input[1]).to_s.should == result
+        (RDF::URI.new(input[0]) + RDF::URI.new(input[1])).to_s.should == result
+      end
+    end
+  end
 end
