@@ -71,4 +71,50 @@ share_as :RDF_URI do
   it "should not be #anonymous?" do
     @new.call('http://example.org').should_not be_anonymous
   end
+
+  context "using the smart separator (/)" do
+    {
+      # #!! means that I'm not sure I like the semantics, but they are cases for
+      # arguably invalid input, probably without 'correct' answers.
+
+      %w(http://foo a) => "http://foo/a",
+      %w(http://foo /a) => "http://foo/a",
+      %w(http://foo #a) => "http://foo#a",
+
+      %w(http://foo/ a) => "http://foo/a",
+      %w(http://foo/ /a) => "http://foo/a",
+      %w(http://foo/ #a) => "http://foo#a", #!!
+
+      %w(http://foo# a) => "http://foo#a",
+      %w(http://foo# /a) => "http://foo/a", #!!
+      %w(http://foo# #a) => "http://foo#a",
+
+      %w(http://foo/bar a) => "http://foo/bar/a",
+      %w(http://foo/bar /a) => "http://foo/bar/a",
+      %w(http://foo/bar #a) => "http://foo/bar#a",
+
+      %w(http://foo/bar/ a) => "http://foo/bar/a",
+      %w(http://foo/bar/ /a) => "http://foo/bar/a",
+      %w(http://foo/bar/ #a) => "http://foo/bar#a", #!!
+
+      %w(http://foo/bar# a) => "http://foo/bar#a",
+      %w(http://foo/bar# /a) => "http://foo/bar/a", #!!
+      %w(http://foo/bar# #a) => "http://foo/bar#a",
+
+      %w(urn:isbn: 0451450523) => "urn:isbn:0451450523",
+      %w(urn:isbn: :0451450523) => "urn:isbn:0451450523",
+
+      %w(urn:isbn 0451450523) => "urn:isbn:0451450523",
+      %w(urn:isbn :0451450523) => "urn:isbn:0451450523",
+    }.each_pair do |input, result|
+      it "should create <#{result}> from <#{input[0]}> and '#{input[1]}'" do
+        (RDF::URI.new(input[0]) / input[1]).to_s.should == result
+        (RDF::URI.new(input[0]) / RDF::URI.new(input[1])).to_s.should == result
+      end
+    end
+
+    it "should raise an ArgumentError when receiving an absolute URI as a fragment" do
+      lambda { RDF::URI.new('http://example.org') / RDF::URI.new('http://example.com') }.should raise_error ArgumentError
+    end
+  end
 end
