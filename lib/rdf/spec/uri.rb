@@ -135,4 +135,65 @@ share_as :RDF_URI do
       end
     end
   end
+
+  context "using normalized merging (#join)" do
+
+    before :all do
+      @writer = RDF::Writer.for(:ntriples)
+    end
+
+    before :each do
+      @subject = RDF::URI.new("http://example.org")
+    end
+
+    it "appends fragment to uri" do
+      @subject.join("foo").to_s.should == "http://example.org/foo"
+    end
+
+    it "appends another fragment" do
+      @subject.join("foo#bar").to_s.should == "http://example.org/foo#bar"
+    end
+
+    it "appends another URI" do
+      @subject.join(RDF::URI.new("foo#bar")).to_s.should == "http://example.org/foo#bar"
+    end
+
+    {
+      %w(http://foo ) =>  "<http://foo>",
+      %w(http://foo a) => "<http://foo/a>",
+      %w(http://foo /a) => "<http://foo/a>",
+      %w(http://foo #a) => "<http://foo#a>",
+
+      %w(http://foo/ ) =>  "<http://foo/>",
+      %w(http://foo/ a) => "<http://foo/a>",
+      %w(http://foo/ /a) => "<http://foo/a>",
+      %w(http://foo/ #a) => "<http://foo/#a>",
+
+      %w(http://foo# ) =>  "<http://foo#>",
+      %w(http://foo# a) => "<http://foo/a>",
+      %w(http://foo# /a) => "<http://foo/a>",
+      %w(http://foo# #a) => "<http://foo#a>",
+
+      %w(http://foo/bar ) =>  "<http://foo/bar>",
+      %w(http://foo/bar a) => "<http://foo/a>",
+      %w(http://foo/bar /a) => "<http://foo/a>",
+      %w(http://foo/bar #a) => "<http://foo/bar#a>",
+
+      %w(http://foo/bar/ ) =>  "<http://foo/bar/>",
+      %w(http://foo/bar/ a) => "<http://foo/bar/a>",
+      %w(http://foo/bar/ /a) => "<http://foo/a>",
+      %w(http://foo/bar/ #a) => "<http://foo/bar/#a>",
+
+      %w(http://foo/bar# ) =>  "<http://foo/bar#>",
+      %w(http://foo/bar# a) => "<http://foo/a>",
+      %w(http://foo/bar# /a) => "<http://foo/a>",
+      %w(http://foo/bar# #a) => "<http://foo/bar#a>",
+
+    }.each_pair do |input, result|
+      it "creates #{result} from <#{input[0]}> and '#{input[1]}'" do
+        @writer.serialize(RDF::URI.new(input[0]).join(input[1].to_s)).should == result
+      end
+    end
+  end
+
 end
