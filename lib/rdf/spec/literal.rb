@@ -299,14 +299,20 @@ share_as :RDF_Literal do
         literal.should == @new.call(*args)
         literal.should eql(@new.call(*args))
       end
+    end
 
+    literals(:all_plain_no_lang).each do |args|
+      it "returns true for value of #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should == literal.value
+        literal.should eql(@new.call(*args))
+      end
+    end
+
+    literals(:all_plain_lang).each do |args|
       it "returns false for value of #{args.inspect}" do
         literal = @new.call(*args)
-        if literal.language
-          literal.should_not == literal.value
-        else
-          pending {literal.should_not == literal.value} # FIXME
-        end
+        literal.should_not == literal.value
         literal.should_not eql(literal.value)
       end
     end
