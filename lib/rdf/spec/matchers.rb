@@ -1,4 +1,4 @@
-require 'spec'
+require 'rspec'
 
 module RDF; module Spec
   ##

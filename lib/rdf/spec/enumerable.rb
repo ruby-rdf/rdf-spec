@@ -1,5 +1,5 @@
 require 'rdf/spec'
-require 'spec'
+require 'rspec'
 
 share_as :RDF_Enumerable do
   include RDF::Spec::Matchers
