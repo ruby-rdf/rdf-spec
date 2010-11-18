@@ -28,7 +28,7 @@ share_as :RDF_Enumerable do
     end
 
     it "should respond to #count and #size" do
-      @enumerable.should respond_to(*%w(count size length))
+      @enumerable.should respond_to(*%w(count size))
     end
 
     it "should implement #empty?" do
@@ -37,7 +37,7 @@ share_as :RDF_Enumerable do
     end
 
     it "should implement #count and #size" do
-      %w(count size length).each do |method|
+      %w(count size).each do |method|
         @enumerable.send(method).should == @statements.size
       end
     end
