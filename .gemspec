@@ -12,7 +12,7 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
   gem.rubyforge_project  = 'rdf'
 
-  gem.authors            = ['Arto Bendiken', 'Ben Lavender']
+  gem.authors            = ['Arto Bendiken', 'Ben Lavender', 'Gregg Kellogg']
   gem.email              = 'public-rdf-ruby@w3.org'
 
   gem.platform           = Gem::Platform::RUBY

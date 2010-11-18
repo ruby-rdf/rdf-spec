@@ -41,14 +41,14 @@ as follows:
 Authors
 -------
 
-* [Arto Bendiken](mailto:arto.bendiken@gmail.com) - <http://ar.to/>
-* [Ben Lavender](mailto:blavender@gmail.com) - <http://bhuga.net/>
+* [Arto Bendiken](http://github.com/bendiken) - <http://ar.to/>
+* [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
+* [Gregg Kellogg](http://github.com/gkellogg) - <http://kellogg-assoc.com/>
 
 Contributors
 ------------
 
-* [Gregg Kellogg](mailto:gregg@kellogg-assoc.com) - <http://kellogg-assoc.com/>
-* [John Fieber](mailto:jrf@ursamaris.org) - <http://github.com/jfieber>
+* [John Fieber](http://github.com/jfieber) - <http://github.com/jfieber>
 
 Contributing
 ------------
