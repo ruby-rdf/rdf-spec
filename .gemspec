@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby -rubygems
 # -*- encoding: utf-8 -*-
 
-GEMSPEC = Gem::Specification.new do |gem|
+Gem::Specification.new do |gem|
   gem.version            = File.read('VERSION').chomp
   gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
 
@@ -12,11 +12,11 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
   gem.rubyforge_project  = 'rdf'
 
-  gem.authors            = ['Arto Bendiken', 'Ben Lavender']
+  gem.authors            = ['Arto Bendiken', 'Ben Lavender', 'Gregg Kellogg']
   gem.email              = 'public-rdf-ruby@w3.org'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(AUTHORS CONTRIBUTORS README UNLICENSE VERSION etc/doap.nt) + Dir.glob('lib/**/*.rb') + Dir.glob('spec/*.rb')
+  gem.files              = %w(AUTHORS CREDITS README UNLICENSE VERSION etc/doap.nt) + Dir.glob('lib/**/*.rb') + Dir.glob('spec/*.rb')
   gem.bindir             = %q(bin)
   gem.executables        = %w()
   gem.default_executable = gem.executables.first
@@ -27,9 +27,9 @@ GEMSPEC = Gem::Specification.new do |gem|
 
   gem.required_ruby_version      = '>= 1.8.1'
   gem.requirements               = []
-  gem.add_development_dependency 'yard' , '>= 0.5.8'
+  gem.add_development_dependency 'yard' , '>= 0.6.0'
   gem.add_development_dependency 'rspec', '>= 1.3.0'
-  gem.add_development_dependency 'rdf',   '~> 0.2.3'
+  gem.add_development_dependency 'rdf',   '= 0.3.0.pre'
   gem.add_runtime_dependency     'rspec', '~> 1.3.0'
   gem.post_install_message       = nil
 end

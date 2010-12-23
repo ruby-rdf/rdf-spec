@@ -15,14 +15,14 @@ Documentation
 Dependencies
 ------------
 
-* [RDF.rb](http://gemcutter.org/gems/rdf) (>= 0.2.3)
-* [RSpec](http://gemcutter.org/gems/rspec) (>= 1.3.0)
+* [RDF.rb](http://rubygems.org/gems/rdf) (>= 0.3.0)
+* [RSpec](http://rubygems.org/gems/rspec) (>= 1.3.0)
 
 Installation
 ------------
 
 The recommended installation method is via [RubyGems](http://rubygems.org/).
-To install the latest official release of `RDF::Spec`, do:
+To install the latest official release of the `RDF::Spec` gem, do:
 
     % [sudo] gem install rdf-spec
 
@@ -33,25 +33,26 @@ To get a local working copy of the development repository, do:
 
     % git clone git://github.com/bendiken/rdf-spec.git
 
-Alternatively, you can download the latest development version as a tarball
-as follows:
+Alternatively, download the latest development version as a tarball as
+follows:
 
     % wget http://github.com/bendiken/rdf-spec/tarball/master
 
 Authors
 -------
 
-* [Arto Bendiken](mailto:arto.bendiken@gmail.com) - <http://ar.to/>
-* [Ben Lavender](mailto:blavender@gmail.com) - <http://bhuga.net/>
+* [Arto Bendiken](http://github.com/bendiken) - <http://ar.to/>
+* [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
+* [Gregg Kellogg](http://github.com/gkellogg) - <http://kellogg-assoc.com/>
 
 Contributors
 ------------
 
-* [Gregg Kellogg](mailto:gregg@kellogg-assoc.com) - <http://kellogg-assoc.com/>
-* [John Fieber](mailto:jrf@ursamaris.org) - <http://github.com/jfieber>
+* [John Fieber](http://github.com/jfieber) - <http://github.com/jfieber>
 
 Contributing
 ------------
+
 * Do your best to adhere to the existing coding conventions and idioms.
 * Don't use hard tabs, and don't leave trailing whitespace on any line.
 * Do refer to the [RubySpec Style Guide][RubySpec] for best practices.
@@ -68,8 +69,8 @@ Contributing
 License
 -------
 
-`RDF::Spec` is free and unencumbered public domain software. For more
-information, see <http://unlicense.org/> or the accompanying UNLICENSE file.
+This is free and unencumbered public domain software. For more information,
+see <http://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 
 [RDF.rb]:    http://rdf.rubyforge.org/
 [RSpec]:     http://rspec.info/
