@@ -90,8 +90,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.boolean, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes boolean '#{value}'" do
+        it "normalizes boolean '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.boolean, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Boolean" => true do
+          @new.call(value, :datatype => RDF::XSD.boolean, :canonicalize => true).should be_a(RDF::Literal::Boolean)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.boolean, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.boolean, :canonicalize => false)
         end
       end
 
@@ -105,8 +113,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.integer, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes integer '#{value}'" do
+        it "normalizes integer '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.integer, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Integer" => true do
+          @new.call(value, :datatype => RDF::XSD.integer, :canonicalize => true).should be_a(RDF::Literal::Integer)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.integer, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.integer, :canonicalize => false)
         end
       end
 
@@ -131,8 +147,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.decimal, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes decimal '#{value}'" do
+        it "normalizes decimal '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.decimal, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Decimal" => true do
+          @new.call(value, :datatype => RDF::XSD.decimal, :canonicalize => true).should be_a(RDF::Literal::Decimal)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.decimal, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.decimal, :canonicalize => false)
         end
       end
 
@@ -151,8 +175,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.double, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes double '#{value}'" do
+        it "normalizes double '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.double, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Double" => true do
+          @new.call(value, :datatype => RDF::XSD.double, :canonicalize => true).should be_a(RDF::Literal::Double)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.double, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.double, :canonicalize => false)
         end
       end
   
@@ -170,8 +202,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.dateTime, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes dateTime '#{value}'" do
+        it "normalizes dateTime '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.dateTime, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::DateTime" => true do
+          @new.call(value, :datatype => RDF::XSD.dateTime, :canonicalize => true).should be_a(RDF::Literal::DateTime)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.dateTime, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.dateTime, :canonicalize => false)
         end
       end
   
@@ -188,8 +228,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.date, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes date '#{value}'" do
+        it "normalizes date '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.date, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Date" => true do
+          @new.call(value, :datatype => RDF::XSD.date, :canonicalize => true).should be_a(RDF::Literal::Date)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.date, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.date, :canonicalize => false)
         end
       end
   
@@ -206,8 +254,16 @@ share_as :RDF_Literal do
           @new.call(value, :datatype => RDF::XSD.time, :canonicalize => false).to_s.should == value
         end
 
-        it "normalizes dateTime '#{value}'" do
+        it "normalizes time '#{value}' to '#{str}'" do
           @new.call(value, :datatype => RDF::XSD.time, :canonicalize => true).to_s.should == str
+        end
+        
+        it "instantiates '#{value}' as RDF::Literal::Time" => true do
+          @new.call(value, :datatype => RDF::XSD.time, :canonicalize => true).should be_a(RDF::Literal::Time)
+        end
+        
+        it "causes normalized '#{value}' to be == '#{str}'" do
+          @new.call(value, :datatype => RDF::XSD.time, :canonicalize => true).should == @new.call(str, :datatype => RDF::XSD.time, :canonicalize => false)
         end
       end
     end
@@ -297,7 +353,6 @@ share_as :RDF_Literal do
       it "returns true for #{args.inspect}" do
         literal = @new.call(*args)
         literal.should == @new.call(*args)
-        literal.should eql(@new.call(*args))
       end
     end
 
@@ -305,7 +360,6 @@ share_as :RDF_Literal do
       it "returns true for value of #{args.inspect}" do
         literal = @new.call(*args)
         literal.should == literal.value
-        literal.should eql(@new.call(*args))
       end
     end
 
@@ -313,20 +367,76 @@ share_as :RDF_Literal do
       it "returns false for value of #{args.inspect}" do
         literal = @new.call(*args)
         literal.should_not == literal.value
-        literal.should_not eql(literal.value)
       end
     end
 
-    literals(:all_native, :all_xml).each do |args|
+    literals(:all_native).each do |args|
       it "returns true for #{args.inspect}" do
         literal = @new.call(*args)
         literal.should == @new.call(*args)
-        literal.should eql(@new.call(*args))
+      end
+
+      it "returns true for value of #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should == literal.value
+      end
+    end
+
+    literals(:all_xml).each do |args|
+      it "returns true for #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should == @new.call(*args)
       end
 
       it "returns false for value of #{args.inspect}" do
         literal = @new.call(*args)
         literal.should_not == literal.value
+      end
+    end
+  end
+  
+  describe "#eql" do
+    literals(:all_plain).each do |args|
+      it "returns true for #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should eql(@new.call(*args))
+      end
+    end
+
+    literals(:all_plain_no_lang).each do |args|
+      it "returns true for value of #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should eql(@new.call(*args))
+      end
+    end
+
+    literals(:all_plain_lang).each do |args|
+      it "returns false for value of #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should_not eql(literal.value)
+      end
+    end
+
+    literals(:all_native).each do |args|
+      it "returns true for #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should eql(@new.call(*args))
+      end
+
+      it "returns true for value of #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should eql(literal.value)
+      end
+    end
+
+    literals(:all_xml).each do |args|
+      it "returns true for #{args.inspect}" do
+        literal = @new.call(*args)
+        literal.should eql(@new.call(*args))
+      end
+
+      it "returns false for value of #{args.inspect}" do
+        literal = @new.call(*args)
         literal.should_not eql(literal.value)
       end
     end
