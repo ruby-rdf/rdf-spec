@@ -13,7 +13,7 @@ module RDF; module Spec
     # @return [void]
     def self.define(name, &declarations)
       define_method name do |*expected|
-        ::Spec::Matchers::Matcher.new(name, *expected, &declarations)
+        ::RSpec::Matchers::Matcher.new(name, *expected, &declarations)
       end
     end
 
