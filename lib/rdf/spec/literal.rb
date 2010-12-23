@@ -395,53 +395,6 @@ share_as :RDF_Literal do
     end
   end
   
-  describe "#eql" do
-    literals(:all_plain).each do |args|
-      it "returns true for #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should eql(@new.call(*args))
-      end
-    end
-
-    literals(:all_plain_no_lang).each do |args|
-      it "returns true for value of #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should eql(@new.call(*args))
-      end
-    end
-
-    literals(:all_plain_lang).each do |args|
-      it "returns false for value of #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should_not eql(literal.value)
-      end
-    end
-
-    literals(:all_native).each do |args|
-      it "returns true for #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should eql(@new.call(*args))
-      end
-
-      it "returns true for value of #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should eql(literal.value)
-      end
-    end
-
-    literals(:all_xml).each do |args|
-      it "returns true for #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should eql(@new.call(*args))
-      end
-
-      it "returns false for value of #{args.inspect}" do
-        literal = @new.call(*args)
-        literal.should_not eql(literal.value)
-      end
-    end
-  end
-  
   describe "#to_s" do
     literals(:all_plain).each do |args|
       it "returns value for #{args.inspect}" do
