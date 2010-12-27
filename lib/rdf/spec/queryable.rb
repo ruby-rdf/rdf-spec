@@ -290,9 +290,9 @@ share_as :RDF_Queryable do
       # FIXME: these tests should be using the provided @queryable, if possible.
       @queryable = RDF::Graph.new do |graph|
         @subject = RDF::Node.new
-        graph << [subject, RDF.type, RDF::DOAP.Project]
-        graph << [subject, RDF::DC.creator, RDF::URI.new('http://example.org/#jhacker')]
-        graph << [subject, RDF::DC.creator, @literal = RDF::Literal.new('J. Random Hacker')]
+        graph << [@subject, RDF.type, RDF::DOAP.Project]
+        graph << [@subject, RDF::DC.creator, RDF::URI.new('http://example.org/#jhacker')]
+        graph << [@subject, RDF::DC.creator, @literal = RDF::Literal.new('J. Random Hacker')]
       end
       @failing_pattern = [nil, nil, RDF::Node.new]
     end
