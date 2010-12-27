@@ -1,5 +1,4 @@
 # coding: utf-8
-require 'rdf'
 require 'rdf/spec'
 
 share_as :RDF_Literal do

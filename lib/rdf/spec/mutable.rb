@@ -1,4 +1,3 @@
-require 'rdf'
 require 'rdf/spec'
 require 'rdf/ntriples'
 

@@ -1,5 +1,4 @@
 require 'rdf/spec'
-require 'rspec'
 
 share_as :RDF_List do
   before :all do

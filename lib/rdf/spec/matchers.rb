@@ -1,4 +1,4 @@
-require 'rspec'
+require 'rspec' # @see http://rubygems.org/gems/rspec
 
 module RDF; module Spec
   ##
@@ -177,5 +177,5 @@ module RDF; module Spec
         end
       end
     end
-  end # module Matchers
-end; end # module Spec; module RDF
+  end # Matchers
+end; end # RDF::Spec

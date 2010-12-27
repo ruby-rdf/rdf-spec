@@ -1,5 +1,4 @@
 require 'rdf/spec'
-require 'rspec'
 
 # To use RDF::Durable to check that a repository maintains information between
 # instantiations, add a Proc that creates a repository before each item, and

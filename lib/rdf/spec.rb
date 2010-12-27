@@ -1,4 +1,5 @@
-require 'rdf'
+require 'rdf'   # @see http://rubygems.org/gems/rdf
+require 'rspec' # @see http://rubygems.org/gems/rspec
 
 module RDF
   ##
@@ -45,5 +46,5 @@ module RDF
   module Spec
     autoload :Matchers, 'rdf/spec/matchers'
     autoload :VERSION,  'rdf/spec/version'
-  end # module Spec
-end # module RDF
+  end # Spec
+end # RDF

@@ -1,5 +1,4 @@
 require 'rdf/spec'
-require 'rspec'
 
 share_as :RDF_Queryable do
   include RDF::Spec::Matchers
