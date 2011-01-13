@@ -15,7 +15,7 @@ Documentation
 Dependencies
 ------------
 
-* [RDF.rb](http://rubygems.org/gems/rdf) (>= 0.3.0)
+* [RDF.rb](http://rubygems.org/gems/rdf) (>= 0.3.1)
 * [RSpec](http://rubygems.org/gems/rspec) (>= 2.1.0)
 
 Installation
