@@ -1,4 +1,5 @@
 require 'rdf/spec'
+require 'fileutils'
 
 share_as :RDF_Writer do
   include RDF::Spec::Matchers
@@ -29,6 +30,13 @@ share_as :RDF_Writer do
   describe ".open" do
     before(:each) do
       RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+      @dir = File.join(File.expand_path(File.dirname(__FILE__)), "tmp")
+      Dir.mkdir(@dir)
+      @basename = File.join(@dir, "foo")
+    end
+    
+    after(:each) do
+      FileUtils.rm_rf(@dir)
     end
 
     it "yields writer given file_name" do
@@ -36,8 +44,8 @@ share_as :RDF_Writer do
         f.file_extensions.each_pair do |sym, content_type|
           writer_mock = mock("writer")
           writer_mock.should_receive(:got_here)
-          @writer_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@writer_class)
-          @writer_class.open("foo.#{sym}") do |r|
+          @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
+          @writer_class.open("#{@basename}.#{sym}") do |r|
             r.should be_a(RDF::Writer)
             writer_mock.got_here
           end
@@ -51,7 +59,7 @@ share_as :RDF_Writer do
         writer_mock = mock("writer")
         writer_mock.should_receive(:got_here)
         @writer_class.should_receive(:for).with(sym).and_return(@writer_class)
-        @writer_class.open("foo.#{sym}", :format => sym) do |r|
+        @writer_class.open("#{@basename}.#{sym}", :format => sym) do |r|
           r.should be_a(RDF::Writer)
           writer_mock.got_here
         end
@@ -63,8 +71,8 @@ share_as :RDF_Writer do
         f.file_extensions.each_pair do |sym, content_type|
           writer_mock = mock("writer")
           writer_mock.should_receive(:got_here)
-          @writer_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@writer_class)
-          @writer_class.open("foo.#{sym}", :file_name => "foo.#{sym}") do |r|
+          @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
+          @writer_class.open("#{@basename}.#{sym}", :file_name => "#{@basename}.#{sym}") do |r|
             r.should be_a(RDF::Writer)
             writer_mock.got_here
           end
@@ -77,8 +85,8 @@ share_as :RDF_Writer do
         f.content_types.each_pair do |content_type, formats|
           writer_mock = mock("writer")
           writer_mock.should_receive(:got_here)
-          @writer_class.should_receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(@writer_class)
-          @writer_class.open("foo", :content_type => content_type) do |r|
+          @writer_class.should_receive(:for).with(:content_type => content_type, :file_name => @basename).and_return(@writer_class)
+          @writer_class.open(@basename, :content_type => content_type) do |r|
             r.should be_a(RDF::Writer)
             writer_mock.got_here
           end
