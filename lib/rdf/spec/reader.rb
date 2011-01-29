@@ -18,7 +18,7 @@ share_as :RDF_Reader do
 
   describe ".open" do
     before(:each) do
-      RDF::Util::File.stub!(:open_file).and_return("foo")
+      RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
     end
 
     it "yields reader given file_name" do
@@ -41,7 +41,10 @@ share_as :RDF_Reader do
         reader_mock = mock("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.should_receive(:for).with(sym).and_return(@reader_class)
-        @reader_class.open("foo.#{sym}", :format => sym).should be_a(RDF::Reader)
+        @reader_class.open("foo.#{sym}", :format => sym) do |r|
+          r.should be_a(RDF::Reader)
+          reader_mock.got_here
+        end
       end
     end
 
@@ -64,8 +67,8 @@ share_as :RDF_Reader do
         f.content_types.each_pair do |content_type, formats|
           reader_mock = mock("reader")
           reader_mock.should_receive(:got_here)
-          @reader_class.should_receive(:for).with(:content_type => content_type).and_return(@reader_class)
-          @reader_class.open("foo.#{sym}", :content_type => content_type) do |r|
+          @reader_class.should_receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(@reader_class)
+          @reader_class.open("foo", :content_type => content_type) do |r|
             r.should be_a(RDF::Reader)
             reader_mock.got_here
           end
