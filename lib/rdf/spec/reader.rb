@@ -76,4 +76,81 @@ share_as :RDF_Reader do
       end
     end
   end
+
+  describe ".new" do
+    it "sets @input to StringIO given a string" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      @reader_class.new("string") do |r|
+        reader_mock.got_here
+        r.instance_variable_get(:@input).should be_a(StringIO)
+      end
+    end
+    
+    it "sets @input to input given something other than a string" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      file = mock("file")
+      @reader_class.new(file) do |r|
+        reader_mock.got_here
+        r.instance_variable_get(:@input).should == file
+      end
+    end
+    
+    it "sets validate given :validate => true" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      @reader_class.new("string", :validate => true) do |r|
+        reader_mock.got_here
+        r.send(:validate?).should be_true
+      end
+    end
+    
+    it "sets canonicalize given :canonicalize => true" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      @reader_class.new("string", :canonicalize => true) do |r|
+        reader_mock.got_here
+        r.send(:canonicalize?).should be_true
+      end
+    end
+    
+    it "sets intern given :intern => true" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      @reader_class.new("string", :intern => true) do |r|
+        reader_mock.got_here
+        r.send(:intern?).should be_true
+      end
+    end
+    
+    it "sets prefixes given :prefixes => {}" do
+      reader_mock = mock("reader")
+      reader_mock.should_receive(:got_here)
+      @reader_class.new("string", :prefixes => {:a => "b"}) do |r|
+        reader_mock.got_here
+        r.prefixes.should == {:a => "b"}
+      end
+    end
+  end
+  
+  describe "#prefixes=" do
+    it "sets prefixes from hash" do
+      @reader.prefixes = {:a => "b"}
+      @reader.prefixes.should == {:a => "b"}
+    end
+  end
+  
+  describe "#prefix" do
+    {
+      nil     => "nil",
+      :a      => "b",
+      "foo"   => "bar",
+    }.each_pair do |pfx, uri|
+      it "sets prefix(#{pfx}) to #{uri}" do
+        @reader.prefix(pfx, uri).should == uri
+        @reader.prefix(pfx).should == uri
+      end
+    end
+  end
 end
