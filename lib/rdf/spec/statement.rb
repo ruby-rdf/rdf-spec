@@ -61,6 +61,10 @@ share_as :RDF_Statement do
     it "should not be quoted" do
       @stmt.quoted?.should be_false
     end
+
+    it "should be statement" do
+      @stmt.statement?.should be_true
+    end
   end
 
   context "when created with a blank node subject" do
