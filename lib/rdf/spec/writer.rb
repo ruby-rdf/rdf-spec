@@ -4,7 +4,6 @@ require 'fileutils'
 share_as :RDF_Writer do
   include RDF::Spec::Matchers
 
-
   before(:each) do
     raise '+@writer+ must be defined in a before(:each) block' unless instance_variable_get('@writer')
     @writer_class = @writer.class
@@ -13,7 +12,7 @@ share_as :RDF_Writer do
   describe ".each" do
     it "yields each writer" do
       @writer_class.each do |r|
-        r.superclass.should == RDF::Writer
+        r.should_not be_nil
       end
     end
   end
@@ -36,7 +35,7 @@ share_as :RDF_Writer do
     end
     
     after(:each) do
-      FileUtils.rm_rf(@dir)
+      FileUtils.rm_rf(File.join(File.expand_path(File.dirname(__FILE__)), "tmp"))
     end
 
     it "yields writer given file_name" do
