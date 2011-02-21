@@ -391,6 +391,12 @@ share_as :RDF_Literal do
         literal.should_not == literal.value
       end
     end
+    
+    it "returns true for languaged taged literals differring in case" do
+      l1 = @new.call("foo", :language => :en)
+      l2 = @new.call("foo", :language => :EN)
+      l1.should == l2
+    end
   end
 
   describe "#to_s" do
