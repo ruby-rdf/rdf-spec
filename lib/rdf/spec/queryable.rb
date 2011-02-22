@@ -1,6 +1,8 @@
 require 'rdf/spec'
 
 share_as :RDF_Queryable do
+  EX = RDF::EX = RDF::Vocabulary.new('http://example.org/')
+
   include RDF::Spec::Matchers
 
   before :each do
@@ -109,6 +111,56 @@ share_as :RDF_Queryable do
     end
   end
 
+  context "#query when called with specific patterns from SPARQL" do
+    context "triple pattern combinations" do
+      it "?s p o" do
+        @queryable.query(:predicate => EX.p, :object => RDF::Literal.new(1)).to_a.should ==
+          [RDF::Statement.new(EX.xi1, EX.p, 1), RDF::Statement.new(EX.xi2, EX.p, 1)]
+      end
+
+      it "s ?p o" do
+        @queryable.query(:subject => EX.xi2, :object => RDF::Literal.new(1)).to_a.should ==
+          [RDF::Statement.new(EX.xi2, EX.p, 1)]
+      end
+    end
+
+    # From data-r2/expr-equals
+    context "data/r2/expr-equals" do
+      describe "graph-1" do
+        before(:each) do
+          @solutions = @queryable.query(:predicate => EX.p, :object => RDF::Literal::Integer.new(1)).to_a
+        end
+
+        it "has two solutions" do
+          @solutions.count.should == 2
+        end
+        
+        it "has xi1 as a solution" do
+          @solutions.any? {|s| s.subject == EX.xi1}.should be_true
+        end
+        
+        it "has xi2 as a solution" do
+          @solutions.any? {|s| s.subject == EX.xi2}.should be_true
+        end
+      end
+
+      
+      describe "graph-2" do
+        before(:each) do
+          @solutions = @queryable.query(:predicate => EX.p, :object => RDF::Literal::Double.new("1.0e0")).to_a
+        end
+
+        it "has one solution" do
+          @solutions.count.should == 1
+        end
+        
+        it "has xd1 as a solution" do
+          @solutions.any? {|s| s.subject == EX.xd1}.should be_true
+        end
+      end
+    end
+  end
+  
   ##
   # @see RDF::Queryable#query_pattern
 
@@ -133,6 +185,25 @@ share_as :RDF_Queryable do
     it "should yield statements" do
       @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
         statement.should be_a_statement
+      end
+    end
+    
+    context "with specific patterns" do
+      # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
+      {
+        [EX.xi1, EX.p, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
+        [EX.xi1, EX.p, nil] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
+        [EX.xi1, nil, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
+        [nil, EX.p, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1]), RDF::Statement.from([EX.xi2, EX.p, 1])],
+        [nil, nil, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1]), RDF::Statement.from([EX.xi2, EX.p, 1])],
+        [nil, EX.p, RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([EX.xd1, EX.p, RDF::Literal::Double.new("1.0e0")])],
+      }.each do |pattern, result|
+        pattern = RDF::Query::Pattern.from(pattern)
+        it "returns #{result.inspect} given #{pattern.inspect}" do
+          solutions = []
+          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+          solutions.should == result
+        end
       end
     end
   end
