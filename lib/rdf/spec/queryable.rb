@@ -1,8 +1,6 @@
 require 'rdf/spec'
 
 share_as :RDF_Queryable do
-  EX = RDF::EX = RDF::Vocabulary.new('http://example.org/')
-
   include RDF::Spec::Matchers
 
   before :each do
@@ -114,13 +112,13 @@ share_as :RDF_Queryable do
   context "#query when called with specific patterns from SPARQL" do
     context "triple pattern combinations" do
       it "?s p o" do
-        @queryable.query(:predicate => EX.p, :object => RDF::Literal.new(1)).to_a.should ==
-          [RDF::Statement.new(EX.xi1, EX.p, 1), RDF::Statement.new(EX.xi2, EX.p, 1)]
+        @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal.new(1)).to_a.should ==
+          [RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
       end
 
       it "s ?p o" do
-        @queryable.query(:subject => EX.xi2, :object => RDF::Literal.new(1)).to_a.should ==
-          [RDF::Statement.new(EX.xi2, EX.p, 1)]
+        @queryable.query(:subject => RDF::URI("http://example.org/xi2"), :object => RDF::Literal.new(1)).to_a.should ==
+          [RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
       end
     end
 
@@ -128,7 +126,7 @@ share_as :RDF_Queryable do
     context "data/r2/expr-equals" do
       describe "graph-1" do
         before(:each) do
-          @solutions = @queryable.query(:predicate => EX.p, :object => RDF::Literal::Integer.new(1)).to_a
+          @solutions = @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Integer.new(1)).to_a
         end
 
         it "has two solutions" do
@@ -136,18 +134,18 @@ share_as :RDF_Queryable do
         end
         
         it "has xi1 as a solution" do
-          @solutions.any? {|s| s.subject == EX.xi1}.should be_true
+          @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}.should be_true
         end
         
         it "has xi2 as a solution" do
-          @solutions.any? {|s| s.subject == EX.xi2}.should be_true
+          @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}.should be_true
         end
       end
 
       
       describe "graph-2" do
         before(:each) do
-          @solutions = @queryable.query(:predicate => EX.p, :object => RDF::Literal::Double.new("1.0e0")).to_a
+          @solutions = @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Double.new("1.0e0")).to_a
         end
 
         it "has one solution" do
@@ -155,7 +153,7 @@ share_as :RDF_Queryable do
         end
         
         it "has xd1 as a solution" do
-          @solutions.any? {|s| s.subject == EX.xd1}.should be_true
+          @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}.should be_true
         end
       end
     end
@@ -191,12 +189,12 @@ share_as :RDF_Queryable do
     context "with specific patterns" do
       # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
       {
-        [EX.xi1, EX.p, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
-        [EX.xi1, EX.p, nil] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
-        [EX.xi1, nil, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1])],
-        [nil, EX.p, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1]), RDF::Statement.from([EX.xi2, EX.p, 1])],
-        [nil, nil, 1] => [RDF::Statement.from([EX.xi1, EX.p, 1]), RDF::Statement.from([EX.xi2, EX.p, 1])],
-        [nil, EX.p, RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([EX.xd1, EX.p, RDF::Literal::Double.new("1.0e0")])],
+        [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+        [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+        [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+        [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+        [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+        [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
       }.each do |pattern, result|
         pattern = RDF::Query::Pattern.from(pattern)
         it "returns #{result.inspect} given #{pattern.inspect}" do
