@@ -98,16 +98,18 @@ share_as :RDF_Writer do
     it "sets @output to $stdout by default" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
+
       @writer_class.new() do |r|
         writer_mock.got_here
         r.instance_variable_get(:@output).should == $stdout
       end
     end
     
-    it "sets @input to input given something other than a string" do
+    it "sets @output to file given something other than a string" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
       file = mock("file")
+      file.should_receive(:write).any_number_of_times
       @writer_class.new(file) do |r|
         writer_mock.got_here
         r.instance_variable_get(:@output).should == file
@@ -117,7 +119,7 @@ share_as :RDF_Writer do
     it "sets prefixes given :prefixes => {}" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
-      @writer_class.new("string", :prefixes => {:a => "b"}) do |r|
+      @writer_class.new($stdout, :prefixes => {:a => "b"}) do |r|
         writer_mock.got_here
         r.prefixes.should == {:a => "b"}
       end
