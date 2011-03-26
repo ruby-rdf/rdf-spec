@@ -99,7 +99,7 @@ share_as :RDF_Writer do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
 
-      @writer_class.new() do |r|
+      @writer_class.new do |r|
         writer_mock.got_here
         r.instance_variable_get(:@output).should == $stdout
       end
@@ -119,7 +119,7 @@ share_as :RDF_Writer do
     it "sets prefixes given :prefixes => {}" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
-      @writer_class.new($stdout, :prefixes => {:a => "b"}) do |r|
+      @writer_class.new(StringIO.new, :prefixes => {:a => "b"}) do |r|
         writer_mock.got_here
         r.prefixes.should == {:a => "b"}
       end
@@ -130,7 +130,7 @@ share_as :RDF_Writer do
         #writer_mock = mock("writer")
         #writer_mock.should_receive(:got_here)
         @writer_class.any_instance.should_receive(:write_prologue)
-        @writer_class.new() do |r|
+        @writer_class.new(StringIO.new) do |r|
           #writer_mock.got_here
         end
       end
@@ -141,7 +141,7 @@ share_as :RDF_Writer do
         #writer_mock = mock("writer")
         #writer_mock.should_receive(:got_here)
         @writer_class.any_instance.should_receive(:write_epilogue)
-        @writer_class.new() do |r|
+        @writer_class.new(StringIO.new) do |r|
           #writer_mock.got_here
         end
       end
