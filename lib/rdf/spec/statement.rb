@@ -96,10 +96,49 @@ share_as :RDF_Statement do
   end
 
   context "when created with a context" do
+    before :each do
+      @stmtc = RDF::Statement.new(@s, @p, @o, :context => @s)
+    end
+
     it "should have a context" do
-      @stmt = RDF::Statement.new(@s, @p, @o, :context => @s)
-      @stmt.has_context?.should be_true
-      @stmt.context.should_not be_nil
+      @stmtc.has_context?.should be_true
+      @stmtc.context.should_not be_nil
+    end
+    
+    it "== statement without a context" do
+      @stmtc.should == @stmt
+    end
+    
+    it "eql? statement without a context" do
+      @stmtc.should == @stmt
+    end
+  end
+
+  context "when created with a default context" do
+    before :each do
+      @stmtdc = RDF::Statement.new(@s, @p, @o, :context => false)
+      @stmtc = RDF::Statement.new(@s, @p, @o, :context => @s)
+    end
+
+    it "should not have a context" do
+      @stmtdc.has_context?.should be_false
+      @stmtdc.context.should == false
+    end
+    
+    it "== statement without a context" do
+      @stmtdc.should == @stmt
+    end
+    
+    it "== statement with a context" do
+      @stmtdc.should == @stmtc
+    end
+    
+    it "!eql? statement with a context" do
+      @stmtdc.should_not be_eql @stmtc
+    end
+    
+    it "eql? statement without a context" do
+      @stmtdc.should == @stmt
     end
   end
 

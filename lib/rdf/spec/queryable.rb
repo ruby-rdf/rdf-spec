@@ -6,14 +6,24 @@ share_as :RDF_Queryable do
   before :each do
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
 
-    @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+    @doap = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
+    @doaps = RDF::NTriples::Reader.new(File.open(@doap)).to_a
+    @bendiken = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'bendiken.nt'))
+    @bendikens = RDF::NTriples::Reader.new(File.open(@bendiken)).to_a
+    @bhuga = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'bhuga.nt'))
+    @bhugas = RDF::NTriples::Reader.new(File.open(@bhuga)).to_a
+    @gkellogg = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'gkellogg.nt'))
+    @gkelloggs = RDF::NTriples::Reader.new(File.open(@gkellogg)).to_a
+    @statements = @doaps + @bendikens + @bhugas + @gkelloggs
 
     if @queryable.empty?
       if @queryable.respond_to?(:<<)
-        @statements.each { |statement| @queryable << statement }
+        @doaps.each { |statement| @queryable << statement }
+        @bendikens.each {|statement| statement.context = RDF::URI("http://ar.to/#self");  @queryable << statement}
+        @bhugas.each {|statement| statement.context = RDF::URI("http://bhuga.net/#ben");  @queryable << statement}
+        @gkelloggs.each {|statement| statement.context = RDF::URI("http://kellogg-assoc.com/#me");  @queryable << statement}
       else
-        raise "@queryable must respond to #<< or be pre-populated with the statements in #{@filename} in a before(:each) block"
+        raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap}, #{@bendiken}, #{@bhuga}, #{@gkellogg} in a before(:each) block"
       end
     end
 
@@ -22,150 +32,244 @@ share_as :RDF_Queryable do
 
   ##
   # @see RDF::Queryable#query
-
-  it "should respond to #query" do
-    @queryable.should respond_to(:query)
-  end
-
-  context "#query when called" do
-    it "should require an argument" do
-      lambda { @queryable.query }.should raise_error(ArgumentError)
+  describe "#query" do
+    it "should respond to #query" do
+      @queryable.should respond_to(:query)
     end
 
-    it "should accept a pattern argument" do
-      lambda { @queryable.query(RDF::Query::Pattern.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
-      lambda { @queryable.query(RDF::Query::Pattern.new(:s, :p, :o)) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a statement argument" do
-      lambda { @queryable.query(RDF::Statement.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a triple argument" do
-      lambda { @queryable.query([nil, nil, nil]) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a quad argument" do
-      lambda { @queryable.query([nil, nil, nil, nil]) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should accept a hash argument" do
-      lambda { @queryable.query({}) }.should_not raise_error(ArgumentError)
-    end
-
-    it "should not alter a given hash argument" do
-      query = {:subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
-      original_query = query.dup
-      @queryable.query(query)
-      query.should == original_query
-    end
-
-    it "should reject other kinds of arguments" do
-      lambda { @queryable.query(nil) }.should raise_error(ArgumentError)
-    end
-  end
-
-  context "#query when called with a block" do
-    it "should yield statements" do
-      @queryable.query([nil, nil, nil]) do |statement|
-        statement.should be_a_statement
+    context "when called" do
+      it "requires an argument" do
+        lambda { @queryable.query }.should raise_error(ArgumentError)
       end
-    end
-  end
 
-  context "#query when called without a block" do
-    it "should return an enumerator" do
-      @queryable.query([nil, nil, nil]).should be_an_enumerator
-    end
-
-    it "should return an enumerable enumerator" do
-      @queryable.query([nil, nil, nil]).should be_enumerable
-    end
-
-    it "should return a queryable enumerator" do
-      @queryable.query([nil, nil, nil]).should be_queryable
-    end
-
-    it "should return statements" do
-      @queryable.query([nil, nil, nil]).each do |statement|
-        statement.should be_a_statement
+      it "accepts a pattern argument" do
+        lambda { @queryable.query(RDF::Query::Pattern.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
+        lambda { @queryable.query(RDF::Query::Pattern.new(:s, :p, :o)) }.should_not raise_error(ArgumentError)
       end
-    end
 
-    it "should return the correct number of results for array queries" do
-      @queryable.query([nil, nil, nil]).size.should == File.readlines(@filename).size
-      @queryable.query([@subject, nil, nil]).size.should == File.readlines(@filename).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-      @queryable.query([@subject, RDF::DOAP.name, nil]).size.should == 1
-      #@queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size # FIXME: assumes too much about the doap.nt data
-      @queryable.query([nil, nil, RDF::DOAP.Project]).size.should == 1
-    end
+      it "accepts a statement argument" do
+        lambda { @queryable.query(RDF::Statement.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
+      end
 
-    it "should return the correct number of results for hash queries" do
-      @queryable.query({}).size.should == File.readlines(@filename).size
-      @queryable.query(:subject => @subject) .size.should == File.readlines(@filename).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-      @queryable.query(:subject => @subject, :predicate => RDF::DOAP.name).size.should == 1
-      #@queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size # FIXME: assumes too much about the doap.nt data
-      @queryable.query(:object => RDF::DOAP.Project).size.should == 1
+      it "accepts a triple argument" do
+        lambda { @queryable.query([nil, nil, nil]) }.should_not raise_error(ArgumentError)
+      end
+
+      it "accepts a quad argument" do
+        lambda { @queryable.query([nil, nil, nil, nil]) }.should_not raise_error(ArgumentError)
+      end
+
+      it "accepts a hash argument" do
+        lambda { @queryable.query({}) }.should_not raise_error(ArgumentError)
+      end
+
+      it "does not alter a given hash argument" do
+        query = {:subject => @subject, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
+        original_query = query.dup
+        @queryable.query(query)
+        query.should == original_query
+      end
+
+      it "rejects other kinds of arguments" do
+        lambda { @queryable.query(nil) }.should raise_error(ArgumentError)
+      end
+
+      context "with a block" do
+        it "yields statements" do
+          @queryable.query([nil, nil, nil]) do |statement|
+            statement.should be_a_statement
+          end
+        end
+      end
+
+      context "without a block" do
+        it "returns an enumerator" do
+          @queryable.query([nil, nil, nil]).should be_an_enumerator
+        end
+
+        it "returns an enumerable enumerator" do
+          @queryable.query([nil, nil, nil]).should be_enumerable
+        end
+
+        it "returns a queryable enumerator" do
+          @queryable.query([nil, nil, nil]).should be_queryable
+        end
+
+        it "returns statements" do
+          @queryable.query([nil, nil, nil]).each do |statement|
+            statement.should be_a_statement
+          end
+        end
+
+        it "returns the correct number of results for array queries" do
+          @queryable.query([nil, nil, nil]).size.should == @statements.size
+          @queryable.query([@subject, nil, nil]).size.should == File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+          @queryable.query([RDF::URI("http://ar.to/#self"), nil, nil]).size.should == File.readlines(@bendiken).size
+          @queryable.query([@subject, RDF::DOAP.name, nil]).size.should == 1
+          #@queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size # FIXME: assumes too much about the doap.nt data
+          @queryable.query([nil, nil, RDF::DOAP.Project]).size.should == 1
+        end
+
+        it "returns the correct number of results for hash queries" do
+          @queryable.query({}).size.should == @statements.size
+          @queryable.query(:subject => @subject) .size.should == File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+          @queryable.query(:subject => @subject, :predicate => RDF::DOAP.name).size.should == 1
+          #@queryable.query(:subject => @subject, :predicate => RDF::DOAP.developer).size.should == @queryable.query(:object => RDF::FOAF.Person).size # FIXME: assumes too much about the doap.nt data
+          @queryable.query(:object => RDF::DOAP.Project).size.should == 1
+        end
+      end
+
+      context "with specific patterns from SPARQL" do
+        context "triple pattern combinations" do
+          it "?s p o" do
+            @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal.new(1)).to_a.should ==
+              [RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
+          end
+
+          it "s ?p o" do
+            @queryable.query(:subject => RDF::URI("http://example.org/xi2"), :object => RDF::Literal.new(1)).to_a.should ==
+              [RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
+          end
+        end
+
+        # From data-r2/expr-equals
+        context "data/r2/expr-equals" do
+          context "graph-1" do
+            before(:each) do
+              @solutions = @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Integer.new(1)).to_a
+            end
+
+            it "has two solutions" do
+              @solutions.count.should == 2
+            end
+
+            it "has xi1 as a solution" do
+              @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}.should be_true
+            end
+
+            it "has xi2 as a solution" do
+              @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}.should be_true
+            end
+          end
+
+
+          context "graph-2" do
+            before(:each) do
+              @solutions = @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Double.new("1.0e0")).to_a
+            end
+
+            it "has one solution" do
+              @solutions.count.should == 1
+            end
+
+            it "has xd1 as a solution" do
+              @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}.should be_true
+            end
+          end
+        end
+      end
     end
   end
 
   ##
   # @see RDF::Queryable#query_pattern
-
-  it "should respond to #query_pattern" do
-    @queryable.should respond_to(:query_pattern)
-  end
-
-  context "#query_pattern when called" do
-    it "should require an argument" do
-      lambda { @queryable.send(:query_pattern) }.should raise_error(ArgumentError)
+  describe "#query_pattern" do
+    it "responds to #query_pattern" do
+      @queryable.should respond_to(:query_pattern)
     end
 
-    it "should call the given block" do
-      called = false
-      @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
-        called = true
-        break
+    context "when called" do
+      it "requires an argument" do
+        lambda { @queryable.send(:query_pattern) }.should raise_error(ArgumentError)
       end
-      called.should be_true
-    end
 
-    it "should yield statements" do
-      @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
-        statement.should be_a_statement
+      it "yields to the given block" do
+        called = false
+        @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
+          called = true
+          break
+        end
+        called.should be_true
+      end
+
+      it "yields statements" do
+        @queryable.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
+          statement.should be_a_statement
+        end
+      end
+    
+      context "with specific patterns" do
+        # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
+        {
+          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+          [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+          [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
+        }.each do |pattern, result|
+          pattern = RDF::Query::Pattern.from(pattern)
+          it "returns #{result.inspect} given #{pattern.inspect}" do
+            solutions = []
+            @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+            solutions.should == result
+          end
+        end
+      end
+
+      context "with context" do
+        it "returns statements from all contexts with no context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => nil)
+          solutions = []
+          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+          solutions.size.should == @statements.size
+        end
+
+        it "returns statements from named contexts with variable context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
+          solutions = []
+          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+          solutions.size.should == (@bendikens + @bhugas + @gkelloggs).size
+        end
+
+        it "returns statements from specific context with URI context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => RDF::URI("http://ar.to/#self"))
+          solutions = []
+          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+          solutions.size.should == @bendikens.size
+        end
       end
     end
   end
 
   ##
   # @see RDF::Queryable#first
-
-  it "should respond to #first" do
-    @queryable.should respond_to(:first)
-  end
-
-  context "#first" do
+  describe "#first" do
     before :all do
       @failing_pattern = [RDF::Node.new] * 3
     end
 
-    it "should be callable without a pattern" do
+    it "should respond to #first" do
+      @queryable.should respond_to(:first)
+    end
+
+    it "returns enumerator without a pattern" do
       lambda { @queryable.first }.should_not raise_error(ArgumentError)
       @queryable.first.should == @queryable.each.first # uses an Enumerator
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], @queryable.each.first]
       matching_patterns.each do |matching_pattern|
         @queryable.first(matching_pattern).should == @queryable.query(matching_pattern).each.first
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first.should be_nil
       queryable.first(@failing_pattern).should be_nil
@@ -174,33 +278,32 @@ share_as :RDF_Queryable do
 
   ##
   # @see RDF::Queryable#first_subject
-
-  it "should respond to #first_subject" do
-    @queryable.should respond_to(:first_subject)
-  end
-
-  context "#first_subject" do
+  describe "#first_subject" do
     before :all do
       @failing_pattern = [RDF::Node.new, nil, nil]
     end
 
-    it "should be callable without a pattern" do
+    it "should respond to #first_subject" do
+      @queryable.should respond_to(:first_subject)
+    end
+
+    it "returns enumerator without a pattern" do
       lambda { @queryable.first_subject }.should_not raise_error(ArgumentError)
       @queryable.first_subject.should == @queryable.first.subject
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [@queryable.first.subject, nil, nil]]
       matching_patterns.each do |matching_pattern|
         @queryable.first_subject(matching_pattern).should == @queryable.query(matching_pattern).first.subject
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first_subject(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_subject.should be_nil
       queryable.first_subject(@failing_pattern).should be_nil
@@ -210,32 +313,32 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_predicate
 
-  it "should respond to #first_predicate" do
-    @queryable.should respond_to(:first_predicate)
-  end
-
-  context "#first_predicate" do
+  describe "#first_predicate" do
     before :all do
       @failing_pattern = [nil, RDF::Node.new, nil]
     end
 
-    it "should be callable without a pattern" do
+    it "should respond to #first_predicate" do
+      @queryable.should respond_to(:first_predicate)
+    end
+
+    it "returns enumerator without a pattern" do
       lambda { @queryable.first_predicate }.should_not raise_error(ArgumentError)
       @queryable.first_predicate.should == @queryable.first.predicate
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [nil, @queryable.first.predicate, nil]]
       matching_patterns.each do |matching_pattern|
         @queryable.first_predicate(matching_pattern).should == @queryable.query(matching_pattern).first.predicate
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first_predicate(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_predicate.should be_nil
       queryable.first_predicate(@failing_pattern).should be_nil
@@ -245,32 +348,32 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_object
 
-  it "should respond to #first_object" do
-    @queryable.should respond_to(:first_object)
-  end
-
-  context "#first_object" do
+  describe "#first_object" do
     before :all do
       @failing_pattern = [nil, nil, RDF::Node.new]
     end
 
-    it "should be callable without a pattern" do
+    it "should respond to #first_object" do
+      @queryable.should respond_to(:first_object)
+    end
+
+    it "returns enurator without a pattern" do
       lambda { @queryable.first_object }.should_not raise_error(ArgumentError)
       @queryable.first_object.should == @queryable.first.object
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [nil, nil, @queryable.first.object]]
       matching_patterns.each do |matching_pattern|
         @queryable.first_object(matching_pattern).should == @queryable.query(matching_pattern).first.object
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first_object(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_object.should be_nil
       queryable.first_object(@failing_pattern).should be_nil
@@ -280,11 +383,11 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_literal
 
-  it "should respond to #first_literal" do
+  it "returns to #first_literal" do
     @queryable.should respond_to(:first_literal)
   end
 
-  context "#first_literal" do
+  describe "#first_literal" do
     before :each do
       # FIXME: these tests should be using the provided @queryable, if possible.
       @queryable = RDF::Graph.new do |graph|
@@ -296,23 +399,23 @@ share_as :RDF_Queryable do
       @failing_pattern = [nil, nil, RDF::Node.new]
     end
 
-    it "should be callable without a pattern" do
+    it "returns a literal without a pattern" do
       lambda { @queryable.first_literal }.should_not raise_error(ArgumentError)
       @queryable.first_literal.should == @literal
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = [[nil, nil, nil], [@subject, nil, nil], [nil, RDF::DC.creator, nil], [nil, nil, @literal]]
       matching_patterns.each do |matching_pattern|
         @queryable.first_literal(matching_pattern).should == @literal
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first_literal(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_literal.should be_nil
       queryable.first_literal(@failing_pattern).should be_nil
@@ -322,21 +425,21 @@ share_as :RDF_Queryable do
   ##
   # @see RDF::Queryable#first_value
 
-  it "should respond to #first_value" do
-    @queryable.should respond_to(:first_value)
-  end
-
-  context "#first_value" do
+  describe "#first_value" do
     before :all do
       @failing_pattern = [nil, nil, RDF::Node.new]
     end
 
-    it "should be callable without a pattern" do
+    it "should respond to #first_value" do
+      @queryable.should respond_to(:first_value)
+    end
+
+    it "returns first literal without a pattern" do
       lambda { @queryable.first_value }.should_not raise_error(ArgumentError)
       @queryable.first_value.should == @queryable.first_literal.value
     end
 
-    it "should return the correct value when the pattern matches" do
+    it "returns the correct value when the pattern matches" do
       matching_patterns = []
       @queryable.each do |statement|
         if statement.object.is_a?(RDF::Literal)
@@ -349,11 +452,11 @@ share_as :RDF_Queryable do
       end
     end
 
-    it "should return nil when the pattern fails to match anything" do
+    it "returns nil when the pattern fails to match anything" do
       @queryable.first_value(@failing_pattern).should be_nil
     end
 
-    it "should return nil when self is empty" do
+    it "returns nil when self is empty" do
       queryable = [].extend(RDF::Queryable)
       queryable.first_value.should be_nil
       queryable.first_value(@failing_pattern).should be_nil
