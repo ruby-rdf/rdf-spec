@@ -125,27 +125,23 @@ share_as :RDF_Writer do
       end
     end
     
-    it "calls #write_prologue" do
-      pending("mock of any instance support") do
-        #writer_mock = mock("writer")
-        #writer_mock.should_receive(:got_here)
-        @writer_class.any_instance.should_receive(:write_prologue)
-        @writer_class.new(StringIO.new) do |r|
-          #writer_mock.got_here
-        end
-      end
-    end
-    
-    it "calls #write_epilogue" do
-      pending("mock of any instance support") do
-        #writer_mock = mock("writer")
-        #writer_mock.should_receive(:got_here)
-        @writer_class.any_instance.should_receive(:write_epilogue)
-        @writer_class.new(StringIO.new) do |r|
-          #writer_mock.got_here
-        end
-      end
-    end
+    #it "calls #write_prologue" do
+    #  writer_mock = mock("writer")
+    #  writer_mock.should_receive(:got_here)
+    #  @writer_class.any_instance.should_receive(:write_prologue)
+    #  @writer_class.new(StringIO.new) do |r|
+    #    writer_mock.got_here
+    #  end
+    #end
+    #
+    #it "calls #write_epilogue" do
+    #  writer_mock = mock("writer")
+    #  writer_mock.should_receive(:got_here)
+    #  @writer_class.any_instance.should_receive(:write_epilogue)
+    #  @writer_class.new(StringIO.new) do |r|
+    #    writer_mock.got_here
+    #  end
+    #end
   end
   
   describe "#prefixes=" do
