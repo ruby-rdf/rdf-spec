@@ -14,7 +14,7 @@ share_as :RDF_Node do
   end
 
   
-  it "not eql? a node with the same identifier" do
+  it "not eql? a node with the same identifier", :pending => "SPARQL compatibility" do
     @new.call("a").should_not be_eql(@new.call("a"))
   end
 end
