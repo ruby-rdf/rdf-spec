@@ -7,8 +7,8 @@
 @prefix ex:   <http://example.org/> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
-<http://kellogg-assoc.com/#me> a foaf:Person ;
+<http://greggkellogg.net/#me> a foaf:Person ;
   foaf:name          "Gregg Kellogg" ;
-  foaf:mbox          <mailto:gregg@kellogg-assoc.com> ;
-  foaf:mbox_sha1sum  "35bc44e6d0070e5ad50ccbe0d24403c96af2b9bd" ;
-  foaf:homepage      <http://kellogg-assoc.com/> .
+  foaf:mbox          <mailto:gregg@greggkellogg.net> ;
+  foaf:mbox_sha1sum  "b7a856d39fc3f02573271d9901f1f9107147f657" ;
+  foaf:homepage      <http://greggkellogg.net/> .

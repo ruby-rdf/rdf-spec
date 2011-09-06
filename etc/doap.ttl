@@ -19,9 +19,9 @@
   doap:bug-database  <http://github.com/bendiken/rdf/issues> ;
   doap:blog          <http://ar.to/>, <http://blog.datagraph.org/> ;
   doap:vendor        <http://datagraph.org/> ;
-  doap:developer     <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://kellogg-assoc.com/#me> ;
-  doap:maintainer    <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://kellogg-assoc.com/#me> ;
-  doap:documenter    <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://kellogg-assoc.com/#me> ;
+  doap:developer     <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://greggkellogg.net/#me> ;
+  doap:maintainer    <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://greggkellogg.net/#me> ;
+  doap:documenter    <http://ar.to/#self>, <http://bhuga.net/#ben>, <http://greggkellogg.net/#me> ;
   doap:helper        [a foaf:Person ;
                       foaf:name "Călin Ardelean" ;
                       foaf:mbox_sha1sum "274bd18402fc773ffc0606996aa1fb90b603aa29"] ;
@@ -51,25 +51,3 @@
                       foaf:mbox_sha1sum "bedbbf2451e5beb38d59687c0460032aff92cd3c"] ;
   foaf:maker         <http://ar.to/#self> ;
   dc:creator         <http://ar.to/#self> .
-
-<http://ar.to/#self> a foaf:Person ;
-  foaf:name          "Arto Bendiken" ;
-  foaf:mbox          <mailto:arto.bendiken@gmail.com> ;
-  foaf:mbox_sha1sum  "d0737cceb55eb7d740578d2db1bc0727e3ed49ce",
-                     "a033f652c84a4d73b8c26d318c2395699dd2bdfb" ;
-  foaf:homepage      <http://ar.to/> ;
-  foaf:made          <> ;
-  rdfs:isDefinedBy   <http://datagraph.org/bendiken/foaf> .
-
-<http://bhuga.net/#ben> a foaf:Person ;
-  foaf:name          "Ben Lavender" ;
-  foaf:mbox          <mailto:blavender@gmail.com> ;
-  foaf:mbox_sha1sum  "dbf45f4ffbd27b67aa84f02a6a31c144727d10af" ;
-  foaf:homepage      <http://bhuga.net/> ;
-  rdfs:isDefinedBy   <http://datagraph.org/bhuga/foaf> .
-
-<http://kellogg-assoc.com/#me> a foaf:Person ;
-  foaf:name          "Gregg Kellogg" ;
-  foaf:mbox          <mailto:gregg@kellogg-assoc.com> ;
-  foaf:mbox_sha1sum  "35bc44e6d0070e5ad50ccbe0d24403c96af2b9bd" ;
-  foaf:homepage      <http://kellogg-assoc.com/> .
