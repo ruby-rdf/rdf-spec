@@ -108,7 +108,7 @@ share_as :RDF_URI do
     }.each_pair do |input, result|
       it "should create <#{result}> from <#{input[0]}> and '#{input[1]}'" do
         (RDF::URI.new(input[0]) / input[1]).to_s.should == result
-        (RDF::URI.new(input[0]) / RDF::URI.new(input[1])).to_s.should == result
+        (RDF::URI.new(input[0]) / RDF::URI.new(input[1])).to_s.should == result unless input[1][0,1] == ':'
       end
     end
 
@@ -130,7 +130,7 @@ share_as :RDF_URI do
     }.each_pair do |input, result|
       it "should create <#{result}> from <#{input[0]}> and '#{input[1]}'" do
         (RDF::URI.new(input[0]) + input[1]).to_s.should == result
-        (RDF::URI.new(input[0]) + RDF::URI.new(input[1])).to_s.should == result
+        (RDF::URI.new(input[0]) + RDF::URI.new(input[1])).to_s.should == result unless input[1][0,1] == ':'
       end
     end
   end
