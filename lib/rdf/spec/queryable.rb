@@ -6,24 +6,15 @@ share_as :RDF_Queryable do
   before :each do
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
 
-    @doap = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-    @doaps = RDF::NTriples::Reader.new(File.open(@doap)).to_a
-    @bendiken = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'bendiken.nt'))
-    @bendikens = RDF::NTriples::Reader.new(File.open(@bendiken)).to_a
-    @bhuga = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'bhuga.nt'))
-    @bhugas = RDF::NTriples::Reader.new(File.open(@bhuga)).to_a
-    @gkellogg = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'gkellogg.nt'))
-    @gkelloggs = RDF::NTriples::Reader.new(File.open(@gkellogg)).to_a
-    @statements = @doaps + @bendikens + @bhugas + @gkelloggs
+    @doap = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nq'))
+    @doaps = RDF::NQuads::Reader.new(File.open(@doap)).to_a
+    @statements = @doaps
 
     if @queryable.empty?
       if @queryable.respond_to?(:<<)
         @doaps.each { |statement| @queryable << statement }
-        @bendikens.each {|statement| statement.context = RDF::URI("http://ar.to/#self");  @queryable << statement}
-        @bhugas.each {|statement| statement.context = RDF::URI("http://bhuga.net/#ben");  @queryable << statement}
-        @gkelloggs.each {|statement| statement.context = RDF::URI("http://kellogg-assoc.com/#me");  @queryable << statement}
       else
-        raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap}, #{@bendiken}, #{@bhuga}, #{@gkellogg} in a before(:each) block"
+        raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"
       end
     end
 
@@ -104,7 +95,7 @@ share_as :RDF_Queryable do
         it "returns the correct number of results for array queries" do
           @queryable.query([nil, nil, nil]).size.should == @statements.size
           @queryable.query([@subject, nil, nil]).size.should == File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-          @queryable.query([RDF::URI("http://ar.to/#self"), nil, nil]).size.should == File.readlines(@bendiken).size
+          @queryable.query([RDF::URI("http://ar.to/#self"), nil, nil]).size.should == File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
           @queryable.query([@subject, RDF::DOAP.name, nil]).size.should == 1
           #@queryable.query([@subject, RDF::DOAP.developer, nil]).size.should == @queryable.query([nil, nil, RDF::FOAF.Person]).size # FIXME: assumes too much about the doap.nt data
           @queryable.query([nil, nil, RDF::DOAP.Project]).size.should == 1
@@ -119,7 +110,7 @@ share_as :RDF_Queryable do
         end
       end
 
-      context "with specific patterns from SPARQL" do
+      context "with specific patterns from SPARQL", :pending => true do
         context "triple pattern combinations" do
           it "?s p o" do
             @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal.new(1)).to_a.should ==
@@ -198,7 +189,7 @@ share_as :RDF_Queryable do
         end
       end
     
-      context "with specific patterns" do
+      context "with specific patterns", :pending => true do
         # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
         {
           [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
@@ -225,18 +216,19 @@ share_as :RDF_Queryable do
           solutions.size.should == @statements.size
         end
 
-        it "returns statements from named contexts with variable context" do
+        it "returns statements from named contexts with variable context", :pending => true do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
           solutions = []
           @queryable.send(:query_pattern, pattern) {|s| solutions << s}
-          solutions.size.should == (@bendikens + @bhugas + @gkelloggs).size
+          context_statements = @queryable.statements.select {|st| st.has_context?}.length
+          solutions.size.should == context_statements
         end
 
         it "returns statements from specific context with URI context" do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => RDF::URI("http://ar.to/#self"))
           solutions = []
           @queryable.send(:query_pattern, pattern) {|s| solutions << s}
-          solutions.size.should == @bendikens.size
+          solutions.size.should == File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
         end
       end
     end
