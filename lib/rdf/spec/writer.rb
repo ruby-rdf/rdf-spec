@@ -94,6 +94,13 @@ share_as :RDF_Writer do
     end
   end
 
+  describe ".format" do
+    it "returns itself even if given explicit format" do
+      other_format = @writer_class == RDF::NTriples::Writer ? :nquads : :ntriples
+      @writer_class.for(other_format).should == @writer_class
+    end
+  end
+
   describe ".new" do
     it "sets @output to $stdout by default" do
       writer_mock = mock("writer")

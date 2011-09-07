@@ -81,6 +81,13 @@ share_as :RDF_Reader do
     end
   end
 
+  describe ".format" do
+    it "returns itself even if given explicit format" do
+      other_format = @reader_class == RDF::NTriples::Reader ? :nquads : :ntriples
+      @reader_class.for(other_format).should == @reader_class
+    end
+  end
+
   describe ".new" do
     it "sets @input to StringIO given a string" do
       reader_mock = mock("reader")
