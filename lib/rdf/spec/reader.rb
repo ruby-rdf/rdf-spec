@@ -101,7 +101,7 @@ share_as :RDF_Reader do
     it "sets @input to input given something other than a string" do
       reader_mock = mock("reader")
       reader_mock.should_receive(:got_here)
-      file = mock("file")
+      file = StringIO.new("")
       @reader_class.new(file) do |r|
         reader_mock.got_here
         r.instance_variable_get(:@input).should == file
@@ -109,11 +109,18 @@ share_as :RDF_Reader do
     end
     
     it "sets validate given :validate => true" do
-      reader_mock = mock("reader")
-      reader_mock.should_receive(:got_here)
-      @reader_class.new("string", :validate => true) do |r|
-        reader_mock.got_here
-        r.send(:validate?).should be_true
+      # Either set validate, or through error, due to invalid input (null input may be invalid)
+      got_validate = got_error = false
+      begin
+        @reader_class.new("string", :validate => true) do |r|
+          got_validate = r.validate?
+        end
+        got_validate.should be_true
+      rescue
+        $!.should be_a(RDF::ReaderError)
+        got_error = true
+      ensure
+        (got_validate || got_error).should be_true
       end
     end
     
