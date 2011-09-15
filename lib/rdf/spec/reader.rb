@@ -110,17 +110,12 @@ share_as :RDF_Reader do
     
     it "sets validate given :validate => true" do
       # Either set validate, or through error, due to invalid input (null input may be invalid)
-      got_validate = got_error = false
       begin
         @reader_class.new("string", :validate => true) do |r|
-          got_validate = r.validate?
+          r.send(:validate?).should be_true
         end
-        got_validate.should be_true
       rescue
-        $!.should be_a(RDF::ReaderError)
-        got_error = true
-      ensure
-        (got_validate || got_error).should be_true
+        $!.should be_a(RDF::ReaderError)  # An error is acceptable
       end
     end
     
