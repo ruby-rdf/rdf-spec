@@ -105,11 +105,13 @@ share_as :RDF_Writer do
     it "sets @output to $stdout by default" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
+      save, $stdout = $stdout, StringIO.new
 
       @writer_class.new do |r|
         writer_mock.got_here
         r.instance_variable_get(:@output).should == $stdout
       end
+      $stdout = save
     end
     
     it "sets @output to file given something other than a string" do
