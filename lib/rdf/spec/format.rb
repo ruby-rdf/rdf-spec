@@ -16,9 +16,12 @@ share_as :RDF_Format do
   end
   
   describe ".writer" do
+    ##
+    # May not return a writer, only does if one is defined by the format
     it "returns a writer" do
       @format_class.each do |f|
-        f.writer.should_not be_nil
+        format_namespace = f.name.split('::')[0..-2].inject(Kernel) {|base, const| base.const_get(const)}
+        f.writer.should_not be_nil if format_namespace.const_defined?(:Writer)
       end
     end
   end
