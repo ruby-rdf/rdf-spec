@@ -110,7 +110,7 @@ share_as :RDF_Queryable do
         end
       end
 
-      context "with specific patterns from SPARQL", :pending => "SPARQL compatibility" do
+      context "with specific patterns from SPARQL" do
         context "triple pattern combinations" do
           it "?s p o" do
             @queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal.new(1)).to_a.should ==
@@ -189,7 +189,7 @@ share_as :RDF_Queryable do
         end
       end
     
-      context "with specific patterns", :pending => "SPARQL compatibility" do
+      context "with specific patterns" do
         # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
         {
           [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
@@ -216,7 +216,15 @@ share_as :RDF_Queryable do
           solutions.size.should == @statements.size
         end
 
-        it "returns statements from named contexts with variable context", :pending => "SPARQL compatibility" do
+        it "returns statements from unnamed contexts with false context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => false)
+          solutions = []
+          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+          context_statements = @queryable.statements.reject {|st| st.has_context?}.length
+          solutions.size.should == context_statements
+        end
+
+        it "returns statements from named contexts with variable context" do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
           solutions = []
           @queryable.send(:query_pattern, pattern) {|s| solutions << s}
