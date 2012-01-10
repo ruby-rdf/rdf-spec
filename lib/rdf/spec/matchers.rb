@@ -1,58 +1,47 @@
-require 'rspec' # @see http://rubygems.org/gems/rspec
+require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
 
 module RDF; module Spec
   ##
   # RDF matchers for RSpec.
   #
-  # @see http://rspec.rubyforge.org/rspec/1.2.9/classes/Spec/Matchers.html
+  # @see http://rubydoc.info/gems/rspec-expectations/frames
   module Matchers
-    ##
-    # Defines a new RSpec matcher.
-    #
-    # @param  [Symbol] name
-    # @return [void]
-    def self.define(name, &declarations)
-      define_method name do |*expected|
-        ::RSpec::Matchers::Matcher.new(name, *expected, &declarations)
-      end
-    end
-
-    define :be_countable do
+    RSpec::Matchers.define :be_countable do
       match do |countable|
         countable.should be_a_kind_of(RDF::Countable)
         true
       end
     end
 
-    define :be_enumerable do
+    RSpec::Matchers.define :be_enumerable do
       match do |enumerable|
         enumerable.should be_a_kind_of(RDF::Enumerable)
         true
       end
     end
 
-    define :be_an_enumerator do
+    RSpec::Matchers.define :be_an_enumerator do
       match do |enumerator|
         enumerator.should be_a_kind_of(RDF::Enumerator)
         true
       end
     end
 
-    define :be_queryable do
+    RSpec::Matchers.define :be_queryable do
       match do |enumerable|
         enumerable.should be_a_kind_of(RDF::Queryable)
         true
       end
     end
 
-    define :be_mutable do
+    RSpec::Matchers.define :be_mutable do
       match do |enumerable|
         enumerable.should be_a_kind_of(RDF::Mutable)
         true
       end
     end
 
-    define :be_a_statement do
+    RSpec::Matchers.define :be_a_statement do
       match do |statement|
         statement.should be_instance_of(RDF::Statement)
         statement.subject.should be_a_kind_of(RDF::Resource)
@@ -62,7 +51,7 @@ module RDF; module Spec
       end
     end
 
-    define :be_a_triple do
+    RSpec::Matchers.define :be_a_triple do
       match do |triple|
         triple.should be_instance_of(Array)
         triple.size.should == 3
@@ -73,7 +62,7 @@ module RDF; module Spec
       end
     end
 
-    define :be_a_quad do
+    RSpec::Matchers.define :be_a_quad do
       match do |quad|
         quad.should be_instance_of(Array)
         quad.size.should == 4
@@ -85,42 +74,42 @@ module RDF; module Spec
       end
     end
 
-    define :be_a_resource do
+    RSpec::Matchers.define :be_a_resource do
       match do |value|
         value.should be_a_kind_of(RDF::Resource)
         true
       end
     end
 
-    define :be_a_node do
+    RSpec::Matchers.define :be_a_node do
       match do |value|
         value.should be_a_kind_of(RDF::Node)
         true
       end
     end
 
-    define :be_a_uri do
+    RSpec::Matchers.define :be_a_uri do
       match do |value|
         value.should be_a_kind_of(RDF::URI)
         true
       end
     end
 
-    define :be_a_value do
+    RSpec::Matchers.define :be_a_value do
       match do |value|
         value.should be_a_kind_of(RDF::Value) unless value.is_a?(String) # FIXME
         true
       end
     end
 
-    define :be_a_list do
+    RSpec::Matchers.define :be_a_list do
       match do |value|
         value.should be_an(RDF::List)
         true
       end
     end
 
-    define :be_a_vocabulary do |base_uri|
+    RSpec::Matchers.define :be_a_vocabulary do |base_uri|
       match do |vocabulary|
         vocabulary.should be_a_kind_of(Module)
         vocabulary.should respond_to(:to_uri)
@@ -130,7 +119,7 @@ module RDF; module Spec
       end
     end
 
-    define :have_properties do |base_uri, properties|
+    RSpec::Matchers.define :have_properties do |base_uri, properties|
       match do |vocabulary|
         properties.map { |p| p.to_sym }.each do |property|
           vocabulary[property].should be_a_uri
@@ -145,7 +134,7 @@ module RDF; module Spec
       end
     end
 
-    define :have_subclasses do |base_uri, klasses|
+    RSpec::Matchers.define :have_subclasses do |base_uri, klasses|
       match do |vocabulary|
         klasses.map { |k| k.to_sym }.each do |klass|
           # TODO
@@ -154,21 +143,21 @@ module RDF; module Spec
       end
     end
 
-    define :be_a_repository do
+    RSpec::Matchers.define :be_a_repository do
       match do |repository|
         repository.should be_a_kind_of(RDF::Repository)
         true
       end
     end
 
-    define :be_a_repository_of_size do |size|
+    RSpec::Matchers.define :be_a_repository_of_size do |size|
       match do |repository|
         repository.should be_a_repository
         repository.size == size
       end
     end
 
-    define :have_predicate do |predicate, count|
+    RSpec::Matchers.define :have_predicate do |predicate, count|
       match do |queryable|
         if count.nil?
           queryable.has_predicate?(predicate)

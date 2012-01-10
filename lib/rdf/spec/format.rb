@@ -6,6 +6,24 @@ share_as :RDF_Format do
   before(:each) do
     raise raise '+@format_class+ must be defined in a before(:each) block' unless instance_variable_get('@format_class')
   end
+
+  describe ".for" do
+    RDF::Format.file_extensions.each do |ext, formats|
+      it "detects #{formats.first} using file_name foo.#{ext}" do
+        RDF::Format.for(:file_name => "foo.#{ext}").should == formats.first
+      end
+
+      it "detects #{formats.first} using file_extension #{ext}" do
+        RDF::Format.for(:file_extension => ext).should == formats.first
+      end
+    end
+
+    RDF::Format.content_types.each do |content_type, formats|
+      it "detects #{formats.first} using content_type #{content_type}" do
+        RDF::Format.for(:content_type => content_type).should == formats.first
+      end
+    end
+  end
   
   describe ".reader" do
     it "returns a reader" do
