@@ -226,7 +226,6 @@ share_as :RDF_Queryable do
 
         it "returns statements from named contexts with variable context" do
           unless @queryable.contexts.to_a.empty?
-            puts "contexts: #{@queryable.contexts.to_a.inspect}"
             pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
             solutions = []
             @queryable.send(:query_pattern, pattern) {|s| solutions << s}
