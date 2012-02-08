@@ -8,8 +8,7 @@ share_as :RDF_Writable do
 
     @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
 
-    # Assume contexts are supported unless declared otherwise:
-    @supports_context = @mutable.respond_to?(:supports?) ? @mutable.supports?(:context) : true
+    @supports_context = @writable.respond_to?(:supports?) && @writable.supports?(:context)
   end
   
   it "responds to #writable?" do
