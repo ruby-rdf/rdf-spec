@@ -225,18 +225,23 @@ share_as :RDF_Queryable do
         end
 
         it "returns statements from named contexts with variable context" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
-          solutions = []
-          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
-          context_statements = @queryable.statements.select {|st| st.has_context?}.length
-          solutions.size.should == context_statements
+          unless @queryable.contexts.to_a.empty?
+            puts "contexts: #{@queryable.contexts.to_a.inspect}"
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
+            solutions = []
+            @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+            context_statements = @queryable.statements.select {|st| st.has_context?}.length
+            solutions.size.should == context_statements
+          end
         end
 
         it "returns statements from specific context with URI context" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => RDF::URI("http://ar.to/#self"))
-          solutions = []
-          @queryable.send(:query_pattern, pattern) {|s| solutions << s}
-          solutions.size.should == File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+          unless @queryable.contexts.to_a.empty?
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => RDF::URI("http://ar.to/#self"))
+            solutions = []
+            @queryable.send(:query_pattern, pattern) {|s| solutions << s}
+            solutions.size.should == File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+          end
         end
       end
     end
