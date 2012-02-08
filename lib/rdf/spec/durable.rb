@@ -42,7 +42,9 @@ share_as :RDF_Durable do
   end
 
   it "should save contents between instantiations" do
-    @load_durable.call.load(@filename)
-    @load_durable.call.count.should == File.readlines(@filename).size
+    if @load_durable.call.durable?
+      @load_durable.call.load(@filename)
+      @load_durable.call.count.should == File.readlines(@filename).size
+    end
   end
 end
