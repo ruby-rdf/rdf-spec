@@ -410,4 +410,18 @@ share_as :RDF_Enumerable do
       @enumerable.to_hash.keys.size.should == @enumerable.subjects.to_a.size
     end
   end
+  
+  context "when dumping" do
+    it "should respond to #dump" do
+      @enumerable.should respond_to(:dump)
+    end
+    
+    it "should implement #dump" do
+      @enumerable.dump(:ntriples).should == RDF::NTriples::Writer.buffer() {|w| w << @enumerable}
+    end
+    
+    it "raises error on unknown format" do
+      lambda {@enumerable.dump(:foobar)}.should raise_error(RDF::WriterError, /No writer found/)
+    end
+  end
 end
