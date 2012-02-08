@@ -17,8 +17,13 @@ share_as :RDF_Enumerable do
       end
     end
 
-    # Assume contexts are supported unless declared otherwise:
-    @supports_context = @enumerable.respond_to?(:supports?) ? @enumerable.supports?(:context) : true
+    @supports_context = @enumerable.respond_to?(:supports?) && @enumerable.supports?(:context)
+  end
+
+  describe "#supports?" do
+    it "responds to #supports?" do
+      @enumerable.respond_to?(:support?)
+    end
   end
 
   context "when counting statements" do
@@ -70,11 +75,13 @@ share_as :RDF_Enumerable do
         @enumerable.has_statement?(statement).should be_true
       end
 
-      context = RDF::URI.new("urn:context:1")
-      @statements.each do |statement|
-        s = statement.dup
-        s.context = context
-        @enumerable.has_statement?(s).should be_false
+      if @supports_context
+        context = RDF::URI.new("urn:context:1")
+        @statements.each do |statement|
+          s = statement.dup
+          s.context = context
+          @enumerable.has_statement?(s).should be_false
+        end
       end
 
       unknown_statement = RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)

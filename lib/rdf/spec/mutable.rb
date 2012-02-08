@@ -12,8 +12,7 @@ share_as :RDF_Mutable do
     @subject = RDF::URI('http://rubygems.org/gems/rdf')
     @context = RDF::URI('http://example.org/context')
 
-    # Assume contexts are supported unless declared otherwise:
-    @supports_context = @mutable.respond_to?(:supports?) ? @mutable.supports?(:context) : true
+    @supports_context = @mutable.respond_to?(:supports?) && @mutable.supports?(:context)
   end
 
   context "readability" do
@@ -78,9 +77,11 @@ share_as :RDF_Mutable do
     end
 
     it "should load statements with a context override" do
-      @mutable.load @filename, :context => @context
-      @mutable.should have_context(@context)
-      @mutable.query(:context => @context).size.should == @mutable.size
+      if @supports_context
+        @mutable.load @filename, :context => @context
+        @mutable.should have_context(@context)
+        @mutable.query(:context => @context).size.should == @mutable.size
+      end
     end
   end
 
