@@ -16,6 +16,26 @@ share_as :RDF_Mutable do
     @supports_context = @mutable.respond_to?(:supports?) ? @mutable.supports?(:context) : true
   end
 
+  context "readability" do
+    require 'rdf/spec/readable'
+
+    before :each do
+      @readable = @mutable
+    end
+
+    it_should_behave_like RDF_Readable
+  end
+
+  context "writability" do
+    require 'rdf/spec/writable'
+
+    before :each do
+      @writable = @mutable
+    end
+
+    it_should_behave_like RDF_Writable
+  end
+
   it "should be empty initially" do
     @mutable.empty?.should be_true
     @mutable.count.should be_zero
@@ -62,55 +82,6 @@ share_as :RDF_Mutable do
       @mutable.should have_context(@context)
       @mutable.query(:context => @context).size.should == @mutable.size
     end
-  end
-
-  context "when inserting statements" do
-    before :each do
-      @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
-    end
-
-    it "should support #insert" do
-      @mutable.should respond_to(:insert)
-    end
-
-    it "should not raise errors" do
-      lambda { @mutable.insert(@statements.first) }.should_not raise_error
-    end
-
-    it "should support inserting one statement at a time" do
-      @mutable.insert(@statements.first)
-      @mutable.should have_statement(@statements.first)
-    end
-
-    it "should support inserting multiple statements at a time" do
-      @mutable.insert(*@statements)
-    end
-
-    it "should insert statements successfully" do
-      @mutable.insert(*@statements)
-      @mutable.count.should == @statements.size
-    end
-
-    it "should not insert a statement twice" do
-      @mutable.insert(@statements.first)
-      @mutable.insert(@statements.first)
-      @mutable.count.should == 1
-    end
-
-    it "should treat statements with a different context as distinct" do
-      s1 = @statements.first.dup
-      s1.context = nil
-      s2 = @statements.first.dup
-      s2.context = RDF::URI.new("urn:context:1")
-      s3 = @statements.first.dup
-      s3.context = RDF::URI.new("urn:context:2")
-      @mutable.insert(s1)
-      @mutable.insert(s2)
-      @mutable.insert(s3)
-      # If contexts are not suported, all three are redundant
-      @mutable.count.should == (@supports_context ? 3 : 1)
-    end
-
   end
 
   context "when deleting statements" do
