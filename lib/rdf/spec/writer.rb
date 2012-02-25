@@ -1,5 +1,6 @@
 require 'rdf/spec'
 require 'fileutils'
+require 'tmpdir'
 
 share_as :RDF_Writer do
   include RDF::Spec::Matchers
@@ -29,13 +30,12 @@ share_as :RDF_Writer do
   describe ".open" do
     before(:each) do
       RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
-      @dir = File.join(File.expand_path(File.dirname(__FILE__)), "tmp")
-      Dir.mkdir(@dir)
+      @dir = File.join(Dir.tmpdir, "rdf-spec")
       @basename = File.join(@dir, "foo")
     end
     
     after(:each) do
-      FileUtils.rm_rf(File.join(File.expand_path(File.dirname(__FILE__)), "tmp"))
+      FileUtils.rm_rf(@dir)
     end
 
     it "yields writer given file_name" do
