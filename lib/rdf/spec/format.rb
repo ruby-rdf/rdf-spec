@@ -9,6 +9,10 @@ share_as :RDF_Format do
 
   describe ".for" do
     RDF::Format.file_extensions.each do |ext, formats|
+      it "detects #{formats.first} using file path foo.#{ext}" do
+        RDF::Format.for("foo.#{ext}").should == formats.first
+      end
+
       it "detects #{formats.first} using file_name foo.#{ext}" do
         RDF::Format.for(:file_name => "foo.#{ext}").should == formats.first
       end
