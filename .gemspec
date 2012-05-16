@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
 
   gem.name               = 'rdf-spec'
-  gem.homepage           = 'http://rdf.rubyforge.org/spec/'
+  gem.homepage           = 'http://github.com/ruby-rdf/rdf-spec'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
