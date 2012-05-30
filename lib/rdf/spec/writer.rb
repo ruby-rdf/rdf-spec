@@ -54,7 +54,7 @@ share_as :RDF_Writer do
 
     it "yields writer given symbol" do
       @writer_class.format.each do |f|
-        sym = f.name.to_s.split('::')[-2].downcase.to_sym  # Like RDF::NTriples::Format => :ntriples
+        sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
         writer_mock = mock("writer")
         writer_mock.should_receive(:got_here)
         @writer_class.should_receive(:for).with(sym).and_return(@writer_class)

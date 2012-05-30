@@ -39,7 +39,7 @@ share_as :RDF_Reader do
     it "yields reader given symbol" do
       @reader_class.format.each do |f|
         RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
-        sym = f.name.to_s.split('::')[-2].downcase.to_sym  # Like RDF::NTriples::Format => :ntriples
+        sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
         reader_mock = mock("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.should_receive(:for).with(sym).and_return(@reader_class)
