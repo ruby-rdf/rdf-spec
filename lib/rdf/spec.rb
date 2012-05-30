@@ -38,7 +38,7 @@ module RDF
   #     it_should_behave_like RDF_Repository
   #   end
   #
-  # @see http://rdf.rubyforge.org/
+  # @see http://rubygems.org/gems/rdf
   # @see http://rspec.info/
   #
   # @author [Arto Bendiken](http://ar.to/)
