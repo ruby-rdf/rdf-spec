@@ -35,7 +35,7 @@ share_as :RDF_Countable do
 
     it "implements #count and #size" do
       %w(count size).each do |method|
-        @countable.send(method).should == @statements.size
+        @countable.send(method).should >= @statements.size
       end
     end
 
