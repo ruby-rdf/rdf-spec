@@ -117,7 +117,7 @@ share_as :RDF_Writer do
     it "sets @output to file given something other than a string" do
       writer_mock = mock("writer")
       writer_mock.should_receive(:got_here)
-      file = mock("file")
+      file = StringIO.new
       file.should_receive(:write).any_number_of_times
       @writer_class.new(file) do |r|
         writer_mock.got_here
