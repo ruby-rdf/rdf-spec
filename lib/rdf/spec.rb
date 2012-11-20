@@ -24,7 +24,7 @@ module RDF
   #       @enumerable = @statements.dup.extend(RDF::Enumerable)
   #     end
   #     
-  #     it_should_behave_like RDF_Enumerable
+  #     include RDF_Enumerable
   #   end
   #
   # @example Using the shared examples for `RDF::Repository`
@@ -35,7 +35,7 @@ module RDF
   #       @repository = RDF::Repository.new
   #     end
   #     
-  #     it_should_behave_like RDF_Repository
+  #     include RDF_Repository
   #   end
   #
   # @see http://rubygems.org/gems/rdf

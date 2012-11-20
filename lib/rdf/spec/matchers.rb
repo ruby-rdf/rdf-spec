@@ -137,7 +137,7 @@ module RDF; module Spec
     RSpec::Matchers.define :have_subclasses do |base_uri, klasses|
       match do |vocabulary|
         klasses.map { |k| k.to_sym }.each do |klass|
-          # TODO
+          pending "checks that #{base_uri} has subClassOf for #{klass}"
         end
         true
       end
