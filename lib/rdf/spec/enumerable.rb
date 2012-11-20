@@ -204,9 +204,14 @@ module RDF_Enumerable
       end
 
       describe "#subjects" do
-        specify {@enumerable.subjects.should be_an_enumerator}
-        specify {@enumerable.subjects.each { |value| value.should be_a_resource }}
-        it "should test with :unique => false"
+        subject {@enumerable.subjects}
+        specify {subject.should be_an_enumerator}
+        specify {subject.each { |value| value.should be_a_resource }}
+        context ":unique => false" do
+          subject {@enumerable.subjects(:unique => false)}
+          specify {subject.should be_an_enumerator}
+          specify {subject.each { |value| value.should be_a_resource }}
+        end
       end
 
       it "should implement #has_subject?" do
@@ -254,9 +259,14 @@ module RDF_Enumerable
       end
 
       describe "#predicates" do
-        specify {@enumerable.predicates.should be_an_enumerator}
-        specify {@enumerable.predicates.each { |value| value.should be_a_uri }}
-        it "should test with :unique => false"
+        subject {@enumerable.predicates}
+        specify {subject.should be_an_enumerator}
+        specify {subject.each { |value| value.should be_a_uri }}
+        context ":unique => false" do
+          subject {@enumerable.predicates(:unique => false)}
+          specify {subject.should be_an_enumerator}
+          specify {subject.each { |value| value.should be_a_resource }}
+        end
       end
 
       it "should implement #has_predicate?" do
@@ -304,9 +314,14 @@ module RDF_Enumerable
       end
 
       describe "#objects" do
-        specify {@enumerable.objects.should be_an_enumerator}
-        specify {@enumerable.objects.each { |value| value.should be_a_value }}
-        it "should test with :unique => false"
+        subject {@enumerable.objects}
+        specify {subject.should be_an_enumerator}
+        specify {subject.each { |value| value.should be_a_value }}
+        context ":unique => false" do
+          subject {@enumerable.objects(:unique => false)}
+          specify {subject.should be_an_enumerator}
+          specify {subject.each { |value| value.should be_a_value }}
+        end
       end
 
       it "should implement #has_object?" do
@@ -354,9 +369,14 @@ module RDF_Enumerable
       end
 
       describe "#contexts" do
-        specify {@enumerable.contexts.should be_an_enumerator}
-        specify {@enumerable.contexts.each { |value| value.should be_a_resource }}
-        it "should test with :unique => false"
+        subject {@enumerable.contexts}
+        specify {subject.should be_an_enumerator}
+        specify {subject.each { |value| value.should be_a_resource }}
+        context ":unique => false" do
+          subject {@enumerable.contexts(:unique => false)}
+          specify {subject.should be_an_enumerator}
+          specify {pending {subject.each { |value| value.should be_a_resource }}}
+        end
       end
 
       it "should implement #has_context?" do
@@ -397,9 +417,12 @@ module RDF_Enumerable
       end
 
       describe "#each_graph" do
-        specify {@enumerable.each_graph.should be_an_enumerator}
-        specify {@enumerable.each_graph.each { |value| value.should be_a_graph }}
-        it "relying on #contexts, check that the returned values are correct"
+        subject {@enumerable.each_graph}
+        specify {subject.should be_an_enumerator}
+        specify {subject.each { |value| value.should be_a_graph }}
+        context "relying on #contexts" do
+          it "should check that the returned values are correct"
+        end
       end
 
       it "should implement #enum_graph" do
