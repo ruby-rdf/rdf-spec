@@ -6,11 +6,12 @@ share_as :RDF_Writable do
   before :each do
     raise '+@writable+ must be defined in a before(:each) block' unless instance_variable_get('@writable')
 
-    @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
+    @filename = File.expand_path("../../../../etc/doap.nt", __FILE__)
+    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
 
     @supports_context = @writable.respond_to?(:supports?) && @writable.supports?(:context)
   end
-  
+
   it "responds to #writable?" do
     @writable.respond_to?(:readable?)
   end
@@ -20,18 +21,43 @@ share_as :RDF_Writable do
   end
 
   describe "#<<" do
-    it "inserts a reader"
-    it "inserts a graph"
-    it "inserts an enumerable"
-    it "inserts data responding to #to_rdf"
-    it "inserts a statement"
+    it "inserts a reader" do
+      reader = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+      @writable << reader
+      @writable.should have_statement(@statements.first)
+      @writable.count.should == @statements.size
+    end
+
+    it "inserts a graph" do
+      graph = RDF::Graph.new << @statements
+      @writable << graph
+      @writable.should have_statement(@statements.first)
+      @writable.count.should == @statements.size
+    end
+
+    it "inserts an enumerable" do
+      enumerable = @statements.dup.extend(RDF::Enumerable)
+      @writable << enumerable
+      @writable.should have_statement(@statements.first)
+      @writable.count.should == @statements.size
+    end
+
+    it "inserts data responding to #to_rdf" do
+      mock = double('mock')
+      mock.stub(:to_rdf).and_return(@statements)
+      @writable << mock
+      @writable.should have_statement(@statements.first)
+      @writable.count.should == @statements.size
+    end
+
+    it "inserts a statement" do
+      @mutable << @statements.first
+      @mutable.should have_statement(@statements.first)
+      @mutable.count.should == 1
+    end
   end
 
   context "when inserting statements" do
-    before :each do
-      @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
-    end
-
     it "should support #insert" do
       @writable.should respond_to(:insert)
     end
