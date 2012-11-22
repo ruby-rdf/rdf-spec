@@ -375,7 +375,7 @@ module RDF_Enumerable
         context ":unique => false" do
           subject {@enumerable.contexts(:unique => false)}
           specify {subject.should be_an_enumerator}
-          specify {pending {subject.each { |value| value.should be_a_resource }}}
+          specify {subject.each { |value| value.should be_a_resource }}
         end
       end
 
@@ -420,9 +420,6 @@ module RDF_Enumerable
         subject {@enumerable.each_graph}
         specify {subject.should be_an_enumerator}
         specify {subject.each { |value| value.should be_a_graph }}
-        context "relying on #contexts" do
-          it "should check that the returned values are correct"
-        end
       end
 
       it "should implement #enum_graph" do
