@@ -32,7 +32,7 @@ module RDF_Writer
     describe ".open" do
       before(:each) do
         RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
-        @dir = Dir.tmpdir
+        @dir = Dir.mktmpdir
         @basename = File.join(@dir, "foo")
       end
     
