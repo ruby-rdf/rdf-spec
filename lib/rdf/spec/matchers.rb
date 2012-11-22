@@ -46,7 +46,7 @@ module RDF; module Spec
         statement.should be_instance_of(RDF::Statement)
         statement.subject.should be_a_kind_of(RDF::Resource)
         statement.predicate.should be_a_kind_of(RDF::URI)
-        statement.object.should be_a_kind_of(RDF::Value) unless statement.object.is_a?(String) # FIXME
+        statement.object.should be_a_kind_of(RDF::Value)
         true
       end
     end
@@ -57,7 +57,7 @@ module RDF; module Spec
         triple.size.should == 3
         triple[0].should be_a_kind_of(RDF::Resource)
         triple[1].should be_a_kind_of(RDF::URI)
-        triple[2].should be_a_kind_of(RDF::Value) unless triple[2].is_a?(String) # FIXME
+        triple[2].should be_a_kind_of(RDF::Value)
         true
       end
     end
@@ -68,7 +68,7 @@ module RDF; module Spec
         quad.size.should == 4
         quad[0].should be_a_kind_of(RDF::Resource)
         quad[1].should be_a_kind_of(RDF::URI)
-        quad[2].should be_a_kind_of(RDF::Value) unless quad[2].is_a?(String) # FIXME
+        quad[2].should be_a_kind_of(RDF::Value)
         quad[3].should be_a_kind_of(RDF::Resource) unless quad[3].nil?
         true
       end
@@ -97,7 +97,7 @@ module RDF; module Spec
 
     RSpec::Matchers.define :be_a_value do
       match do |value|
-        value.should be_a_kind_of(RDF::Value) unless value.is_a?(String) # FIXME
+        value.should be_a_kind_of(RDF::Value)
         true
       end
     end
@@ -124,7 +124,7 @@ module RDF; module Spec
         properties.map { |p| p.to_sym }.each do |property|
           vocabulary[property].should be_a_uri
           vocabulary[property].to_s.should == "#{base_uri}#{property}"
-          #vocabulary.should respond_to(property) # FIXME
+          vocabulary.should respond_to(property)
           lambda { vocabulary.send(property) }.should_not raise_error
           vocabulary.send(property).should be_a_uri
           vocabulary.send(property.to_s).should be_a_uri
