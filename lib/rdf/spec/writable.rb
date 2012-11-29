@@ -57,6 +57,13 @@ module RDF_Writable
         @writable.should have_statement(@statements.first)
         @writable.count.should == 1
       end
+
+      it "inserts an invalid statement" do
+        s = RDF::Statement.from([nil, nil, nil])
+        s.should_not be_valid
+        @writable << s
+        @writable.count.should == 1
+      end
     end
 
     context "when inserting statements" do

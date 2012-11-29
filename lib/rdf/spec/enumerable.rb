@@ -28,6 +28,23 @@ module RDF_Enumerable
       end
     end
 
+    describe "valid?" do
+      it "returns true if all statements are valid" do
+        @enumerable.should be_valid
+      end
+      
+      it "returns false if any statement is invalid" do
+        if @enumerable.respond_to?(:<<)
+          s = RDF::Statement.from([nil, nil, nil])
+          s.should_not be_valid
+          @enumerable << s
+          @enumerable.should_not be_valid
+        else
+          pending("can't add statement to immutable enumerable")
+        end
+      end
+    end
+
     context "when counting statements" do
       it "should respond to #empty?" do
         @enumerable.should respond_to(:empty?)
