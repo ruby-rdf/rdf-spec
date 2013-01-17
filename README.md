@@ -4,7 +4,7 @@ RSpec Extensions for RDF.rb
 This is an [RDF.rb][] plugin that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
 
-* <http://github.com/bendiken/rdf-spec>
+* <http://github.com/ruby-rdf/rdf-spec>
 
 Documentation
 -------------
@@ -31,19 +31,19 @@ Download
 
 To get a local working copy of the development repository, do:
 
-    % git clone git://github.com/bendiken/rdf-spec.git
+    % git clone git://github.com/ruby-rdf/rdf-spec.git
 
 Alternatively, download the latest development version as a tarball as
 follows:
 
-    % wget http://github.com/bendiken/rdf-spec/tarball/master
+    % wget http://github.com/ruby-rdf/rdf-spec/tarball/master
 
 Authors
 -------
 
 * [Arto Bendiken](http://github.com/bendiken) - <http://ar.to/>
 * [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
-* [Gregg Kellogg](http://github.com/gkellogg) - <http://kellogg-assoc.com/>
+* [Gregg Kellogg](http://github.com/gkellogg) - <http://greggkellogg.net/>
 
 Contributors
 ------------
@@ -72,7 +72,7 @@ License
 This is free and unencumbered public domain software. For more information,
 see <http://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 
-[RDF.rb]:    http://rdf.rubyforge.org/
+[RDF.rb]:    http://rubygems.org/gems/rdf
 [RSpec]:     http://rspec.info/
 [RubySpec]:  http://rubyspec.org/wiki/rubyspec/Style_Guide
 [PDD]:       http://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html

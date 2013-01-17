@@ -14,10 +14,11 @@ require 'rdf/spec'
 #      File.delete('test.db') if File.exists?('test.db')
 #    end
 #
-#    it_should_behave_like RDF_Repository
+#    include RDF_Repository
 #  end
 #end
-share_as :RDF_Durable do
+module RDF_Durable
+  extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
   before :each do
@@ -26,23 +27,26 @@ share_as :RDF_Durable do
     @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
   end
 
+  describe RDF::Durable do
+    it "should support #durable?" do
+      @load_durable.call.should respond_to(:durable?)
+      [true,false].member?(@load_durable.call.durable?).should be_true
+    end
 
-  it "should support #durable?" do
-    @load_durable.call.should respond_to(:durable?)
-    [true,false].member?(@load_durable.call.durable?).should be_true
-  end
+    it "should support #nondurable?" do
+      @load_durable.call.should respond_to(:nondurable?)
+      [true,false].member?(@load_durable.call.nondurable?).should be_true
+    end
 
-  it "should support #nondurable?" do
-    @load_durable.call.should respond_to(:nondurable?)
-    [true,false].member?(@load_durable.call.nondurable?).should be_true
-  end
+    it "should not be both durable and nondurable" do
+      @load_durable.call.nondurable?.should_not == @load_durable.call.durable?
+    end
 
-  it "should not be both durable and nondurable" do
-    @load_durable.call.nondurable?.should_not == @load_durable.call.durable?
-  end
-
-  it "should save contents between instantiations" do
-    @load_durable.call.load(@filename)
-    @load_durable.call.count.should == File.readlines(@filename).size
+    it "should save contents between instantiations" do
+      if @load_durable.call.durable?
+        @load_durable.call.load(@filename)
+        @load_durable.call.count.should == File.readlines(@filename).size
+      end
+    end
   end
 end

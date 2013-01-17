@@ -1,6 +1,7 @@
 require 'rdf/spec'
 
-share_as :RDF_Countable do
+module RDF_Countable
+  extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
   before :each do
@@ -18,7 +19,7 @@ share_as :RDF_Countable do
     end
   end
 
-  describe "when counting items" do
+  describe RDF::Countable do
     it "responds to #empty?" do
       @countable.should respond_to(:empty?)
     end
@@ -35,7 +36,7 @@ share_as :RDF_Countable do
 
     it "implements #count and #size" do
       %w(count size).each do |method|
-        @countable.send(method).should == @statements.size
+        @countable.send(method).should >= @statements.size
       end
     end
 

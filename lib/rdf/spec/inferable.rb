@@ -1,7 +1,10 @@
 require 'rdf/spec'
 
-share_as :RDF_Inferable do
+module RDF_Inferable
+  extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  # TODO
+  describe RDF::Inferable do
+    it "should implement specs" #TODO
+  end
 end

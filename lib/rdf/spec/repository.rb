@@ -1,6 +1,7 @@
 require 'rdf/spec'
 
-share_as :RDF_Repository do
+module RDF_Repository
+  extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
   before :each do
@@ -10,58 +11,60 @@ share_as :RDF_Repository do
     @enumerable = @repository
   end
 
-  context "when counting statements" do
-    require 'rdf/spec/countable'
+  describe RDF::Repository do
+    context "when counting statements" do
+      require 'rdf/spec/countable'
 
-    before :each do
-      @countable = @repository
-      @countable.insert(*@statements)
+      before :each do
+        @countable = @repository
+        @countable.insert(*@statements)
+      end
+
+      include RDF_Countable
     end
 
-    it_should_behave_like RDF_Countable
-  end
+    context "when enumerating statements" do
+      require 'rdf/spec/enumerable'
 
-  context "when enumerating statements" do
-    require 'rdf/spec/enumerable'
+      before :each do
+        @enumerable = @repository
+        @enumerable.insert(*@statements)
+      end
 
-    before :each do
-      @enumerable = @repository
-      @enumerable.insert(*@statements)
+      include RDF_Enumerable
     end
 
-    it_should_behave_like RDF_Enumerable
-  end
+    context "when querying statements" do
+      require 'rdf/spec/queryable'
 
-  context "when querying statements" do
-    require 'rdf/spec/queryable'
+      before :each do
+        @queryable = @repository
+        @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
+      end
 
-    before :each do
-      @queryable = @repository
-      @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
+      include RDF_Queryable
     end
 
-    it_should_behave_like RDF_Queryable
-  end
+    context "when updating" do
+      require 'rdf/spec/mutable'
 
-  context "when updating" do
-    require 'rdf/spec/mutable'
+      before :each do
+        @mutable = @repository
+        @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
+        @context = RDF::URI.new('http://example.org/context')
+      end
 
-    before :each do
-      @mutable = @repository
-      @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
-      @context = RDF::URI.new('http://example.org/context')
+      include RDF_Mutable
     end
 
-    it_should_behave_like RDF_Mutable
-  end
+    context "as a durable repository" do
+      require 'rdf/spec/durable'
 
-  context "as a durable repository" do
-    require 'rdf/spec/durable'
+      before :each do
+        @load_durable ||= lambda { @repository }
+      end
 
-    before :each do
-      @load_durable ||= lambda { @repository }
+      include RDF_Durable
     end
-
-    it_should_behave_like RDF_Durable
   end
 end

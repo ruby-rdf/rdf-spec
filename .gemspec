@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
 
   gem.name               = 'rdf-spec'
-  gem.homepage           = 'http://rdf.rubyforge.org/spec/'
+  gem.homepage           = 'http://github.com/ruby-rdf/rdf-spec'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
@@ -27,8 +27,8 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version      = '>= 1.8.1'
   gem.requirements               = []
-  gem.add_runtime_dependency     'rspec', '>= 2.6.0'
-  gem.add_development_dependency 'yard' , '>= 0.7.2'
-  gem.add_development_dependency 'rdf',   '~> 0.3.4'
+  gem.add_runtime_dependency     'rspec', '>= 2.12.0'
+  gem.add_development_dependency 'yard' , '>= 0.8.3'
+  gem.add_development_dependency 'rdf',   '~> 0.3.11'
   gem.post_install_message       = nil
 end
