@@ -165,8 +165,8 @@ module RDF_Queryable
     ##
     # @see RDF::Queryable#query_pattern
     describe "#query_pattern" do
-      it "responds to #query_pattern" do
-        @queryable.should respond_to(:query_pattern)
+      it "defines a protected #query_pattern method" do
+        @queryable.class.protected_method_defined?(:query_pattern).should be_true
       end
 
       context "when called" do
