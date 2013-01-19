@@ -29,6 +29,6 @@ Gem::Specification.new do |gem|
   gem.requirements               = []
   gem.add_runtime_dependency     'rspec', '>= 2.12.0'
   gem.add_development_dependency 'yard' , '>= 0.8.3'
-  gem.add_development_dependency 'rdf',   '~> 0.3.11'
+  gem.add_development_dependency 'rdf',   '~> 1.0.0'
   gem.post_install_message       = nil
 end
