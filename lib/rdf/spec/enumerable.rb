@@ -435,14 +435,17 @@ module RDF_Enumerable
 
       describe "#each_graph" do
         subject {@enumerable.each_graph}
-        specify {subject.should be_an_enumerator}
+        it {should be_an_enumerator}
         specify {subject.each { |value| value.should be_a_graph }}
       end
 
-      it "should implement #enum_graph" do
-        @enumerable.enum_graph.should be_an_enumerator
-        @enumerable.enum_graph.should be_countable
-        @enumerable.enum_graph.to_a.should == @enumerable.each_graph.to_a
+      describe "#enum_graph" do
+        subject {@enumerable.enum_graph}
+        it {subject.should be_an_enumerator}
+        it {subject.should be_countable}
+        it "enumerates the same as #each_graph" do
+          subject.to_a.should == @enumerable.each_graph.to_a
+        end
       end
     end
 
