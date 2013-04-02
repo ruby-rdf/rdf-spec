@@ -7,7 +7,7 @@ shared_examples "RDF_Transaction" do |klass|
   include RDF::Spec::Matchers
 
   describe RDF::Transaction do
-    subject {klass.new(:context => RDF::Graph.new, :insert => RDF::Graph.new, :delete => RDF::Graph.new)}
+    subject {klass.new(:context => RDF::URI("name"), :insert => RDF::Graph.new, :delete => RDF::Graph.new)}
 
     describe "#initialize" do
       subject {klass}
@@ -46,7 +46,6 @@ shared_examples "RDF_Transaction" do |klass|
     it {should be_mutable}
     it {should_not be_readable}
 
-  
     it "does not respond to #load" do
       lambda {subject.load("http://example/")}.should raise_error(NoMethodError)
     end
