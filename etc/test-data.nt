@@ -1,4 +1,3 @@
-# Test data from SPARQLdata-r2/expr-equals
 <http://example.org/xi1> <http://example.org/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://example.org/xi2> <http://example.org/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <http://example.org/xi3> <http://example.org/p> "01"^^<http://www.w3.org/2001/XMLSchema#integer> .

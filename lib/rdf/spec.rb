@@ -46,8 +46,8 @@ module RDF
   module Spec
     autoload :Matchers, 'rdf/spec/matchers'
     autoload :VERSION,  'rdf/spec/version'
-    TRIPLES_FILE = File.expand_path("../../../etc/doap.nt", __FILE__)
-    QUADS_FILE = File.expand_path("../../../etc/doap.nq", __FILE__)
+    TRIPLES_FILE = File.expand_path("../../../etc/triples.nt", __FILE__)
+    QUADS_FILE = File.expand_path("../../../etc/quads.nq", __FILE__)
 
     ##
     # Return quads for tests
