@@ -18,7 +18,7 @@ module RDF_Writable
     let(:statement) {@statements.detect {|s| s.to_a.all? {|r| r.uri?}}}
     let(:count) {@statements.size}
 
-    it {should be_respond_to(:writable?)}
+    it {should respond_to(:writable?)}
     its(:writable?) {should == !!subject.writable?}
   
     describe "#<<" do
