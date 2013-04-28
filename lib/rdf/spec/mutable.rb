@@ -54,21 +54,27 @@ module RDF_Mutable
       end
 
       it "should accept a string filename argument" do
-        lambda { subject.load(RDF::Spec::TRIPLES_FILE) }.should_not raise_error(ArgumentError)
+        pending("mutability", :unless => subject.mutable?) do
+          lambda { subject.load(RDF::Spec::TRIPLES_FILE) }.should_not raise_error(ArgumentError)
+        end
       end
 
       it "should accept an optional hash argument" do
-        lambda { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.should_not raise_error(ArgumentError)
+        pending("mutability", :unless => subject.mutable?) do
+          lambda { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.should_not raise_error(ArgumentError)
+        end
       end
 
       it "should load statements" do
-        subject.load RDF::Spec::TRIPLES_FILE
-        subject.size.should ==  File.readlines(RDF::Spec::TRIPLES_FILE).size
-        subject.should have_subject(@subject)
+        pending("mutability", :unless => subject.mutable?) do
+          subject.load RDF::Spec::TRIPLES_FILE
+          subject.size.should ==  File.readlines(RDF::Spec::TRIPLES_FILE).size
+          subject.should have_subject(@subject)
+        end
       end
 
       it "should load statements with a context override" do
-        if @supports_context
+        pending("mutability", :unless => subject.mutable?) do
           subject.load RDF::Spec::TRIPLES_FILE, :context => @context
           subject.should have_context(@context)
           subject.query(:context => @context).size.should == subject.size
@@ -92,52 +98,62 @@ module RDF_Mutable
       end
 
       it "should not raise errors" do
-        lambda { subject.delete(@statements.first) }.should_not raise_error
+        pending("mutability", :unless => subject.mutable?) do
+          lambda { subject.delete(@statements.first) }.should_not raise_error
+        end
       end
 
       it "should support deleting one statement at a time" do
-        subject.delete(@statements.first)
-        subject.should_not have_statement(@statements.first)
+        pending("mutability", :unless => subject.mutable?) do
+          subject.delete(@statements.first)
+          subject.should_not have_statement(@statements.first)
+        end
       end
 
       it "should support deleting multiple statements at a time" do
-        subject.delete(*@statements)
-        subject.find { |s| subject.has_statement?(s) }.should be_false
+        pending("mutability", :unless => subject.mutable?) do
+          subject.delete(*@statements)
+          subject.find { |s| subject.has_statement?(s) }.should be_false
+        end
       end
 
       it "should support wildcard deletions" do
-        # nothing deleted
-        require 'digest/sha1'
-        count = subject.count
-        subject.delete([nil, nil, random = Digest::SHA1.hexdigest(File.read(__FILE__))])
-        subject.should_not be_empty
-        subject.count.should == count
+        pending("mutability", :unless => subject.mutable?) do
+          # nothing deleted
+          require 'digest/sha1'
+          count = subject.count
+          subject.delete([nil, nil, random = Digest::SHA1.hexdigest(File.read(__FILE__))])
+          subject.should_not be_empty
+          subject.count.should == count
 
-        # everything deleted
-        subject.delete([nil, nil, nil])
-        subject.should be_empty
+          # everything deleted
+          subject.delete([nil, nil, nil])
+          subject.should be_empty
+        end
       end
 
       it "should only delete statements when the context matches" do
-        # Setup three statements identical except for context
-        count = subject.count + (@supports_context ? 3 : 1)
-        s1 = RDF::Statement.new(@subject, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
-        s2 = s1.dup
-        s2.context = RDF::URI.new("urn:context:1")
-        s3 = s1.dup
-        s3.context = RDF::URI.new("urn:context:2")
-        subject.insert(s1)
-        subject.insert(s2)
-        subject.insert(s3)
-        subject.count.should == count
+        pending("mutability", :unless => subject.mutable?) do
+          # Setup three statements identical except for context
+          count = subject.count + (@supports_context ? 3 : 1)
+          s1 = RDF::Statement.new(@subject, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
+          s2 = s1.dup
+          s2.context = RDF::URI.new("urn:context:1")
+          s3 = s1.dup
+          s3.context = RDF::URI.new("urn:context:2")
+          subject.insert(s1)
+          subject.insert(s2)
+          subject.insert(s3)
+          subject.count.should == count
 
-        # Delete one by one
-        subject.delete(s1)
-        subject.count.should == count - (@supports_context ? 1 : 1)
-        subject.delete(s2)
-        subject.count.should == count - (@supports_context ? 2 : 1)
-        subject.delete(s3)
-        subject.count.should == count - (@supports_context ? 3 : 1)
+          # Delete one by one
+          subject.delete(s1)
+          subject.count.should == count - (@supports_context ? 1 : 1)
+          subject.delete(s2)
+          subject.count.should == count - (@supports_context ? 2 : 1)
+          subject.delete(s3)
+          subject.count.should == count - (@supports_context ? 3 : 1)
+        end
       end
     end
   end

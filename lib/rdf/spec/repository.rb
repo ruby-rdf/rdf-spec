@@ -15,8 +15,12 @@ module RDF_Repository
       require 'rdf/spec/countable'
 
       before :each do
+        if @repository.empty? && @repository.writable?
+          @repository.insert(*@statements)
+        else
+          raise "+@repository+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
+        end
         @countable = @repository
-        @countable.insert(*@statements)
       end
 
       include RDF_Countable
@@ -26,8 +30,12 @@ module RDF_Repository
       require 'rdf/spec/enumerable'
 
       before :each do
+        if @repository.empty? && @repository.writable?
+          @repository.insert(*@statements)
+        else
+          raise "+@repository+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
+        end
         @enumerable = @repository
-        @enumerable.insert(*@statements)
       end
 
       include RDF_Enumerable
