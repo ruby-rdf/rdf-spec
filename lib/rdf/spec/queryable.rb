@@ -7,13 +7,12 @@ module RDF_Queryable
   before :each do
     raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
 
-    @doap = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nq'))
-    @doaps = RDF::NQuads::Reader.new(File.open(@doap)).to_a
-    @statements = @doaps
+    @doap = RDF::Spec::QUADS_FILE
+    @statements = RDF::Spec.quads
 
     if @queryable.empty?
       if @queryable.respond_to?(:<<)
-        @doaps.each { |statement| @queryable << statement }
+        @statements.each { |statement| @queryable << statement }
       else
         raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"
       end
@@ -142,7 +141,6 @@ module RDF_Queryable
                 @solutions.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}.should be_true
               end
             end
-
 
             context "graph-2" do
               before(:each) do

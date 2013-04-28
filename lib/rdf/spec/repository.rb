@@ -6,8 +6,7 @@ module RDF_Repository
 
   before :each do
     raise '+@repository+ must be defined in a before(:each) block' unless instance_variable_get('@repository')
-    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+    @statements = RDF::Spec.quads
     @enumerable = @repository
   end
 

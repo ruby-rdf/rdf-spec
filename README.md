@@ -1,5 +1,4 @@
-RSpec Extensions for RDF.rb
-===========================
+# RSpec Extensions for RDF.rb
 
 This is an [RDF.rb][] plugin that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
@@ -8,28 +7,39 @@ and shared examples for Ruby projects that use RDF.rb and RSpec.
 
 [![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](http://badge.fury.io/rb/rdf-spec)
 
-Documentation
--------------
+## Documentation
 
 * {RDF::Spec}
   * {RDF::Spec::Matchers}
 
-Dependencies
-------------
+Shared specs are implemented in modules which typically require that an instance be defined in a class variable in a `before(:each)` block. For example, an class implementing `RDF::Countable` could test this behavior by defining `@countable` as an instance variable and including `RDF_Countable` as follows:
+
+    describe RDF::Enumerable do
+      before :each do
+        # The available reference implementations are `RDF::Repository` and
+        # `RDF::Graph`, but a plain Ruby array will do fine as well:
+        @enumerable = RDF::Spec.triples.dup.extend(RDF::Enumerable)
+      end
+
+      # @see lib/rdf/spec/enumerable.rb in rdf-spec
+      include RDF_Enumerable
+    end
+
+Note that in most cases, if the instance is empty and mutable, the appropriate statements will be added. When testing a non-mutable instance, the data must be pre-loaded.
+
+## Dependencies
 
 * [RDF.rb](http://rubygems.org/gems/rdf) (>= 0.3.1)
 * [RSpec](http://rubygems.org/gems/rspec) (>= 2.1.0)
 
-Installation
-------------
+## Installation
 
 The recommended installation method is via [RubyGems](http://rubygems.org/).
 To install the latest official release of the `RDF::Spec` gem, do:
 
     % [sudo] gem install rdf-spec
 
-Download
---------
+## Download
 
 To get a local working copy of the development repository, do:
 
@@ -40,20 +50,17 @@ follows:
 
     % wget http://github.com/ruby-rdf/rdf-spec/tarball/master
 
-Authors
--------
+## Authors
 
 * [Arto Bendiken](http://github.com/bendiken) - <http://ar.to/>
 * [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
 * [Gregg Kellogg](http://github.com/gkellogg) - <http://greggkellogg.net/>
 
-Contributors
-------------
+## Contributors
 
 * [John Fieber](http://github.com/jfieber) - <http://github.com/jfieber>
 
-Contributing
-------------
+## Contributing
 
 * Do your best to adhere to the existing coding conventions and idioms.
 * Don't use hard tabs, and don't leave trailing whitespace on any line.

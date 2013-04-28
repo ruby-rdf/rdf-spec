@@ -7,14 +7,13 @@ module RDF_Enumerable
   before :each do
     raise '+@enumerable+ must be defined in a before(:each) block' unless instance_variable_get('@enumerable')
 
-    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-    @statements ||= RDF::NTriples::Reader.new(File.open(@filename)).to_a
+    @statements ||= RDF::Spec.triples
 
     if @enumerable.empty?
       if @enumerable.respond_to?(:<<)
         @statements.each { |statement| @enumerable << statement }
       else
-        raise "@enumerable must respond to #<< or be pre-populated with the statements in #{@filename} in a before(:each) block"
+        raise "@enumerable must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
       end
     end
 
