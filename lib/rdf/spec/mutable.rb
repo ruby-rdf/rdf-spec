@@ -8,11 +8,10 @@ module RDF_Mutable
   before :each do
     raise '+@mutable+ must be defined in a before(:each) block' unless instance_variable_get('@mutable')
 
-    @subject = RDF::URI('http://rubygems.org/gems/rdf')
-    @context = RDF::URI('http://example.org/context')
-
     @supports_context = @mutable.respond_to?(:supports?) && @mutable.supports?(:context)
   end
+  let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
+  let(:context) {RDF::URI('http://example.org/context')}
 
   describe RDF::Mutable do
     subject {@mutable}
@@ -69,15 +68,15 @@ module RDF_Mutable
         pending("mutability", :unless => subject.mutable?) do
           subject.load RDF::Spec::TRIPLES_FILE
           subject.size.should ==  File.readlines(RDF::Spec::TRIPLES_FILE).size
-          subject.should have_subject(@subject)
+          subject.should have_subject(resource)
         end
       end
 
       it "should load statements with a context override" do
-        pending("mutability", :unless => subject.mutable?) do
-          subject.load RDF::Spec::TRIPLES_FILE, :context => @context
-          subject.should have_context(@context)
-          subject.query(:context => @context).size.should == subject.size
+        pending("mutability and contextuality", :unless => (subject.mutable? && @supports_context)) do
+          subject.load RDF::Spec::TRIPLES_FILE, :context => context
+          subject.should have_context(context)
+          subject.query(:context => context).size.should == subject.size
         end
       end
     end
@@ -136,7 +135,7 @@ module RDF_Mutable
         pending("mutability", :unless => subject.mutable?) do
           # Setup three statements identical except for context
           count = subject.count + (@supports_context ? 3 : 1)
-          s1 = RDF::Statement.new(@subject, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
+          s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
           s2 = s1.dup
           s2.context = RDF::URI.new("urn:context:1")
           s3 = s1.dup
