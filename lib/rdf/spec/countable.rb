@@ -10,7 +10,7 @@ module RDF_Countable
     @statements = RDF::Spec.triples
 
     if @countable.empty?
-      if @countable.respond_to?(:<<)
+      if @countable.respond_to?(:<<) && (@countable.writable? rescue true)
         @statements.each { |statement| @countable << statement }
       else
         raise "+@countable+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"

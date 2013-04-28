@@ -33,7 +33,7 @@ module RDF_Enumerable
       end
       
       it "returns false if any statement is invalid" do
-        if @enumerable.respond_to?(:<<)
+        if @enumerable.respond_to?(:<<) && (@enumerable.writable? rescue true)
           s = RDF::Statement.from([nil, nil, nil])
           s.should_not be_valid
           @enumerable << s

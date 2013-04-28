@@ -9,24 +9,17 @@ module RDF_Indexable
   end
 
   describe RDF::Indexable do
-    it "responds to #indexed?" do
-      @indexable.respond_to?(:indexed?)
-    end
-  
-    it "implements #indexed?" do
-      !!@indexable.indexed?.should == @indexable.indexed?
-    end
-  
-    it "responds to #index!" do
-      @indexable.respond_to?(:index!)
-    end
+    subject {@indexable}
+    it {should be_respond_to(:indexed?)}
+    its(:indexed?) {should == subject.indexed?}
+    it {should be_respond_to(:index!)}
   
     it "does not raise error on #index! if #indexed?" do
-      lambda {@indexable.index!}.should_not raise_error if @indexable.indexed?
+      lambda {subject.index!}.should_not raise_error if subject.indexed?
     end
   
     it "raises error on #index! if not #indexed?" do
-      lambda {@indexable.index!}.should raise_error unless @indexable.indexed?
+      lambda {subject.index!}.should raise_error unless subject.indexed?
     end
   end
 end

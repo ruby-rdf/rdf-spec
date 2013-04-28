@@ -9,12 +9,8 @@ module RDF_Readable
   end
 
   describe RDF::Readable do
-    it "responds to #readable?" do
-      @readable.respond_to?(:readable?)
-    end
-  
-    it "implements #readable?" do
-      !!@readable.readable?.should == @readable.readable?
-    end
+    subject {@readable}
+    it {should be_respond_to(:readable?)}
+    its(:readable?) {should == subject.readable?}
   end
 end
