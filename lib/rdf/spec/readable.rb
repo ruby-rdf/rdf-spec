@@ -10,7 +10,7 @@ module RDF_Readable
 
   describe RDF::Readable do
     subject {@readable}
-    it {should be_respond_to(:readable?)}
+    it {should respond_to(:readable?)}
     its(:readable?) {should == subject.readable?}
   end
 end

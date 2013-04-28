@@ -17,7 +17,7 @@ module RDF_Repository
       before :each do
         if @repository.empty? && @repository.writable?
           @repository.insert(*@statements)
-        else
+        elsif !@repository.writable?
           raise "+@repository+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
         end
         @countable = @repository
@@ -32,7 +32,7 @@ module RDF_Repository
       before :each do
         if @repository.empty? && @repository.writable?
           @repository.insert(*@statements)
-        else
+        elsif !@repository.writable?
           raise "+@repository+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
         end
         @enumerable = @repository
@@ -46,7 +46,6 @@ module RDF_Repository
 
       before :each do
         @queryable = @repository
-        @subject   = RDF::URI.new('http://rubygems.org/gems/rdf')
       end
 
       include RDF_Queryable
@@ -57,8 +56,6 @@ module RDF_Repository
 
       before :each do
         @mutable = @repository
-        @subject = RDF::URI.new('http://rubygems.org/gems/rdf')
-        @context = RDF::URI.new('http://example.org/context')
       end
 
       include RDF_Mutable
