@@ -7,7 +7,7 @@ module RDF_Writable
   before :each do
     raise '+@writable+ must be defined in a before(:each) block' unless instance_variable_get('@writable')
 
-    @filename = File.expand_path("../../../../etc/doap.nt", __FILE__)
+    @filename = RDF::Spec::TRIPLES_FILE
     @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
 
     @supports_context = @writable.respond_to?(:supports?) && @writable.supports?(:context)

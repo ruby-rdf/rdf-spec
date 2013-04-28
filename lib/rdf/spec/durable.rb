@@ -23,8 +23,6 @@ module RDF_Durable
 
   before :each do
     raise '+@load_durable+ must be defined in a before(:each) block' unless instance_variable_get('@load_durable')
-    # RDF::Queryable cares about the contents of this file too much to let someone set it
-    @filename   = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
   end
 
   describe RDF::Durable do
@@ -44,8 +42,8 @@ module RDF_Durable
 
     it "should save contents between instantiations" do
       if @load_durable.call.durable?
-        @load_durable.call.load(@filename)
-        @load_durable.call.count.should == File.readlines(@filename).size
+        @load_durable.call.load(RDF::Spec::TRIPLES_FILE)
+        @load_durable.call.count.should == File.readlines(RDF::Spec::TRIPLES_FILE).size
       end
     end
   end

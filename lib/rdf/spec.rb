@@ -46,5 +46,25 @@ module RDF
   module Spec
     autoload :Matchers, 'rdf/spec/matchers'
     autoload :VERSION,  'rdf/spec/version'
+    TRIPLES_FILE = File.expand_path("../../../etc/doap.nt", __FILE__)
+    QUADS_FILE = File.expand_path("../../../etc/doap.nq", __FILE__)
+
+    ##
+    # Return quads for tests
+    #
+    # @return [Array<RDF::Statement>]
+    def self.quads
+      require 'rdf/nquads'
+      (@quads ||=  RDF::NQuads::Reader.new(File.open(QUADS_FILE)).to_a).dup
+    end
+
+    ##
+    # Return triples for tests
+    #
+    # @return [Array<RDF::Statement>]
+    def self.triples
+      require 'rdf/ntriples'
+      (@triples ||=  RDF::NTriples::Reader.new(File.open(TRIPLES_FILE)).to_a).dup
+    end
   end # Spec
 end # RDF

@@ -8,8 +8,6 @@ module RDF_Mutable
   before :each do
     raise '+@mutable+ must be defined in a before(:each) block' unless instance_variable_get('@mutable')
 
-    @filename = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', 'etc', 'doap.nt'))
-
     @subject = RDF::URI('http://rubygems.org/gems/rdf')
     @context = RDF::URI('http://example.org/context')
 
@@ -56,22 +54,22 @@ module RDF_Mutable
       end
 
       it "should accept a string filename argument" do
-        lambda { subject.load(@filename) }.should_not raise_error(ArgumentError)
+        lambda { subject.load(RDF::Spec::TRIPLES_FILE) }.should_not raise_error(ArgumentError)
       end
 
       it "should accept an optional hash argument" do
-        lambda { subject.load(@filename, {}) }.should_not raise_error(ArgumentError)
+        lambda { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.should_not raise_error(ArgumentError)
       end
 
       it "should load statements" do
-        subject.load @filename
-        subject.size.should ==  File.readlines(@filename).size
+        subject.load RDF::Spec::TRIPLES_FILE
+        subject.size.should ==  File.readlines(RDF::Spec::TRIPLES_FILE).size
         subject.should have_subject(@subject)
       end
 
       it "should load statements with a context override" do
         if @supports_context
-          subject.load @filename, :context => @context
+          subject.load RDF::Spec::TRIPLES_FILE, :context => @context
           subject.should have_context(@context)
           subject.query(:context => @context).size.should == subject.size
         end
@@ -89,7 +87,7 @@ module RDF_Mutable
 
     context "when deleting statements" do
       before :each do
-        @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+        @statements = RDF::NTriples::Reader.new(File.open(RDF::Spec::TRIPLES_FILE)).to_a
         subject.insert(*@statements)
       end
 
