@@ -19,30 +19,26 @@ module RDF_Countable
   end
 
   describe RDF::Countable do
-    it "responds to #empty?" do
-      @countable.should respond_to(:empty?)
+    subject {@countable}
+
+    it {should respond_to(:empty?)}
+    it {should_not be_empty}
+    it {should respond_to(:count)}
+    its(:count) {should == @statements.size}
+    it {should respond_to(:size)}
+    its(:size) {should == @statements.size}
+
+    context "when empty" do
+      subject {[].extend(RDF::Countable)}
+      it {should be_empty}
+      its(:count) {should == 0}
+      its(:size) {should == 0}
     end
 
-    it "responds to #count and #size" do
-      @countable.should respond_to(:count, :size)
-    end
-
-    it "implements #empty?" do
-      ([].extend(RDF::Countable)).empty?.should be_true
-      ([42].extend(RDF::Countable)).empty?.should be_false
-      @countable.empty?.should be_false
-    end
-
-    it "implements #count and #size" do
-      %w(count size).each do |method|
-        @countable.send(method).should >= @statements.size
-      end
-    end
-
-    it "returns countable enumerators" do
-      @countable.to_enum.should be_countable
-      @countable.enum_for.should be_countable
-      @countable.enum_for(:each).should be_countable
+    its(:to_enum) {should be_countable}
+    its(:enum_for) {should be_countable}
+    it "#enum_for(:each)" do
+      subject.enum_for(:each).should be_countable
     end
   end
 end
