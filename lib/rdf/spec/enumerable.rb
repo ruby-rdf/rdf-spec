@@ -7,17 +7,17 @@ module RDF_Enumerable
   before :each do
     raise '+@enumerable+ must be defined in a before(:each) block' unless instance_variable_get('@enumerable')
 
-    @statements ||= RDF::Spec.triples
+    @statements ||= RDF::Spec.quads
 
     if @enumerable.empty?
-      if @enumerable.respond_to?(:<<)
+      if @enumerable.respond_to?(:<<) && (@enumerable.writable? rescue true)
         @statements.each { |statement| @enumerable << statement }
       else
         raise "@enumerable must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
       end
     end
 
-    @supports_context = @enumerable.respond_to?(:supports?) && @enumerable.supports?(:context)
+    @supports_context = @enumerable.supports?(:context) rescue true
   end
 
   describe RDF::Enumerable do
@@ -155,8 +155,10 @@ module RDF_Enumerable
 
       context "#has_quad?" do
         specify do
-          @statements.each do |statement|
-            subject.has_quad?(statement.to_quad).should be_true
+          if @supports_context
+            @statements.each do |statement|
+              subject.has_quad?(statement.to_quad).should be_true
+            end
           end
         end
       end
@@ -339,19 +341,25 @@ module RDF_Enumerable
       end
 
       it "should implement #has_context?" do
-        @statements.each do |statement|
-          if statement.has_context?
-            @enumerable.has_context?(statement.context).should be_true
+        if @supports_context
+          @statements.each do |statement|
+            if statement.has_context?
+              @enumerable.has_context?(statement.context).should be_true
+            end
           end
+          uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+          @enumerable.has_context?(uri).should be_false
         end
-        uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
-        @enumerable.has_context?(uri).should be_false
       end
 
       its(:each_context) {should be_an_enumerator}
       context "#each_context" do
         let(:contexts) {@statements.map { |s| s.context }.uniq.compact}
-        specify {subject.each_context.to_a.size.should == contexts.size}
+        it "has appropriate number of contexts" do
+          if @supports_context
+            subject.each_context.to_a.size.should == contexts.size
+          end
+        end
         it "values should be resources" do
           subject.each_context {|value| value.should be_a_resource}
         end

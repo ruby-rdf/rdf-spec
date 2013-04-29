@@ -7,7 +7,7 @@ module RDF_Countable
   before :each do
     raise '+@countable+ must be defined in a before(:each) block' unless instance_variable_get('@countable')
 
-    @statements = RDF::Spec.triples
+    @statements = RDF::Spec.quads
 
     if @countable.empty?
       if @countable.respond_to?(:<<) && (@countable.writable? rescue true)
