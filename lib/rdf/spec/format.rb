@@ -9,6 +9,7 @@ module RDF_Format
   end
 
   describe RDF::Format do
+    subject {@format_class}
     describe ".for" do
       RDF::Format.file_extensions.each do |ext, formats|
         it "detects #{formats.first} using file path foo.#{ext}" do
@@ -33,7 +34,7 @@ module RDF_Format
   
     describe ".reader" do
       it "returns a reader" do
-        @format_class.each do |f|
+        subject.each do |f|
           f.reader.should_not be_nil
         end
       end
@@ -43,7 +44,7 @@ module RDF_Format
       ##
       # May not return a writer, only does if one is defined by the format
       it "returns a writer" do
-        @format_class.each do |f|
+        subject.each do |f|
           format_namespace = f.name.split('::')[0..-2].inject(Kernel) {|base, const| base.const_get(const)}
           f.writer.should_not be_nil if format_namespace.const_defined?(:Writer)
         end

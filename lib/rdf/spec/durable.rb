@@ -26,24 +26,22 @@ module RDF_Durable
   end
 
   describe RDF::Durable do
+    subject {@load_durable.call}
+    it {should respond_to(:durable?)}
     it "should support #durable?" do
-      @load_durable.call.should respond_to(:durable?)
-      [true,false].member?(@load_durable.call.durable?).should be_true
+      [true,false].member?(subject.durable?).should be_true
     end
 
+    it {should respond_to(:nondurable?)}
     it "should support #nondurable?" do
-      @load_durable.call.should respond_to(:nondurable?)
       [true,false].member?(@load_durable.call.nondurable?).should be_true
     end
-
-    it "should not be both durable and nondurable" do
-      @load_durable.call.nondurable?.should_not == @load_durable.call.durable?
-    end
+    its(:nondurable?) {should_not == subject.durable?}
 
     it "should save contents between instantiations" do
-      if @load_durable.call.durable?
-        @load_durable.call.load(RDF::Spec::TRIPLES_FILE)
-        @load_durable.call.count.should == File.readlines(RDF::Spec::TRIPLES_FILE).size
+      if subject.durable?
+       subject.load(RDF::Spec::TRIPLES_FILE)
+       subject.count.should == File.readlines(RDF::Spec::TRIPLES_FILE).size
       end
     end
   end
