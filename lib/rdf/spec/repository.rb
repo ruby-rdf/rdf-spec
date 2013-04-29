@@ -19,6 +19,7 @@ module RDF_Repository
   end
 
   describe RDF::Repository do
+
     context "when counting statements" do
       require 'rdf/spec/countable'
       include RDF_Countable
@@ -34,7 +35,8 @@ module RDF_Repository
       include RDF_Queryable
     end
 
-    context "when updating", :if => lambda {@mutable.mutable?} do
+    # FIXME: This should be condition on the repository being mutable
+    context "when updating" do
       require 'rdf/spec/mutable'
       before(:each) do
         @mutable.clear
@@ -42,7 +44,8 @@ module RDF_Repository
       include RDF_Mutable
     end
 
-    context "as a durable repository", :if => lambda {@repository.mutable?} do
+    # FIXME: This should be condition on the repository being mutable
+    context "as a durable repository" do
       require 'rdf/spec/durable'
 
       before :each do
