@@ -18,7 +18,7 @@ Shared specs are implemented in modules which typically require that an instance
       before :each do
         # The available reference implementations are `RDF::Repository` and
         # `RDF::Graph`, but a plain Ruby array will do fine as well:
-        @enumerable = RDF::Spec.triples.dup.extend(RDF::Enumerable)
+        @enumerable = RDF::Spec.quads.dup.extend(RDF::Enumerable)
       end
 
       # @see lib/rdf/spec/enumerable.rb in rdf-spec
