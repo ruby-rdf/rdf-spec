@@ -67,8 +67,9 @@ module RDF_Enumerable
       it {should respond_to(:has_statement?)}
       context "#has_statement?" do
         let(:unknown_statement) {RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)}
-        it "contexts are all statements" do
-          @statements.each do |statement|
+        it "should have all statements" do
+          # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
+          @statements.reject {|s| s.to_a.any?(&:node?)}.each do |statement|
             subject.has_statement?(statement).should be_true
           end
         end
