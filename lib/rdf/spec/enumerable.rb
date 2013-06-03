@@ -21,6 +21,10 @@ module RDF_Enumerable
   end
 
   describe RDF::Enumerable do
+    let(:subject_count) {@statements.map(&:subject).uniq.length}
+    let(:bnode_subject_count) {@statements.map(&:subject).uniq.select(&:node?).length}
+    let(:non_bnode_statements) {@statements.reject {|s| s.subject.node? || s.object.node?}}
+
     subject {@enumerable}
     it {should respond_to(:supports?)}
 
@@ -69,7 +73,7 @@ module RDF_Enumerable
         let(:unknown_statement) {RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)}
         it "should have all statements" do
           # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
-          @statements.reject {|s| s.to_a.any?(&:node?)}.each do |statement|
+          non_bnode_statements.each do |statement|
             subject.has_statement?(statement).should be_true
           end
         end
@@ -77,7 +81,7 @@ module RDF_Enumerable
         it "does not have statement in different context" do
           if @supports_context
             context = RDF::URI.new("urn:context:1")
-            @statements.each do |statement|
+            non_bnode_statements.each do |statement|
               s = statement.dup
               s.context = context
               subject.has_statement?(s).should be_false
@@ -122,7 +126,7 @@ module RDF_Enumerable
 
       context "#has_triple?" do
         specify do
-          @statements.each do |statement|
+          non_bnode_statements.each do |statement|
             subject.has_triple?(statement.to_triple).should be_true
           end
         end
@@ -157,7 +161,7 @@ module RDF_Enumerable
       context "#has_quad?" do
         specify do
           if @supports_context
-            @statements.each do |statement|
+            non_bnode_statements.each do |statement|
               subject.has_quad?(statement.to_quad).should be_true
             end
           end
@@ -179,6 +183,7 @@ module RDF_Enumerable
     end
 
     context "when enumerating subjects" do
+      let(:subjects) {subject.map { |s| s.subject }.reject(&:node?).uniq}
       it {should respond_to(:subjects)}
       it {should respond_to(:has_subject?)}
       it {should respond_to(:each_subject)}
@@ -199,7 +204,7 @@ module RDF_Enumerable
       context "#has_subject?" do
         specify do
           checked = []
-          @statements.each do |statement|
+          non_bnode_statements.each do |statement|
             @enumerable.has_subject?(statement.subject).should be_true unless checked.include?(statement.subject)
             checked << statement.subject
           end
@@ -210,22 +215,22 @@ module RDF_Enumerable
 
       its(:each_subject) {should be_an_enumerator}
       context "#each_subject" do
-        let(:subjects) {@statements.map { |s| s.subject }.uniq}
-        specify {subject.each_subject.to_a.size.should == subjects.size}
+        specify {subject.each_subject.reject(&:node?).size.should == subjects.size}
         specify {subject.each_subject {|value| value.should be_a_resource}}
-        specify {subject.each_subject {|value| subjects.should include(value)}}
+        specify {subject.each_subject {|value| subjects.should include(value) unless value.node?}}
       end
 
       its(:enum_subject) {should be_an_enumerator}
       its(:enum_subject) {should be_countable}
       context "#enum_subject" do
         it "should enumerate all subjects" do
-          subject.enum_subject.to_a.should == @enumerable.each_subject.to_a
+          subject.enum_subject.reject(&:node?).should == subjects
         end
       end
     end
 
     context "when enumerating predicates" do
+      let(:predicates) {@statements.map { |s| s.predicate }.uniq}
       it {should respond_to(:predicates)}
       it {should respond_to(:has_predicate?)}
       it {should respond_to(:each_predicate)}
@@ -257,7 +262,6 @@ module RDF_Enumerable
 
       its(:each_predicate) {should be_an_enumerator}
       context "#each_predicate" do
-        let(:predicates) {@statements.map { |s| s.predicate }.uniq}
         specify {subject.each_predicate.to_a.size.should == predicates.size}
         specify {subject.each_predicate {|value| value.should be_a_uri}}
         specify {subject.each_predicate {|value| predicates.should include(value)}}
@@ -267,12 +271,13 @@ module RDF_Enumerable
       its(:enum_predicate) {should be_countable}
       context "#enum_predicate" do
         it "should enumerate all predicates" do
-          subject.enum_predicate.to_a.should == @enumerable.each_predicate.to_a
+          subject.enum_predicate.to_a.should == predicates
         end
       end
     end
 
     context "when enumerating objects" do
+      let(:objects) {subject.map(&:object).reject(&:node?).uniq}
       it {should respond_to(:objects)}
       it {should respond_to(:has_object?)}
       it {should respond_to(:each_object)}
@@ -293,7 +298,7 @@ module RDF_Enumerable
       context "#has_object?" do
         specify do
           checked = []
-          @statements.each do |statement|
+          non_bnode_statements.each do |statement|
             @enumerable.has_object?(statement.object).should be_true unless checked.include?(statement.object)
             checked << statement.object
           end
@@ -304,17 +309,16 @@ module RDF_Enumerable
 
       its(:each_object) {should be_an_enumerator}
       context "#each_object" do
-        let(:objects) {@statements.map { |s| s.object }.uniq}
-        specify {subject.each_object.to_a.size.should == objects.size}
+        specify {subject.each_object.reject(&:node?).size.should == objects.size}
         specify {subject.each_object {|value| value.should be_a_term}}
-        specify {subject.each_object {|value| objects.should include(value)}}
+        specify {subject.each_object {|value| objects.should include(value) unless value.node?}}
       end
 
       its(:enum_object) {should be_an_enumerator}
       its(:enum_object) {should be_countable}
       context "#enum_object" do
         it "should enumerate all objects" do
-          subject.enum_object.to_a.should == @enumerable.each_object.to_a
+          subject.enum_object.reject(&:node?).should == objects
         end
       end
     end
