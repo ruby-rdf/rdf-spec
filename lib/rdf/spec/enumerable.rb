@@ -107,7 +107,7 @@ module RDF_Enumerable
       its(:enum_statement) {should be_queryable}
       context "#enum_statement" do
         it "should enumerate all statements" do
-          subject.enum_statement.to_a.should == @enumerable.each_statement.to_a
+          subject.enum_statement.to_a.should =~ @enumerable.each_statement.to_a
         end
       end
     end
@@ -141,7 +141,7 @@ module RDF_Enumerable
       its(:enum_triple) {should be_countable}
       context "#enum_triple" do
         it "should enumerate all triples" do
-          subject.enum_triple.to_a.should == @enumerable.each_triple.to_a
+          subject.enum_triple.to_a.should =~ @enumerable.each_triple.to_a
         end
       end
     end
@@ -177,7 +177,7 @@ module RDF_Enumerable
       its(:enum_quad) {should be_countable}
       context "#enum_quad" do
         it "should enumerate all quads" do
-          subject.enum_quad.to_a.should == @enumerable.each_quad.to_a
+          subject.enum_quad.to_a.should =~ @enumerable.each_quad.to_a
         end
       end
     end
@@ -224,7 +224,7 @@ module RDF_Enumerable
       its(:enum_subject) {should be_countable}
       context "#enum_subject" do
         it "should enumerate all subjects" do
-          subject.enum_subject.reject(&:node?).should == subjects
+          subject.enum_subject.reject(&:node?).should =~ subjects
         end
       end
     end
@@ -271,7 +271,7 @@ module RDF_Enumerable
       its(:enum_predicate) {should be_countable}
       context "#enum_predicate" do
         it "should enumerate all predicates" do
-          subject.enum_predicate.to_a.should == predicates
+          subject.enum_predicate.to_a.should =~ predicates
         end
       end
     end
@@ -318,7 +318,7 @@ module RDF_Enumerable
       its(:enum_object) {should be_countable}
       context "#enum_object" do
         it "should enumerate all objects" do
-          subject.enum_object.reject(&:node?).should == objects
+          subject.enum_object.reject(&:node?).should =~ objects
         end
       end
     end
@@ -377,7 +377,7 @@ module RDF_Enumerable
       its(:enum_context) {should be_countable}
       context "#enum_context" do
         it "should enumerate all contexts" do
-          subject.enum_context.to_a.should == @enumerable.each_context.to_a
+          subject.enum_context.to_a.should =~ @enumerable.each_context.to_a
         end
       end
     end
@@ -397,7 +397,7 @@ module RDF_Enumerable
         it {subject.should be_an_enumerator}
         it {subject.should be_countable}
         it "enumerates the same as #each_graph" do
-          subject.to_a.should == @enumerable.each_graph.to_a
+          subject.to_a.should =~ @enumerable.each_graph.to_a
         end
       end
     end
