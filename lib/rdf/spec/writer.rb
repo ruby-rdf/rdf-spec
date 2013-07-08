@@ -31,7 +31,7 @@ module RDF_Writer
 
     describe ".open" do
       before(:each) do
-        RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+        RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
         @dir = Dir.mktmpdir
         @basename = File.join(@dir, "foo")
       end
@@ -43,7 +43,7 @@ module RDF_Writer
       it "yields writer given file_name" do
         @writer_class.format.each do |f|
           f.file_extensions.each_pair do |sym, content_type|
-            writer_mock = mock("writer")
+            writer_mock = double("writer")
             writer_mock.should_receive(:got_here)
             @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
             @writer_class.open("#{@basename}.#{sym}") do |r|
@@ -57,7 +57,7 @@ module RDF_Writer
       it "yields writer given symbol" do
         @writer_class.format.each do |f|
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
-          writer_mock = mock("writer")
+          writer_mock = double("writer")
           writer_mock.should_receive(:got_here)
           @writer_class.should_receive(:for).with(sym).and_return(@writer_class)
           @writer_class.open("#{@basename}.#{sym}", :format => sym) do |r|
@@ -70,7 +70,7 @@ module RDF_Writer
       it "yields writer given {:file_name => file_name}" do
         @writer_class.format.each do |f|
           f.file_extensions.each_pair do |sym, content_type|
-            writer_mock = mock("writer")
+            writer_mock = double("writer")
             writer_mock.should_receive(:got_here)
             @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
             @writer_class.open("#{@basename}.#{sym}", :file_name => "#{@basename}.#{sym}") do |r|
@@ -84,7 +84,7 @@ module RDF_Writer
       it "yields writer given {:content_type => 'a/b'}" do
         @writer_class.format.each do |f|
           f.content_types.each_pair do |content_type, formats|
-            writer_mock = mock("writer")
+            writer_mock = double("writer")
             writer_mock.should_receive(:got_here)
             @writer_class.should_receive(:for).with(:content_type => content_type, :file_name => @basename).and_return(@writer_class)
             @writer_class.open(@basename, :content_type => content_type) do |r|
@@ -105,7 +105,7 @@ module RDF_Writer
 
     describe ".new" do
       it "sets @output to $stdout by default" do
-        writer_mock = mock("writer")
+        writer_mock = double("writer")
         writer_mock.should_receive(:got_here)
         save, $stdout = $stdout, StringIO.new
 
@@ -117,10 +117,9 @@ module RDF_Writer
       end
     
       it "sets @output to file given something other than a string" do
-        writer_mock = mock("writer")
+        writer_mock = double("writer")
         writer_mock.should_receive(:got_here)
         file = StringIO.new
-        file.should_receive(:write).any_number_of_times
         @writer_class.new(file) do |r|
           writer_mock.got_here
           r.instance_variable_get(:@output).should == file
@@ -128,7 +127,7 @@ module RDF_Writer
       end
     
       it "sets prefixes given :prefixes => {}" do
-        writer_mock = mock("writer")
+        writer_mock = double("writer")
         writer_mock.should_receive(:got_here)
         @writer_class.new(StringIO.new, :prefixes => {:a => "b"}) do |r|
           writer_mock.got_here
@@ -137,7 +136,7 @@ module RDF_Writer
       end
     
       #it "calls #write_prologue" do
-      #  writer_mock = mock("writer")
+      #  writer_mock = double("writer")
       #  writer_mock.should_receive(:got_here)
       #  @writer_class.any_instance.should_receive(:write_prologue)
       #  @writer_class.new(StringIO.new) do |r|
@@ -146,7 +145,7 @@ module RDF_Writer
       #end
       #
       #it "calls #write_epilogue" do
-      #  writer_mock = mock("writer")
+      #  writer_mock = double("writer")
       #  writer_mock.should_receive(:got_here)
       #  @writer_class.any_instance.should_receive(:write_epilogue)
       #  @writer_class.new(StringIO.new) do |r|

@@ -49,18 +49,18 @@ module RDF_Mutable
 
     context "#load" do
       it "should require an argument" do
-        lambda { subject.load }.should raise_error(ArgumentError)
+        expect { subject.load }.to raise_error(ArgumentError)
       end
 
       it "should accept a string filename argument" do
         pending("mutability", :unless => subject.mutable?) do
-          lambda { subject.load(RDF::Spec::TRIPLES_FILE) }.should_not raise_error(ArgumentError)
+          expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error
         end
       end
 
       it "should accept an optional hash argument" do
         pending("mutability", :unless => subject.mutable?) do
-          lambda { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.should_not raise_error(ArgumentError)
+          expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error
         end
       end
 
@@ -83,7 +83,7 @@ module RDF_Mutable
 
     context "#from_{reader}" do
       it "should instantiate a reader" do
-        reader = mock("reader")
+        reader = double("reader")
         reader.should_receive(:new).and_return(RDF::NTriples::Reader.new(""))
         RDF::Reader.should_receive(:for).with(:a_reader).and_return(reader)
         subject.send(:from_a_reader)
@@ -98,7 +98,7 @@ module RDF_Mutable
 
       it "should not raise errors" do
         pending("mutability", :unless => subject.mutable?) do
-          lambda { subject.delete(@statements.first) }.should_not raise_error
+          expect { subject.delete(@statements.first) }.not_to raise_error
         end
       end
 

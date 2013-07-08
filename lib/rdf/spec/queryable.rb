@@ -30,28 +30,28 @@ module RDF_Queryable
 
       context "when called" do
         it "requires an argument" do
-          lambda { subject.query }.should raise_error(ArgumentError)
+          expect { subject.query }.to raise_error(ArgumentError)
         end
 
         it "accepts a pattern argument" do
-          lambda { subject.query(RDF::Query::Pattern.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
-          lambda { subject.query(RDF::Query::Pattern.new(:s, :p, :o)) }.should_not raise_error(ArgumentError)
+          expect { subject.query(RDF::Query::Pattern.new(nil, nil, nil)) }.not_to raise_error
+          expect { subject.query(RDF::Query::Pattern.new(:s, :p, :o)) }.not_to raise_error
         end
 
         it "accepts a statement argument" do
-          lambda { subject.query(RDF::Statement.new(nil, nil, nil)) }.should_not raise_error(ArgumentError)
+          expect { subject.query(RDF::Statement.new(nil, nil, nil)) }.not_to raise_error
         end
 
         it "accepts a triple argument" do
-          lambda { subject.query([nil, nil, nil]) }.should_not raise_error(ArgumentError)
+          expect { subject.query([nil, nil, nil]) }.not_to raise_error
         end
 
         it "accepts a quad argument" do
-          lambda { subject.query([nil, nil, nil, nil]) }.should_not raise_error(ArgumentError)
+          expect { subject.query([nil, nil, nil, nil]) }.not_to raise_error
         end
 
         it "accepts a hash argument" do
-          lambda { subject.query({}) }.should_not raise_error(ArgumentError)
+          expect { subject.query({}) }.not_to raise_error
         end
 
         it "does not alter a given hash argument" do
@@ -62,7 +62,7 @@ module RDF_Queryable
         end
 
         it "rejects other kinds of arguments" do
-          lambda { subject.query(nil) }.should raise_error(ArgumentError)
+          expect { subject.query(nil) }.to raise_error(ArgumentError)
         end
 
         context "with a block" do
@@ -158,7 +158,7 @@ module RDF_Queryable
 
       context "when called" do
         it "requires an argument" do
-          lambda { subject.send(:query_pattern) }.should raise_error(ArgumentError)
+          expect { subject.send(:query_pattern) }.to raise_error(ArgumentError)
         end
 
         it "yields to the given block" do
@@ -243,7 +243,7 @@ module RDF_Queryable
       end
 
       it "returns enumerator without a pattern" do
-        lambda { subject.first }.should_not raise_error(ArgumentError)
+        expect { subject.first }.not_to raise_error
         subject.first.should == subject.each.first # uses an Enumerator
       end
 
@@ -275,7 +275,7 @@ module RDF_Queryable
       end
 
       it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
-        lambda { subject.first_subject }.should_not raise_error(ArgumentError)
+        expect { subject.first_subject }.not_to raise_error
         subject.first_subject.should == subject.first.subject
       end
 
@@ -306,7 +306,7 @@ module RDF_Queryable
       it {should respond_to(:first_predicate)}
 
       it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
-        lambda { subject.first_predicate }.should_not raise_error(ArgumentError)
+        expect { subject.first_predicate }.not_to raise_error
         subject.first_predicate.should == subject.first.predicate
       end
 
@@ -336,7 +336,7 @@ module RDF_Queryable
       it {should respond_to(:first_object)}
 
       it "returns enurator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
-        lambda { subject.first_object }.should_not raise_error(ArgumentError)
+        expect { subject.first_object }.not_to raise_error
         subject.first_object.should == subject.first.object
       end
 
@@ -374,7 +374,7 @@ module RDF_Queryable
       it {should respond_to(:first_literal)}
 
       it "returns a literal without a pattern" do
-        lambda { subject.first_literal }.should_not raise_error(ArgumentError)
+        expect { subject.first_literal }.not_to raise_error
         subject.first_literal.should == literal
       end
 
@@ -404,7 +404,7 @@ module RDF_Queryable
       it {should respond_to(:first_value)}
 
       it "returns first literal without a pattern" do
-        lambda { subject.first_value }.should_not raise_error(ArgumentError)
+        expect { subject.first_value }.not_to raise_error
         subject.first_value.should == subject.first_literal.value
       end
 

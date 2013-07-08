@@ -86,7 +86,7 @@ module RDF_Writable
 
       it "should not raise errors" do
         pending("writability", :unless => subject.writable?) do
-          lambda { subject.insert(statement) }.should_not raise_error
+          expect { subject.insert(statement) }.not_to raise_error
         end
       end
 

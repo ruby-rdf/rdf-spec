@@ -12,13 +12,13 @@ shared_examples "RDF_Transaction" do |klass|
     describe "#initialize" do
       subject {klass}
       it "accepts a graph" do
-        g = mock("graph")
+        g = double("graph")
         this = subject.new(:graph => g)
         this.graph.should == g
       end
 
       it "accepts a context" do
-        c = mock("context")
+        c = double("context")
         this = subject.new(:graph => c)
         this.graph.should == c
         this.context.should == c
@@ -29,13 +29,13 @@ shared_examples "RDF_Transaction" do |klass|
       end
 
       it "accepts inserts" do
-        g = mock("inserts")
+        g = double("inserts")
         this = subject.new(:insert => g)
         this.inserts.should == g
       end
 
       it "accepts deletes" do
-        g = mock("deletes")
+        g = double("deletes")
         this = subject.new(:delete => g)
         this.deletes.should == g
       end
@@ -60,7 +60,7 @@ shared_examples "RDF_Transaction" do |klass|
 
     describe "#execute" do
       let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-      let(:r) {mock("repository")}
+      let(:r) {double("repository")}
 
       it "deletes statements" do
         r.should_receive(:delete).with(s)
