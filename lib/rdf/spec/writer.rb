@@ -120,7 +120,6 @@ module RDF_Writer
         writer_mock = double("writer")
         writer_mock.should_receive(:got_here)
         file = StringIO.new
-        file.should_receive(:write).any_number_of_times
         @writer_class.new(file) do |r|
           writer_mock.got_here
           r.instance_variable_get(:@output).should == file
