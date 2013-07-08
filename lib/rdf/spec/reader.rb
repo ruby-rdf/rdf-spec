@@ -20,12 +20,12 @@ module RDF_Reader
 
     describe ".open" do
       before(:each) do
-        RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+        RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
       end
 
       it "yields reader given file_name" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
@@ -40,7 +40,7 @@ module RDF_Reader
 
       it "yields reader given symbol" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
           reader_mock = double("reader")
           reader_mock.should_receive(:got_here)
@@ -54,7 +54,7 @@ module RDF_Reader
 
       it "yields reader given {:file_name => file_name}" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
@@ -69,7 +69,7 @@ module RDF_Reader
 
       it "yields reader given {:content_type => 'a/b'}" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
+          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.content_types.each_pair do |content_type, formats|
             reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
