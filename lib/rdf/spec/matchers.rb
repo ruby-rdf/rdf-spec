@@ -125,7 +125,7 @@ module RDF; module Spec
           vocabulary[property].should be_a_uri
           vocabulary[property].to_s.should == "#{base_uri}#{property}"
           vocabulary.should respond_to(property)
-          lambda { vocabulary.send(property) }.should_not raise_error
+          expect { vocabulary.send(property) }.not_to raise_error
           vocabulary.send(property).should be_a_uri
           vocabulary.send(property.to_s).should be_a_uri
           vocabulary.send(property).to_s.should == "#{base_uri}#{property}"

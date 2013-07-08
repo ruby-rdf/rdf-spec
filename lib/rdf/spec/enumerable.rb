@@ -420,7 +420,7 @@ module RDF_Enumerable
       end
     
       it "raises error on unknown format" do
-        lambda {subject.dump(:foobar)}.should raise_error(RDF::WriterError, /No writer found/)
+        expect {subject.dump(:foobar)}.to raise_error(RDF::WriterError, /No writer found/)
       end
     end
   end

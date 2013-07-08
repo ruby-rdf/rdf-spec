@@ -15,11 +15,11 @@ module RDF_Indexable
     it {should respond_to(:index!)}
   
     it "does not raise error on #index! if #indexed?" do
-      lambda {subject.index!}.should_not raise_error if subject.indexed?
+      expect {subject.index!}.not_to raise_error if subject.indexed?
     end
   
     it "raises error on #index! if not #indexed?" do
-      lambda {subject.index!}.should raise_error unless subject.indexed?
+      expect {subject.index!}.to raise_error unless subject.indexed?
     end
   end
 end

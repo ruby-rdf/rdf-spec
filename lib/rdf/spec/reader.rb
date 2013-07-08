@@ -27,7 +27,7 @@ module RDF_Reader
         @reader_class.format.each do |f|
           RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
-            reader_mock = mock("reader")
+            reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
             @reader_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
             @reader_class.open("foo.#{sym}") do |r|
@@ -42,7 +42,7 @@ module RDF_Reader
         @reader_class.format.each do |f|
           RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
-          reader_mock = mock("reader")
+          reader_mock = double("reader")
           reader_mock.should_receive(:got_here)
           @reader_class.should_receive(:for).with(sym).and_return(@reader_class)
           @reader_class.open("foo.#{sym}", :format => sym) do |r|
@@ -56,7 +56,7 @@ module RDF_Reader
         @reader_class.format.each do |f|
           RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
-            reader_mock = mock("reader")
+            reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
             @reader_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
             @reader_class.open("foo.#{sym}", :file_name => "foo.#{sym}") do |r|
@@ -71,7 +71,7 @@ module RDF_Reader
         @reader_class.format.each do |f|
           RDF::Util::File.stub!(:open_file).and_yield(StringIO.new("foo"))
           f.content_types.each_pair do |content_type, formats|
-            reader_mock = mock("reader")
+            reader_mock = double("reader")
             reader_mock.should_receive(:got_here)
             @reader_class.should_receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(@reader_class)
             @reader_class.open("foo", :content_type => content_type) do |r|
@@ -92,7 +92,7 @@ module RDF_Reader
 
     describe ".new" do
       it "sets @input to StringIO given a string" do
-        reader_mock = mock("reader")
+        reader_mock = double("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.new("string") do |r|
           reader_mock.got_here
@@ -101,7 +101,7 @@ module RDF_Reader
       end
     
       it "sets @input to input given something other than a string" do
-        reader_mock = mock("reader")
+        reader_mock = double("reader")
         reader_mock.should_receive(:got_here)
         file = StringIO.new("")
         @reader_class.new(file) do |r|
@@ -122,7 +122,7 @@ module RDF_Reader
       end
     
       it "sets canonicalize given :canonicalize => true" do
-        reader_mock = mock("reader")
+        reader_mock = double("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.new("string", :canonicalize => true) do |r|
           reader_mock.got_here
@@ -131,7 +131,7 @@ module RDF_Reader
       end
     
       it "sets intern given :intern => true" do
-        reader_mock = mock("reader")
+        reader_mock = double("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.new("string", :intern => true) do |r|
           reader_mock.got_here
@@ -140,7 +140,7 @@ module RDF_Reader
       end
     
       it "sets prefixes given :prefixes => {}" do
-        reader_mock = mock("reader")
+        reader_mock = double("reader")
         reader_mock.should_receive(:got_here)
         @reader_class.new("string", :prefixes => {:a => "b"}) do |r|
           reader_mock.got_here
