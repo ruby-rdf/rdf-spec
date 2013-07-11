@@ -23,6 +23,8 @@ module RDF_Queryable
 
   describe RDF::Queryable do
     subject {@queryable}
+    let(:query) {RDF::Query.new {pattern [:s, :p, :o]}}
+
     ##
     # @see RDF::Queryable#query
     describe "#query" do
@@ -54,6 +56,10 @@ module RDF_Queryable
           expect { subject.query({}) }.not_to raise_error
         end
 
+        it "accepts an RDF::Query argument" do
+          expect { subject.query(RDF::Query.new) }.not_to raise_error
+        end
+
         it "does not alter a given hash argument" do
           query = {:subject => resource, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
           original_query = query.dup
@@ -66,9 +72,32 @@ module RDF_Queryable
         end
 
         context "with a block" do
-          it "yields statements" do
-            subject.query([nil, nil, nil]) do |statement|
-              statement.should be_a_statement
+          context "with a triple argument" do
+            it "yields statements" do
+              subject.query([nil, nil, nil]) do |statement|
+                statement.should be_a_statement
+                statement.should_not be_a RDF::Query::Solution
+              end
+            end
+
+            it "calls #query_pattern" do
+              subject.should_receive(:query_pattern)
+              subject.should_not_receive(:query_execute)
+              subject.query([:s, :p, :o]) {}
+            end
+          end
+          context "with a Query argument" do
+            it "yields statements" do
+              subject.query(query) do |solution|
+                solution.should_not be_a_statement
+                solution.should be_a RDF::Query::Solution
+              end
+            end
+
+            it "calls #query_execute" do
+              subject.should_receive(:query_execute)
+              subject.should_not_receive(:query_pattern)
+              subject.query(query) {}
             end
           end
         end
@@ -86,9 +115,17 @@ module RDF_Queryable
             subject.query([nil, nil, nil]).should be_queryable
           end
 
-          it "returns statements" do
+          it "returns statements given a triple" do
             subject.query([nil, nil, nil]).each do |statement|
               statement.should be_a_statement
+              statement.should_not be_a RDF::Query::Solution
+            end
+          end
+
+          it "returns solutions given a query" do
+            subject.query(query).each do |solution|
+              solution.should_not be_a_statement
+              solution.should be_a RDF::Query::Solution
             end
           end
 
@@ -102,9 +139,13 @@ module RDF_Queryable
 
           it "returns the correct number of results for hash queries" do
             subject.query({}).size.should == @statements.size
-            subject.query(:subject => resource) .size.should == File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+            subject.query(:subject => resource).size.should == File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
             subject.query(:subject => resource, :predicate => RDF::DOAP.name).size.should == 1
             subject.query(:object => RDF::DOAP.Project).size.should == 1
+          end
+
+          it "returns the correct number of results for query queries" do
+            subject.query(query).size.should == @statements.size
           end
         end
 
@@ -150,6 +191,30 @@ module RDF_Queryable
     end
 
     ##
+    # @see RDF::Queryable#query_execute
+    describe "#query_execute" do
+      it "defines a protected #query_execute method" do
+        subject.class.protected_method_defined?(:query_execute).should be_true
+      end
+
+      context "when called" do
+        it "requires an argument" do
+          expect { subject.send(:query_execute) }.to raise_error(ArgumentError)
+        end
+
+        it "yields to the given block" do
+          expect {|b| subject.send(:query_execute, query, &b)}.to yield_control.exactly(@queryable.count).times
+        end
+
+        it "yields solutions" do
+          subject.send(:query_execute, query) do |solution|
+            solution.should be_a RDF::Query::Solution
+          end
+        end
+      end
+    end
+
+    ##
     # @see RDF::Queryable#query_pattern
     describe "#query_pattern" do
       it "defines a protected #query_pattern method" do
@@ -162,12 +227,7 @@ module RDF_Queryable
         end
 
         it "yields to the given block" do
-          called = false
-          subject.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
-            called = true
-            break
-          end
-          called.should be_true
+          expect {|b| subject.send(:query_pattern, RDF::Query::Pattern.new, &b)}.to yield_control.exactly(@queryable.count).times
         end
 
         it "yields statements" do
