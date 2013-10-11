@@ -13,21 +13,21 @@ module RDF_Format
     describe ".for" do
       RDF::Format.file_extensions.each do |ext, formats|
         it "detects #{formats.first} using file path foo.#{ext}" do
-          RDF::Format.for("foo.#{ext}").should == formats.first
+          expect(RDF::Format.for("foo.#{ext}")).to eq formats.first
         end
 
         it "detects #{formats.first} using file_name foo.#{ext}" do
-          RDF::Format.for(:file_name => "foo.#{ext}").should == formats.first
+          expect(RDF::Format.for(:file_name => "foo.#{ext}")).to eq formats.first
         end
 
         it "detects #{formats.first} using file_extension #{ext}" do
-          RDF::Format.for(:file_extension => ext).should == formats.first
+          expect(RDF::Format.for(:file_extension => ext)).to eq formats.first
         end
       end
 
       RDF::Format.content_types.each do |content_type, formats|
         it "detects #{formats.first} using content_type #{content_type}" do
-          RDF::Format.for(:content_type => content_type).should == formats.first
+          expect(RDF::Format.for(:content_type => content_type)).to eq formats.first
         end
       end
     end
@@ -35,7 +35,7 @@ module RDF_Format
     describe ".reader" do
       it "returns a reader" do
         subject.each do |f|
-          f.reader.should_not be_nil
+          expect(f.reader).not_to  be_nil
         end
       end
     end
@@ -46,7 +46,7 @@ module RDF_Format
       it "returns a writer" do
         subject.each do |f|
           format_namespace = f.name.split('::')[0..-2].inject(Kernel) {|base, const| base.const_get(const)}
-          f.writer.should_not be_nil if format_namespace.const_defined?(:Writer)
+          expect(f.writer).not_to  be_nil if format_namespace.const_defined?(:Writer)
         end
       end
     end

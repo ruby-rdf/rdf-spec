@@ -29,19 +29,19 @@ module RDF_Durable
     subject {@load_durable.call}
     it {should respond_to(:durable?)}
     it "should support #durable?" do
-      [true,false].member?(subject.durable?).should be_true
+      expect([true,false]).to be_member(subject.durable?)
     end
 
     it {should respond_to(:nondurable?)}
     it "should support #nondurable?" do
-      [true,false].member?(@load_durable.call.nondurable?).should be_true
+      expect([true,false]).to be_member(@load_durable.call.nondurable?)
     end
     its(:nondurable?) {should_not == subject.durable?}
 
     it "should save contents between instantiations" do
       if subject.durable?
        subject.load(RDF::Spec::TRIPLES_FILE)
-       subject.count.should == File.readlines(RDF::Spec::TRIPLES_FILE).size
+       expect(subject.count).to eq File.readlines(RDF::Spec::TRIPLES_FILE).size
       end
     end
   end

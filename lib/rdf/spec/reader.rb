@@ -13,7 +13,7 @@ module RDF_Reader
     describe ".each" do
       it "yields each reader" do
         @reader_class.each do |r|
-          r.should_not be_nil
+          expect(r).not_to  be_nil
         end
       end
     end
@@ -28,10 +28,10 @@ module RDF_Reader
           RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
-            reader_mock.should_receive(:got_here)
-            @reader_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
+            expect(reader_mock).to receive(:got_here)
+            expect(@reader_class).to receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
             @reader_class.open("foo.#{sym}") do |r|
-              r.should be_a(RDF::Reader)
+              expect(r).to be_a(RDF::Reader)
               reader_mock.got_here
             end
           end
@@ -43,10 +43,10 @@ module RDF_Reader
           RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
           reader_mock = double("reader")
-          reader_mock.should_receive(:got_here)
-          @reader_class.should_receive(:for).with(sym).and_return(@reader_class)
+          expect(reader_mock).to receive(:got_here)
+          expect(@reader_class).to receive(:for).with(sym).and_return(@reader_class)
           @reader_class.open("foo.#{sym}", :format => sym) do |r|
-            r.should be_a(RDF::Reader)
+            expect(r).to be_a(RDF::Reader)
             reader_mock.got_here
           end
         end
@@ -57,10 +57,10 @@ module RDF_Reader
           RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
-            reader_mock.should_receive(:got_here)
-            @reader_class.should_receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
+            expect(reader_mock).to receive(:got_here)
+            expect(@reader_class).to receive(:for).with(:file_name => "foo.#{sym}").and_return(@reader_class)
             @reader_class.open("foo.#{sym}", :file_name => "foo.#{sym}") do |r|
-              r.should be_a(RDF::Reader)
+              expect(r).to be_a(RDF::Reader)
               reader_mock.got_here
             end
           end
@@ -72,10 +72,10 @@ module RDF_Reader
           RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.content_types.each_pair do |content_type, formats|
             reader_mock = double("reader")
-            reader_mock.should_receive(:got_here)
-            @reader_class.should_receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(@reader_class)
+            expect(reader_mock).to receive(:got_here)
+            expect(@reader_class).to receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(@reader_class)
             @reader_class.open("foo", :content_type => content_type) do |r|
-              r.should be_a(RDF::Reader)
+              expect(r).to be_a(RDF::Reader)
               reader_mock.got_here
             end
           end
@@ -86,27 +86,27 @@ module RDF_Reader
     describe ".format" do
       it "returns itself even if given explicit format" do
         other_format = @reader_class == RDF::NTriples::Reader ? :nquads : :ntriples
-        @reader_class.for(other_format).should == @reader_class
+        expect(@reader_class.for(other_format)).to eq @reader_class
       end
     end
 
     describe ".new" do
       it "sets @input to StringIO given a string" do
         reader_mock = double("reader")
-        reader_mock.should_receive(:got_here)
+        expect(reader_mock).to receive(:got_here)
         @reader_class.new("string") do |r|
           reader_mock.got_here
-          r.instance_variable_get(:@input).should be_a(StringIO)
+          expect(r.instance_variable_get(:@input)).to be_a(StringIO)
         end
       end
     
       it "sets @input to input given something other than a string" do
         reader_mock = double("reader")
-        reader_mock.should_receive(:got_here)
+        expect(reader_mock).to receive(:got_here)
         file = StringIO.new("")
         @reader_class.new(file) do |r|
           reader_mock.got_here
-          r.instance_variable_get(:@input).should == file
+          expect(r.instance_variable_get(:@input)).to eq file
         end
       end
     
@@ -114,37 +114,37 @@ module RDF_Reader
         # Either set validate, or through error, due to invalid input (null input may be invalid)
         begin
           @reader_class.new("string", :validate => true) do |r|
-            r.send(:validate?).should be_true
+            expect(r).to be_valid
           end
         rescue
-          $!.should be_a(RDF::ReaderError)  # An error is acceptable
+          expect($!).to be_a(RDF::ReaderError)  # An error is acceptable
         end
       end
     
       it "sets canonicalize given :canonicalize => true" do
         reader_mock = double("reader")
-        reader_mock.should_receive(:got_here)
+        expect(reader_mock).to receive(:got_here)
         @reader_class.new("string", :canonicalize => true) do |r|
           reader_mock.got_here
-          r.send(:canonicalize?).should be_true
+          expect(r).to be_canonicalize
         end
       end
     
       it "sets intern given :intern => true" do
         reader_mock = double("reader")
-        reader_mock.should_receive(:got_here)
+        expect(reader_mock).to receive(:got_here)
         @reader_class.new("string", :intern => true) do |r|
           reader_mock.got_here
-          r.send(:intern?).should be_true
+          expect(r).to be_intern
         end
       end
     
       it "sets prefixes given :prefixes => {}" do
         reader_mock = double("reader")
-        reader_mock.should_receive(:got_here)
+        expect(reader_mock).to receive(:got_here)
         @reader_class.new("string", :prefixes => {:a => "b"}) do |r|
           reader_mock.got_here
-          r.prefixes.should == {:a => "b"}
+          expect(r.prefixes).to eq({:a => "b"})
         end
       end
     end
@@ -152,7 +152,7 @@ module RDF_Reader
     describe "#prefixes=" do
       it "sets prefixes from hash" do
         @reader.prefixes = {:a => "b"}
-        @reader.prefixes.should == {:a => "b"}
+        expect(@reader.prefixes).to eq({:a => "b"})
       end
     end
   
@@ -163,8 +163,8 @@ module RDF_Reader
         "foo"   => "bar",
       }.each_pair do |pfx, uri|
         it "sets prefix(#{pfx}) to #{uri}" do
-          @reader.prefix(pfx, uri).should == uri
-          @reader.prefix(pfx).should == uri
+          expect(@reader.prefix(pfx, uri)).to eq uri
+          expect(@reader.prefix(pfx)).to eq uri
         end
       end
     end

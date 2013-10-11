@@ -15,16 +15,16 @@ module RDF_Writer
     describe ".each" do
       it "yields each writer" do
         @writer_class.each do |r|
-          r.should_not be_nil
+          expect(r).not_to be_nil
         end
       end
     end
   
     describe ".buffer" do
       it "calls .new with buffer and other arguments" do
-        @writer_class.should_receive(:new)
+        expect(@writer_class).to receive(:new)
         @writer_class.buffer do |r|
-          r.should be_a(@writer_class)
+          expect(r).to be_a(@writer_class)
         end
       end
     end
@@ -44,10 +44,10 @@ module RDF_Writer
         @writer_class.format.each do |f|
           f.file_extensions.each_pair do |sym, content_type|
             writer_mock = double("writer")
-            writer_mock.should_receive(:got_here)
-            @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
+            expect(writer_mock).to receive(:got_here)
+            expect(@writer_class).to receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
             @writer_class.open("#{@basename}.#{sym}") do |r|
-              r.should be_a(RDF::Writer)
+              expect(r).to be_a(RDF::Writer)
               writer_mock.got_here
             end
           end
@@ -58,10 +58,10 @@ module RDF_Writer
         @writer_class.format.each do |f|
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
           writer_mock = double("writer")
-          writer_mock.should_receive(:got_here)
-          @writer_class.should_receive(:for).with(sym).and_return(@writer_class)
+          expect(writer_mock).to receive(:got_here)
+          expect(@writer_class).to receive(:for).with(sym).and_return(@writer_class)
           @writer_class.open("#{@basename}.#{sym}", :format => sym) do |r|
-            r.should be_a(RDF::Writer)
+            expect(r).to be_a(RDF::Writer)
             writer_mock.got_here
           end
         end
@@ -71,10 +71,10 @@ module RDF_Writer
         @writer_class.format.each do |f|
           f.file_extensions.each_pair do |sym, content_type|
             writer_mock = double("writer")
-            writer_mock.should_receive(:got_here)
-            @writer_class.should_receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
+            expect(writer_mock).to receive(:got_here)
+            expect(@writer_class).to receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(@writer_class)
             @writer_class.open("#{@basename}.#{sym}", :file_name => "#{@basename}.#{sym}") do |r|
-              r.should be_a(RDF::Writer)
+              expect(r).to be_a(RDF::Writer)
               writer_mock.got_here
             end
           end
@@ -85,10 +85,10 @@ module RDF_Writer
         @writer_class.format.each do |f|
           f.content_types.each_pair do |content_type, formats|
             writer_mock = double("writer")
-            writer_mock.should_receive(:got_here)
-            @writer_class.should_receive(:for).with(:content_type => content_type, :file_name => @basename).and_return(@writer_class)
+            expect(writer_mock).to receive(:got_here)
+            expect(@writer_class).to receive(:for).with(:content_type => content_type, :file_name => @basename).and_return(@writer_class)
             @writer_class.open(@basename, :content_type => content_type) do |r|
-              r.should be_a(RDF::Writer)
+              expect(r).to be_a(RDF::Writer)
               writer_mock.got_here
             end
           end
@@ -99,39 +99,39 @@ module RDF_Writer
     describe ".format" do
       it "returns itself even if given explicit format" do
         other_format = @writer_class == RDF::NTriples::Writer ? :nquads : :ntriples
-        @writer_class.for(other_format).should == @writer_class
+        expect(@writer_class.for(other_format)).to eq @writer_class
       end
     end
 
     describe ".new" do
       it "sets @output to $stdout by default" do
         writer_mock = double("writer")
-        writer_mock.should_receive(:got_here)
+        expect(writer_mock).to receive(:got_here)
         save, $stdout = $stdout, StringIO.new
 
         @writer_class.new do |r|
           writer_mock.got_here
-          r.instance_variable_get(:@output).should == $stdout
+          expect(r.instance_variable_get(:@output)).to eq $stdout
         end
         $stdout = save
       end
     
       it "sets @output to file given something other than a string" do
         writer_mock = double("writer")
-        writer_mock.should_receive(:got_here)
+        expect(writer_mock).to receive(:got_here)
         file = StringIO.new
         @writer_class.new(file) do |r|
           writer_mock.got_here
-          r.instance_variable_get(:@output).should == file
+          expect(r.instance_variable_get(:@output)).to eq file
         end
       end
     
       it "sets prefixes given :prefixes => {}" do
         writer_mock = double("writer")
-        writer_mock.should_receive(:got_here)
+        expect(writer_mock).to receive(:got_here)
         @writer_class.new(StringIO.new, :prefixes => {:a => "b"}) do |r|
           writer_mock.got_here
-          r.prefixes.should == {:a => "b"}
+          expect(r.prefixes).to eq({:a => "b"})
         end
       end
     
@@ -157,7 +157,7 @@ module RDF_Writer
     describe "#prefixes=" do
       it "sets prefixes from hash" do
         @writer.prefixes = {:a => "b"}
-        @writer.prefixes.should == {:a => "b"}
+        expect(@writer.prefixes).to eq({:a => "b"})
       end
     end
   
@@ -168,8 +168,8 @@ module RDF_Writer
         "foo"   => "bar",
       }.each_pair do |pfx, uri|
         it "sets prefix(#{pfx}) to #{uri}" do
-          @writer.prefix(pfx, uri).should == uri
-          @writer.prefix(pfx).should == uri
+          expect(@writer.prefix(pfx, uri)).to eq uri
+          expect(@writer.prefix(pfx)).to eq uri
         end
       end
     end
