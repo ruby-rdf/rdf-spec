@@ -34,9 +34,9 @@ module RDF_Enumerable
       it "returns false if any statement is invalid" do
         if subject.respond_to?(:<<) && (subject.writable? rescue true)
           s = RDF::Statement.from([nil, nil, nil])
-          s.should_not be_valid
+          expect(s).not_to  be_valid
           subject << s
-          subject.should_not be_valid
+          expect(subject).not_to  be_valid
         else
           pending("can't add statement to immutable enumerable")
         end
@@ -64,8 +64,8 @@ module RDF_Enumerable
       its(:statements) {should be_an_enumerator}
 
       context "#statements" do
-        specify {subject.statements.to_a.size.should == @statements.size}
-        specify {subject.statements.each { |statement| statement.should be_a_statement }}
+        specify {expect(subject.statements.to_a.size).to eq @statements.size}
+        specify {subject.statements.each { |statement| expect(statement).to be_a_statement }}
       end
 
       it {should respond_to(:has_statement?)}
@@ -74,7 +74,7 @@ module RDF_Enumerable
         it "should have all statements" do
           # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
           non_bnode_statements.each do |statement|
-            subject.has_statement?(statement).should be_true
+            expect(subject).to have_statement(statement)
           end
         end
 
@@ -84,20 +84,20 @@ module RDF_Enumerable
             non_bnode_statements.each do |statement|
               s = statement.dup
               s.context = context
-              subject.has_statement?(s).should be_false
+              expect(subject).not_to have_statement(s)
             end
           end
         end
 
         it "does not have an unknown statement" do
-          subject.has_statement?(unknown_statement).should be_false
+          expect(subject).not_to have_statement(unknown_statement)
         end
       end
 
       it {should respond_to(:each_statement)}
       its(:each_statement) {should be_an_enumerator}
       it "should implement #each_statement" do
-        subject.each_statement { |statement| statement.should be_a_statement }
+        subject.each_statement { |statement| expect(statement).to be_a_statement }
       end
 
       it {should respond_to(:enum_statement)}
@@ -107,7 +107,7 @@ module RDF_Enumerable
       its(:enum_statement) {should be_queryable}
       context "#enum_statement" do
         it "should enumerate all statements" do
-          subject.enum_statement.to_a.should =~ @enumerable.each_statement.to_a
+          expect(subject.enum_statement.to_a).to include(*@enumerable.each_statement.to_a)
         end
       end
     end
@@ -120,28 +120,28 @@ module RDF_Enumerable
 
       its(:triples) {should be_an_enumerator}
       context "#triples" do
-        specify {subject.triples.to_a.size.should == @statements.size}
-        specify {subject.triples.each { |triple| triple.should be_a_triple }}
+        specify {expect(subject.triples.to_a.size).to eq @statements.size}
+        specify {subject.triples.each { |triple| expect(triple).to be_a_triple }}
       end
 
       context "#has_triple?" do
         specify do
           non_bnode_statements.each do |statement|
-            subject.has_triple?(statement.to_triple).should be_true
+            expect(subject).to have_triple(statement.to_triple)
           end
         end
       end
 
       its(:each_triple) {should be_an_enumerator}
       context "#each_triple" do
-        specify {subject.each_triple { |*triple| triple.should be_a_triple }}
+        specify {subject.each_triple { |*triple| expect(triple).to be_a_triple }}
       end
 
       its(:enum_triple) {should be_an_enumerator}
       its(:enum_triple) {should be_countable}
       context "#enum_triple" do
         it "should enumerate all triples" do
-          subject.enum_triple.to_a.should =~ @enumerable.each_triple.to_a
+          expect(subject.enum_triple.to_a).to include(*@enumerable.each_triple.to_a)
         end
       end
     end
@@ -154,15 +154,15 @@ module RDF_Enumerable
 
       its(:quads) {should be_an_enumerator}
       context "#quads" do
-        specify {subject.quads.to_a.size.should == @statements.size}
-        specify {subject.quads.each { |quad| quad.should be_a_quad }}
+        specify {expect(subject.quads.to_a.size).to eq @statements.size}
+        specify {subject.quads.each { |quad| expect(quad).to be_a_quad }}
       end
 
       context "#has_quad?" do
         specify do
           if @supports_context
             non_bnode_statements.each do |statement|
-              subject.has_quad?(statement.to_quad).should be_true
+              expect(subject).to have_quad(statement.to_quad)
             end
           end
         end
@@ -170,14 +170,14 @@ module RDF_Enumerable
 
       its(:each_quad) {should be_an_enumerator}
       context "#each_quad" do
-        specify {subject.each_quad {|*quad| quad.should be_a_quad }}
+        specify {subject.each_quad {|*quad| expect(quad).to be_a_quad }}
       end
 
       its(:enum_quad) {should be_an_enumerator}
       its(:enum_quad) {should be_countable}
       context "#enum_quad" do
         it "should enumerate all quads" do
-          subject.enum_quad.to_a.should =~ @enumerable.each_quad.to_a
+          expect(subject.enum_quad.to_a).to include(*@enumerable.each_quad.to_a)
         end
       end
     end
@@ -192,12 +192,12 @@ module RDF_Enumerable
       its(:subjects) {should be_an_enumerator}
       context "#subjects" do
         subject {@enumerable.subjects}
-        specify {subject.should be_an_enumerator}
-        specify {subject.each { |value| value.should be_a_resource }}
+        specify {expect(subject).to be_an_enumerator}
+        specify {subject.each { |value| expect(value).to be_a_resource }}
         context ":unique => false" do
           subject {@enumerable.subjects(:unique => false)}
-          specify {subject.should be_an_enumerator}
-          specify {subject.each { |value| value.should be_a_resource }}
+          specify {expect(subject).to be_an_enumerator}
+          specify {subject.each { |value| expect(value).to be_a_resource }}
         end
       end
 
@@ -205,26 +205,26 @@ module RDF_Enumerable
         specify do
           checked = []
           non_bnode_statements.each do |statement|
-            @enumerable.has_subject?(statement.subject).should be_true unless checked.include?(statement.subject)
+            expect(@enumerable).to have_subject(statement.subject) unless checked.include?(statement.subject)
             checked << statement.subject
           end
           uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
-          @enumerable.has_subject?(uri).should be_false
+          expect(@enumerable).not_to have_subject(uri)
         end
       end
 
       its(:each_subject) {should be_an_enumerator}
       context "#each_subject" do
-        specify {subject.each_subject.reject(&:node?).size.should == subjects.size}
-        specify {subject.each_subject {|value| value.should be_a_resource}}
-        specify {subject.each_subject {|value| subjects.should include(value) unless value.node?}}
+        specify {expect(subject.each_subject.reject(&:node?).size).to eq subjects.size}
+        specify {subject.each_subject {|value| expect(value).to be_a_resource}}
+        specify {subject.each_subject {|value| expect(subjects).to include(value) unless value.node?}}
       end
 
       its(:enum_subject) {should be_an_enumerator}
       its(:enum_subject) {should be_countable}
       context "#enum_subject" do
         it "should enumerate all subjects" do
-          subject.enum_subject.reject(&:node?).should =~ subjects
+          expect(subject.enum_subject.reject(&:node?)).to include(*subjects)
         end
       end
     end
@@ -239,12 +239,12 @@ module RDF_Enumerable
       its(:predicates) {should be_an_enumerator}
       context "#predicates" do
         subject {@enumerable.predicates}
-        specify {subject.should be_an_enumerator}
-        specify {subject.each { |value| value.should be_a_uri }}
+        specify {expect(subject).to be_an_enumerator}
+        specify {subject.each { |value| expect(value).to be_a_uri }}
         context ":unique => false" do
           subject {@enumerable.predicates(:unique => false)}
-          specify {subject.should be_an_enumerator}
-          specify {subject.each { |value| value.should be_a_uri }}
+          specify {expect(subject).to be_an_enumerator}
+          specify {subject.each { |value| expect(value).to be_a_uri }}
         end
       end
 
@@ -252,26 +252,26 @@ module RDF_Enumerable
         specify do
           checked = []
           @statements.each do |statement|
-            @enumerable.has_predicate?(statement.predicate).should be_true unless checked.include?(statement.predicate)
+            expect(@enumerable).to have_predicate(statement.predicate) unless checked.include?(statement.predicate)
             checked << statement.predicate
           end
           uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
-          @enumerable.has_predicate?(uri).should be_false
+          expect(@enumerable).not_to have_predicate(uri)
         end
       end
 
       its(:each_predicate) {should be_an_enumerator}
       context "#each_predicate" do
-        specify {subject.each_predicate.to_a.size.should == predicates.size}
-        specify {subject.each_predicate {|value| value.should be_a_uri}}
-        specify {subject.each_predicate {|value| predicates.should include(value)}}
+        specify {expect(subject.each_predicate.to_a.size).to eq predicates.size}
+        specify {subject.each_predicate {|value| expect(value).to be_a_uri}}
+        specify {subject.each_predicate {|value| expect(predicates).to include(value)}}
       end
 
       its(:enum_predicate) {should be_an_enumerator}
       its(:enum_predicate) {should be_countable}
       context "#enum_predicate" do
         it "should enumerate all predicates" do
-          subject.enum_predicate.to_a.should =~ predicates
+          expect(subject.enum_predicate.to_a).to include(*predicates)
         end
       end
     end
@@ -286,12 +286,12 @@ module RDF_Enumerable
       its(:objects) {should be_an_enumerator}
       context "#objects" do
         subject {@enumerable.objects}
-        specify {subject.should be_an_enumerator}
-        specify {subject.each { |value| value.should be_a_term }}
+        specify {expect(subject).to be_an_enumerator}
+        specify {subject.each { |value| expect(value).to be_a_term }}
         context ":unique => false" do
           subject {@enumerable.objects(:unique => false)}
-          specify {subject.should be_an_enumerator}
-          specify {subject.each { |value| value.should be_a_term }}
+          specify {expect(subject).to be_an_enumerator}
+          specify {subject.each { |value| expect(value).to be_a_term }}
         end
       end
 
@@ -299,26 +299,26 @@ module RDF_Enumerable
         specify do
           checked = []
           non_bnode_statements.each do |statement|
-            @enumerable.has_object?(statement.object).should be_true unless checked.include?(statement.object)
+            expect(@enumerable).to have_object(statement.object) unless checked.include?(statement.object)
             checked << statement.object
           end
           uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
-          @enumerable.has_object?(uri).should be_false
+          expect(@enumerable).not_to have_object(uri)
         end
       end
 
       its(:each_object) {should be_an_enumerator}
       context "#each_object" do
-        specify {subject.each_object.reject(&:node?).size.should == objects.size}
-        specify {subject.each_object {|value| value.should be_a_term}}
-        specify {subject.each_object {|value| objects.should include(value) unless value.node?}}
+        specify {expect(subject.each_object.reject(&:node?).size).to eq objects.size}
+        specify {subject.each_object {|value| expect(value).to be_a_term}}
+        specify {subject.each_object {|value| expect(objects).to include(value) unless value.node?}}
       end
 
       its(:enum_object) {should be_an_enumerator}
       its(:enum_object) {should be_countable}
       context "#enum_object" do
         it "should enumerate all objects" do
-          subject.enum_object.reject(&:node?).should =~ objects
+          expect(subject.enum_object.reject(&:node?)).to include(*objects)
         end
       end
     end
@@ -332,15 +332,15 @@ module RDF_Enumerable
       its(:contexts) {should be_an_enumerator}
       describe "#contexts" do
         subject {@enumerable.contexts}
-        specify {subject.should be_an_enumerator}
+        specify {expect(subject).to be_an_enumerator}
         it "values should be resources" do
-          subject.each { |value| value.should be_a_resource }
+          subject.each { |value| expect(value).to be_a_resource }
         end
         context ":unique => false" do
           subject {@enumerable.contexts(:unique => false)}
-          specify {subject.should be_an_enumerator}
+          specify {expect(subject).to be_an_enumerator}
           it "values should be resources" do
-            subject.each { |value| value.should be_a_resource }
+            subject.each { |value| expect(value).to be_a_resource }
           end
         end
       end
@@ -349,11 +349,11 @@ module RDF_Enumerable
         if @supports_context
           @statements.each do |statement|
             if statement.has_context?
-              @enumerable.has_context?(statement.context).should be_true
+              expect(@enumerable).to have_context(statement.context)
             end
           end
           uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
-          @enumerable.has_context?(uri).should be_false
+          expect(@enumerable).not_to have_context(uri)
         end
       end
 
@@ -362,14 +362,14 @@ module RDF_Enumerable
         let(:contexts) {@statements.map { |s| s.context }.uniq.compact}
         it "has appropriate number of contexts" do
           if @supports_context
-            subject.each_context.to_a.size.should == contexts.size
+            expect(subject.each_context.to_a.size).to eq contexts.size
           end
         end
         it "values should be resources" do
-          subject.each_context {|value| value.should be_a_resource}
+          subject.each_context {|value| expect(value).to be_a_resource}
         end
         it "should have all contexts" do
-          subject.each_context {|value| contexts.should include(value)}
+          subject.each_context {|value| expect(contexts).to include(value)}
         end
       end
 
@@ -377,7 +377,7 @@ module RDF_Enumerable
       its(:enum_context) {should be_countable}
       context "#enum_context" do
         it "should enumerate all contexts" do
-          subject.enum_context.to_a.should =~ @enumerable.each_context.to_a
+          expect(subject.enum_context.to_a).to include(*@enumerable.each_context.to_a)
         end
       end
     end
@@ -389,15 +389,15 @@ module RDF_Enumerable
       describe "#each_graph" do
         subject {@enumerable.each_graph}
         it {should be_an_enumerator}
-        specify {subject.each { |value| value.should be_a_graph }}
+        specify {subject.each { |value| expect(value).to be_a_graph }}
       end
 
       describe "#enum_graph" do
         subject {@enumerable.enum_graph}
-        it {subject.should be_an_enumerator}
-        it {subject.should be_countable}
+        it {should be_an_enumerator}
+        it {should be_countable}
         it "enumerates the same as #each_graph" do
-          subject.to_a.should =~ @enumerable.each_graph.to_a
+          subject.to_a.should =~ @enumerable.each_graph.to_a # expect with match problematic
         end
       end
     end
@@ -407,7 +407,7 @@ module RDF_Enumerable
       its(:to_hash) {should be_instance_of(Hash)}
       context "#to_hash" do
         it "should have as many keys as subjects" do
-          subject.to_hash.keys.size.should == @enumerable.subjects.to_a.size
+          expect(subject.to_hash.keys.size).to eq @enumerable.subjects.to_a.size
         end
       end
     end
@@ -416,7 +416,7 @@ module RDF_Enumerable
       it {should respond_to(:dump)}
     
       it "should implement #dump" do
-        subject.dump(:ntriples).should == RDF::NTriples::Writer.buffer() {|w| w << @enumerable}
+        expect(subject.dump(:ntriples)).to eq RDF::NTriples::Writer.buffer() {|w| w << @enumerable}
       end
     
       it "raises error on unknown format" do

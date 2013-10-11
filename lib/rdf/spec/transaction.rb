@@ -31,7 +31,7 @@ module RDF_Transaction
   
     describe "#readable?" do
       it "returns false" do
-        @transaction.readable?.should be_false
+        expect(@transaction.readable?).to be_false
       end
     end
   

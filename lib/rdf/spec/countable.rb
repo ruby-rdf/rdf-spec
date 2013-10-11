@@ -38,7 +38,7 @@ module RDF_Countable
     its(:to_enum) {should be_countable}
     its(:enum_for) {should be_countable}
     it "#enum_for(:each)" do
-      subject.enum_for(:each).should be_countable
+      expect(subject.enum_for(:each)).to be_countable
     end
   end
 end

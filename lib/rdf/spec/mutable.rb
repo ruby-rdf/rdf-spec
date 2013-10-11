@@ -67,16 +67,16 @@ module RDF_Mutable
       it "should load statements" do
         pending("mutability", :unless => subject.mutable?) do
           subject.load RDF::Spec::TRIPLES_FILE
-          subject.size.should ==  File.readlines(RDF::Spec::TRIPLES_FILE).size
-          subject.should have_subject(resource)
+          expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
+          expect(subject).to have_subject(resource)
         end
       end
 
       it "should load statements with a context override" do
         pending("mutability and contextuality", :unless => (subject.mutable? && @supports_context)) do
           subject.load RDF::Spec::TRIPLES_FILE, :context => context
-          subject.should have_context(context)
-          subject.query(:context => context).size.should == subject.size
+          expect(subject).to have_context(context)
+          expect(subject.query(:context => context).size).to eq subject.size
         end
       end
     end
@@ -84,8 +84,8 @@ module RDF_Mutable
     context "#from_{reader}" do
       it "should instantiate a reader" do
         reader = double("reader")
-        reader.should_receive(:new).and_return(RDF::NTriples::Reader.new(""))
-        RDF::Reader.should_receive(:for).with(:a_reader).and_return(reader)
+        expect(reader).to receive(:new).and_return(RDF::NTriples::Reader.new(""))
+        expect(RDF::Reader).to receive(:for).with(:a_reader).and_return(reader)
         subject.send(:from_a_reader)
       end
     end
@@ -105,14 +105,14 @@ module RDF_Mutable
       it "should support deleting one statement at a time" do
         pending("mutability", :unless => subject.mutable?) do
           subject.delete(@statements.first)
-          subject.should_not have_statement(@statements.first)
+          expect(subject).not_to  have_statement(@statements.first)
         end
       end
 
       it "should support deleting multiple statements at a time" do
         pending("mutability", :unless => subject.mutable?) do
           subject.delete(*@statements)
-          subject.find { |s| subject.has_statement?(s) }.should be_false
+          expect(subject.find { |s| subject.has_statement?(s) }).to be_false
         end
       end
 
@@ -122,12 +122,12 @@ module RDF_Mutable
           require 'digest/sha1'
           count = subject.count
           subject.delete([nil, nil, random = Digest::SHA1.hexdigest(File.read(__FILE__))])
-          subject.should_not be_empty
-          subject.count.should == count
+          expect(subject).not_to  be_empty
+          expect(subject.count).to eq count
 
           # everything deleted
           subject.delete([nil, nil, nil])
-          subject.should be_empty
+          expect(subject).to be_empty
         end
       end
 
@@ -143,15 +143,15 @@ module RDF_Mutable
           subject.insert(s1)
           subject.insert(s2)
           subject.insert(s3)
-          subject.count.should == count
+          expect(subject.count).to eq count
 
           # Delete one by one
           subject.delete(s1)
-          subject.count.should == count - (@supports_context ? 1 : 1)
+          expect(subject.count).to eq count - (@supports_context ? 1 : 1)
           subject.delete(s2)
-          subject.count.should == count - (@supports_context ? 2 : 1)
+          expect(subject.count).to eq count - (@supports_context ? 2 : 1)
           subject.delete(s3)
-          subject.count.should == count - (@supports_context ? 3 : 1)
+          expect(subject.count).to eq count - (@supports_context ? 3 : 1)
         end
       end
     end
