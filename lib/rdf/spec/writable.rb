@@ -26,8 +26,8 @@ module RDF_Writable
         pending("writability", :unless => subject.writable?) do
           reader = RDF::NTriples::Reader.new(File.open(@filename)).to_a
           subject << reader
-          subject.should have_statement(statement)
-          subject.count.should == count
+          expect(subject).to have_statement(statement)
+          expect(subject.count).to eq count
         end
       end
 
@@ -35,8 +35,8 @@ module RDF_Writable
         pending("writability", :unless => subject.writable?) do
           graph = RDF::Graph.new << @statements
           subject << graph
-          subject.should have_statement(statement)
-          subject.count.should == count
+          expect(subject).to have_statement(statement)
+          expect(subject.count).to eq count
         end
       end
 
@@ -44,8 +44,8 @@ module RDF_Writable
         pending("writability", :unless => subject.writable?) do
           enumerable = @statements.dup.extend(RDF::Enumerable)
           subject << enumerable
-          subject.should have_statement(statement)
-          subject.count.should == count
+          expect(subject).to have_statement(statement)
+          expect(subject.count).to eq count
         end
       end
 
@@ -54,25 +54,25 @@ module RDF_Writable
           mock = double('mock')
           mock.stub(:to_rdf).and_return(@statements)
           subject << mock
-          subject.should have_statement(statement)
-          subject.count.should == count
+          expect(subject).to have_statement(statement)
+          expect(subject.count).to eq count
         end
       end
 
       it "inserts a statement" do
         pending("writability", :unless => subject.writable?) do
           subject << statement
-          subject.should have_statement(statement)
-          subject.count.should == 1
+          expect(subject).to have_statement(statement)
+          expect(subject.count).to eq 1
         end
       end
 
       it "inserts an invalid statement" do
         pending("writability", :unless => subject.writable?) do
           s = RDF::Statement.from([nil, nil, nil])
-          s.should_not be_valid
+          expect(s).not_to  be_valid
           subject << s
-          subject.count.should == 1
+          expect(subject.count).to eq 1
         end
       end
     end
@@ -80,7 +80,7 @@ module RDF_Writable
     context "when inserting statements" do
       it "should support #insert" do
         pending("writability", :unless => subject.writable?) do
-          subject.should respond_to(:insert)
+          expect(subject).to respond_to(:insert)
         end
       end
 
@@ -93,7 +93,7 @@ module RDF_Writable
       it "should support inserting one statement at a time" do
         pending("writability", :unless => subject.writable?) do
           subject.insert(statement)
-          subject.should have_statement(statement)
+          expect(subject).to have_statement(statement)
         end
       end
 
@@ -106,7 +106,7 @@ module RDF_Writable
       it "should insert statements successfully" do
         pending("writability", :unless => subject.writable?) do
           subject.insert(*@statements)
-          subject.count.should == count
+          expect(subject.count).to eq count
         end
       end
 
@@ -114,7 +114,7 @@ module RDF_Writable
         pending("writability", :unless => subject.writable?) do
           subject.insert(statement)
           subject.insert(statement)
-          subject.count.should == 1
+          expect(subject.count).to eq 1
         end
       end
 
@@ -130,7 +130,7 @@ module RDF_Writable
           subject.insert(s2)
           subject.insert(s3)
           # If contexts are not suported, all three are redundant
-          subject.count.should == (@supports_context ? 3 : 1)
+          expect(subject.count).to eq (@supports_context ? 3 : 1)
         end
       end
     end
