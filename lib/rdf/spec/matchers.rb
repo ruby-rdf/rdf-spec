@@ -22,7 +22,7 @@ module RDF; module Spec
 
     RSpec::Matchers.define :be_an_enumerator do
       match do |enumerator|
-        expect(enumerator).to be_a_kind_of(RDF::Enumerator)
+        expect(enumerator).to be_a_kind_of(Enumerator)
         true
       end
     end

@@ -389,7 +389,9 @@ module RDF_Enumerable
       describe "#each_graph" do
         subject {@enumerable.each_graph}
         it {should be_an_enumerator}
-        specify {subject.each { |value| expect(value).to be_a_graph }}
+        it "are all graphs" do
+          subject.each { |value| expect(value).to be_a_graph } if @supports_context
+        end
       end
 
       describe "#enum_graph" do
@@ -397,7 +399,7 @@ module RDF_Enumerable
         it {should be_an_enumerator}
         it {should be_countable}
         it "enumerates the same as #each_graph" do
-          subject.to_a.should =~ @enumerable.each_graph.to_a # expect with match problematic
+          subject.to_a.should =~ @enumerable.each_graph.to_a if @supports_context # expect with match problematic
         end
       end
     end
