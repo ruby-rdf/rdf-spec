@@ -29,14 +29,24 @@ module RDF_Enumerable
     it {should respond_to(:supports?)}
 
     describe "valid?" do
-      it {should be_valid}
+      it "reports validity" do
+        if subject.supports?(:validity)
+          should be_valid
+        else
+          expect {subject.valid?}.to raise_error(NotImplementedError)
+        end
+      end
       
       it "returns false if any statement is invalid" do
         if subject.respond_to?(:<<) && (subject.writable? rescue true)
           s = RDF::Statement.from([nil, nil, nil])
-          expect(s).not_to  be_valid
-          subject << s
-          expect(subject).not_to  be_valid
+          if subject.supports?(:validity)
+            expect(s).not_to  be_valid
+            subject << s
+            expect(subject).not_to  be_valid
+          else
+            expect {subject.valid?}.to raise_error(NotImplementedError)
+          end
         else
           pending("can't add statement to immutable enumerable")
         end
