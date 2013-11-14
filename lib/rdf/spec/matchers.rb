@@ -74,6 +74,13 @@ module RDF; module Spec
       end
     end
 
+    RSpec::Matchers.define :be_a_term do
+      match do |value|
+        expect(value).to be_a_kind_of(RDF::Term)
+        true
+      end
+    end
+
     RSpec::Matchers.define :be_a_resource do
       match do |value|
         expect(value).to be_a_kind_of(RDF::Resource)
