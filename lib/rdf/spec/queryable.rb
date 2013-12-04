@@ -126,10 +126,6 @@ module RDF_Queryable
           end
 
           context "with a Query argument" do
-            it "returns an enumerator" do
-              expect(subject.query(query)).to be_an_enumerator
-            end
-
             it "returns solutions" do
               expect(subject.query(query)).to be_a(RDF::Query::Solutions)
             end
