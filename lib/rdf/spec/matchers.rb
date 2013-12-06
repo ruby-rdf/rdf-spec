@@ -22,7 +22,7 @@ module RDF; module Spec
 
     RSpec::Matchers.define :be_an_enumerator do
       match do |enumerator|
-        expect(enumerator).to be_a_kind_of(RDF::Enumerator)
+        expect(enumerator).to be_a_kind_of(Enumerator)
         true
       end
     end
@@ -70,6 +70,13 @@ module RDF; module Spec
         expect(quad[1]).to be_a_kind_of(RDF::URI)
         expect(quad[2]).to be_a_kind_of(RDF::Value)
         expect(quad[3]).to be_a_kind_of(RDF::Resource) unless quad[3].nil?
+        true
+      end
+    end
+
+    RSpec::Matchers.define :be_a_term do
+      match do |value|
+        expect(value).to be_a_kind_of(RDF::Term)
         true
       end
     end

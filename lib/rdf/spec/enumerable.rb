@@ -29,14 +29,24 @@ module RDF_Enumerable
     it {should respond_to(:supports?)}
 
     describe "valid?" do
-      it {should be_valid}
+      it "reports validity" do
+        if subject.supports?(:validity)
+          should be_valid
+        else
+          expect {subject.valid?}.to raise_error(NotImplementedError)
+        end
+      end
       
       it "returns false if any statement is invalid" do
         if subject.respond_to?(:<<) && (subject.writable? rescue true)
           s = RDF::Statement.from([nil, nil, nil])
-          expect(s).not_to  be_valid
-          subject << s
-          expect(subject).not_to  be_valid
+          if subject.supports?(:validity)
+            expect(s).not_to  be_valid
+            subject << s
+            expect(subject).not_to  be_valid
+          else
+            expect {subject.valid?}.to raise_error(NotImplementedError)
+          end
         else
           pending("can't add statement to immutable enumerable")
         end
@@ -107,7 +117,11 @@ module RDF_Enumerable
       its(:enum_statement) {should be_queryable}
       context "#enum_statement" do
         it "should enumerate all statements" do
-          expect(subject.enum_statement.to_a).to include(*@enumerable.each_statement.to_a)
+          expect(subject.enum_statement.count).to eq @enumerable.each_statement.count
+          subject.enum_statement.each do |s|
+            expect(s).to be_a_statement
+            expect(@enumerable.each_statement.to_a).to include(s) unless s.has_blank_nodes?
+          end
         end
       end
     end
@@ -135,13 +149,23 @@ module RDF_Enumerable
       its(:each_triple) {should be_an_enumerator}
       context "#each_triple" do
         specify {subject.each_triple { |*triple| expect(triple).to be_a_triple }}
+        it "should iterate over all triples" do
+          subject.each_triple do |*triple|
+            triple.each {|r| expect(r).to be_a_term}
+            expect(@enumerable).to have_triple(triple) unless triple.any?(&:node?)
+          end
+        end
       end
 
       its(:enum_triple) {should be_an_enumerator}
       its(:enum_triple) {should be_countable}
       context "#enum_triple" do
         it "should enumerate all triples" do
-          expect(subject.enum_triple.to_a).to include(*@enumerable.each_triple.to_a)
+          expect(subject.enum_triple.count).to eq @enumerable.each_triple.count
+          subject.enum_triple.each do |s, p, o|
+            [s, p, o].each {|r| expect(r).to be_a_term}
+            expect(@enumerable).to have_triple([s, p, o]) unless [s, p, o].any?(&:node?)
+          end
         end
       end
     end
@@ -171,13 +195,23 @@ module RDF_Enumerable
       its(:each_quad) {should be_an_enumerator}
       context "#each_quad" do
         specify {subject.each_quad {|*quad| expect(quad).to be_a_quad }}
+        it "should iterate over all quads" do
+          subject.each_quad do |*quad|
+            quad.compact.each {|r| expect(r).to be_a_term}
+            expect(@enumerable).to have_quad(quad) unless quad.compact.any?(&:node?)
+          end
+        end
       end
 
       its(:enum_quad) {should be_an_enumerator}
       its(:enum_quad) {should be_countable}
       context "#enum_quad" do
         it "should enumerate all quads" do
-          expect(subject.enum_quad.to_a).to include(*@enumerable.each_quad.to_a)
+          expect(subject.enum_quad.count).to eq @enumerable.each_quad.count
+          subject.enum_quad.each do |s, p, o, c|
+            [s, p, o, c].compact.each {|r| expect(r).to be_a_term}
+            expect(@enumerable).to have_quad([s, p, o, c]) unless [s, p, o].any?(&:node?)
+          end
         end
       end
     end
@@ -215,7 +249,7 @@ module RDF_Enumerable
 
       its(:each_subject) {should be_an_enumerator}
       context "#each_subject" do
-        specify {expect(subject.each_subject.reject(&:node?).size).to eq subjects.size}
+        specify {expect(subject.each_subject.reject(&:node?).size).to eq subjects.reject(&:node?).size}
         specify {subject.each_subject {|value| expect(value).to be_a_resource}}
         specify {subject.each_subject {|value| expect(subjects).to include(value) unless value.node?}}
       end
@@ -223,8 +257,12 @@ module RDF_Enumerable
       its(:enum_subject) {should be_an_enumerator}
       its(:enum_subject) {should be_countable}
       context "#enum_subject" do
+        specify {expect(subject.enum_subject.to_a.reject(&:node?).size).to eq subjects.reject(&:node?).size}
         it "should enumerate all subjects" do
-          expect(subject.enum_subject.reject(&:node?)).to include(*subjects)
+          subject.enum_subject.each do |s|
+            expect(s).to be_a_resource
+            expect(subjects.to_a).to include(s) unless s.node?
+          end
         end
       end
     end
@@ -318,7 +356,10 @@ module RDF_Enumerable
       its(:enum_object) {should be_countable}
       context "#enum_object" do
         it "should enumerate all objects" do
-          expect(subject.enum_object.reject(&:node?)).to include(*objects)
+          subject.enum_object.each do |o|
+            expect(o).to be_a_term
+            expect(objects.to_a).to include(o) unless o.node?
+          end
         end
       end
     end
@@ -389,15 +430,17 @@ module RDF_Enumerable
       describe "#each_graph" do
         subject {@enumerable.each_graph}
         it {should be_an_enumerator}
-        specify {subject.each { |value| expect(value).to be_a_graph }}
+        it "are all graphs" do
+          subject.each { |value| expect(value).to be_a_graph } if @supports_context
+        end
       end
 
       describe "#enum_graph" do
         subject {@enumerable.enum_graph}
         it {should be_an_enumerator}
         it {should be_countable}
-        it "enumerates the same as #each_graph" do
-          subject.to_a.should =~ @enumerable.each_graph.to_a # expect with match problematic
+        it "enumerates the same as #each_graph", :pending => "graph inclusion issue" do
+          expect(subject.to_a).to include(*@enumerable.each_graph.to_a) if @supports_context # expect with match problematic
         end
       end
     end

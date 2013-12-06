@@ -18,11 +18,11 @@ module RDF_Queryable
       end
     end
   end
-  let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
-  let(:literal) {RDF::Literal.new('J. Random Hacker')}
 
   describe RDF::Queryable do
     subject {@queryable}
+    let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
+    let(:literal) {RDF::Literal.new('J. Random Hacker')}
     let(:query) {RDF::Query.new {pattern [:s, :p, :o]}}
 
     ##
@@ -86,6 +86,7 @@ module RDF_Queryable
               subject.query([:s, :p, :o]) {}
             end
           end
+
           context "with a Query argument" do
             it "yields statements" do
               subject.query(query) do |solution|
@@ -103,49 +104,65 @@ module RDF_Queryable
         end
 
         context "without a block" do
-          it "returns an enumerator" do
-            expect(subject.query([nil, nil, nil])).to be_an_enumerator
-          end
+          context "with a triple argument" do
+            it "returns an enumerator" do
+              expect(subject.query([nil, nil, nil])).to be_an_enumerator
+            end
 
-          it "returns an enumerable enumerator" do
-            expect(subject.query([nil, nil, nil])).to be_enumerable
-          end
+            it "returns an enumerable enumerator" do
+              expect(subject.query([nil, nil, nil])).to be_enumerable
+            end
 
-          it "returns a queryable enumerator" do
-            expect(subject.query([nil, nil, nil])).to be_queryable
-          end
+            it "returns a queryable enumerator" do
+              expect(subject.query([nil, nil, nil])).to be_queryable
+            end
 
-          it "returns statements given a triple" do
-            subject.query([nil, nil, nil]).each do |statement|
-              expect(statement).to be_a_statement
-              expect(statement).not_to  be_a RDF::Query::Solution
+            it "returns statements given a triple" do
+              subject.query([nil, nil, nil]).each do |statement|
+                expect(statement).to be_a_statement
+                expect(statement).not_to  be_a RDF::Query::Solution
+              end
             end
           end
 
-          it "returns solutions given a query" do
-            subject.query(query).each do |solution|
-              expect(solution).not_to  be_a_statement
-              expect(solution).to be_a RDF::Query::Solution
+          context "with a Query argument" do
+            it "returns solutions" do
+              expect(subject.query(query)).to be_a(RDF::Query::Solutions)
             end
-          end
 
-          it "returns the correct number of results for array queries" do
-            expect(subject.query([nil, nil, nil]).size).to eq @statements.size
-            expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-            expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-            expect(subject.query([resource, RDF::DOAP.name, nil]).size).to eq 1
-            expect(subject.query([nil, nil, RDF::DOAP.Project]).size).to eq 1
-          end
+            it "does not return an enumerable enumerator" do
+              expect(subject.query(query)).not_to be_enumerable
+            end
 
-          it "returns the correct number of results for hash queries" do
-            expect(subject.query({}).size).to eq @statements.size
-            expect(subject.query(:subject => resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-            expect(subject.query(:subject => resource, :predicate => RDF::DOAP.name).size).to eq 1
-            expect(subject.query(:object => RDF::DOAP.Project).size).to eq 1
-          end
+            it "does not return a queryable enumerator" do
+              expect(subject.query(query)).not_to be_queryable
+            end
 
-          it "returns the correct number of results for query queries" do
-            expect(subject.query(query).size).to eq @statements.size
+            it "returns solutions given a query" do
+              subject.query(query).each do |solution|
+                expect(solution).not_to  be_a_statement
+                expect(solution).to be_a RDF::Query::Solution
+              end
+            end
+
+            it "returns the correct number of results for array queries" do
+              expect(subject.query([nil, nil, nil]).size).to eq @statements.size
+              expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+              expect(subject.query([resource, RDF::DOAP.name, nil]).size).to eq 1
+              expect(subject.query([nil, nil, RDF::DOAP.Project]).size).to eq 1
+            end
+
+            it "returns the correct number of results for hash queries" do
+              expect(subject.query({}).size).to eq @statements.size
+              expect(subject.query(:subject => resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query(:subject => resource, :predicate => RDF::DOAP.name).size).to eq 1
+              expect(subject.query(:object => RDF::DOAP.Project).size).to eq 1
+            end
+
+            it "returns the correct number of results for query queries" do
+              expect(subject.query(query).size).to eq @statements.size
+            end
           end
         end
 
