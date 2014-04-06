@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.homepage           = 'http://ruby-rdf.github.com/rdf-spec/'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'RSpec extensions for RDF.rb.'
-  gem.description        = 'RDF.rb plugin that provides RSpec matchers and shared examples for RDF objects.'
+  gem.description        = 'RDF.rb extension that provides RSpec matchers and shared examples for RDF objects.'
   gem.rubyforge_project  = 'rdf'
 
   gem.authors            = ['Arto Bendiken', 'Ben Lavender', 'Gregg Kellogg']
