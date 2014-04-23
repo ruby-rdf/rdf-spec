@@ -6,6 +6,8 @@ module RDF_Reader
 
   before(:each) do
     raise '+@reader+ must be defined in a before(:each) block' unless instance_variable_get('@reader')
+    raise '+@reader_input+ must be defined in a before(:each) block' unless instance_variable_get('@reader_input')
+    raise '+@reader_count+ must be defined in a before(:each) block' unless instance_variable_get('@reader_count')
     @reader_class = @reader.class
   end
 
@@ -25,7 +27,6 @@ module RDF_Reader
 
       it "yields reader given file_name" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
             expect(reader_mock).to receive(:got_here)
@@ -99,7 +100,7 @@ module RDF_Reader
           expect(r.instance_variable_get(:@input)).to be_a(StringIO)
         end
       end
-    
+
       it "sets @input to input given something other than a string" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
@@ -109,7 +110,7 @@ module RDF_Reader
           expect(r.instance_variable_get(:@input)).to eq file
         end
       end
-    
+
       it "sets validate given :validate => true" do
         # Either set validate, or through error, due to invalid input (null input may be invalid)
         begin
@@ -167,6 +168,49 @@ module RDF_Reader
           expect(@reader.prefix(pfx)).to eq uri
         end
       end
+    end
+
+    context RDF::Enumerable do
+      it "#count" do
+        @reader_class.new(@reader_input) {|r| expect(r.count).to eq @reader_count}
+      end
+      it "#empty?" do
+        @reader_class.new(@reader_input) {|r| expect(r).not_to be_empty}
+      end
+
+      it "#statements" do
+        @reader_class.new(@reader_input) {|r| expect(r.statements.count).to eq @reader_count}
+      end
+      it "#has_statement?" do
+        @reader_class.new(@reader_input) {|r| expect(r).to respond_to(:has_statement?)}
+      end
+      it "#each_statement" do
+        @reader_class.new(@reader_input) {|r| expect(r.each_statement.count).to eq @reader_count}
+      end
+      it "#enum_statement" do
+        @reader_class.new(@reader_input) {|r| expect(r.enum_statement.count).to eq @reader_count}
+      end
+
+      it "#triples" do
+        @reader_class.new(@reader_input) {|r| expect(r.triples.count).to eq @reader_count}
+      end
+      it "#each_triple" do
+        @reader_class.new(@reader_input) {|r| expect(r.each_triple.count).to eq @reader_count}
+      end
+      it "#enum_triple" do
+        @reader_class.new(@reader_input) {|r| expect(r.enum_triple.count).to eq @reader_count}
+      end
+
+      it "#quads" do
+        @reader_class.new(@reader_input) {|r| expect(r.quads.count).to eq @reader_count}
+      end
+      it "#each_quad" do
+        @reader_class.new(@reader_input) {|r| expect(r.each_quad.count).to eq @reader_count}
+      end
+      it "#enum_quad" do
+        @reader_class.new(@reader_input) {|r| expect(r.enum_quad.count).to eq @reader_count}
+      end
+
     end
   end
 end
