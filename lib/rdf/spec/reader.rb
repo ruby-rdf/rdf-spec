@@ -22,7 +22,7 @@ module RDF_Reader
 
     describe ".open" do
       before(:each) do
-        RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
+        RDF::Util::File.stub(:open_file).and_yield(StringIO.new(@reader_input))
       end
 
       it "yields reader given file_name" do
@@ -41,7 +41,6 @@ module RDF_Reader
 
       it "yields reader given symbol" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
           reader_mock = double("reader")
           expect(reader_mock).to receive(:got_here)
@@ -55,7 +54,6 @@ module RDF_Reader
 
       it "yields reader given {:file_name => file_name}" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.file_extensions.each_pair do |sym, content_type|
             reader_mock = double("reader")
             expect(reader_mock).to receive(:got_here)
@@ -70,7 +68,6 @@ module RDF_Reader
 
       it "yields reader given {:content_type => 'a/b'}" do
         @reader_class.format.each do |f|
-          RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
           f.content_types.each_pair do |content_type, formats|
             reader_mock = double("reader")
             expect(reader_mock).to receive(:got_here)
@@ -95,7 +92,7 @@ module RDF_Reader
       it "sets @input to StringIO given a string" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        @reader_class.new("string") do |r|
+        @reader_class.new(@reader_input) do |r|
           reader_mock.got_here
           expect(r.instance_variable_get(:@input)).to be_a(StringIO)
         end
@@ -104,7 +101,7 @@ module RDF_Reader
       it "sets @input to input given something other than a string" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        file = StringIO.new("")
+        file = StringIO.new(@reader_input)
         @reader_class.new(file) do |r|
           reader_mock.got_here
           expect(r.instance_variable_get(:@input)).to eq file
@@ -112,20 +109,15 @@ module RDF_Reader
       end
 
       it "sets validate given :validate => true" do
-        # Either set validate, or through error, due to invalid input (null input may be invalid)
-        begin
-          @reader_class.new("string", :validate => true) do |r|
-            expect(r).to be_valid
-          end
-        rescue
-          expect($!).to be_a(RDF::ReaderError)  # An error is acceptable
+        @reader_class.new(@reader_input, :validate => true) do |r|
+          expect(r).to be_valid
         end
       end
     
       it "sets canonicalize given :canonicalize => true" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        @reader_class.new("string", :canonicalize => true) do |r|
+        @reader_class.new(@reader_input, :canonicalize => true) do |r|
           reader_mock.got_here
           expect(r).to be_canonicalize
         end
@@ -134,7 +126,7 @@ module RDF_Reader
       it "sets intern given :intern => true" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        @reader_class.new("string", :intern => true) do |r|
+        @reader_class.new(@reader_input, :intern => true) do |r|
           reader_mock.got_here
           expect(r).to be_intern
         end
@@ -143,7 +135,7 @@ module RDF_Reader
       it "sets prefixes given :prefixes => {}" do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        @reader_class.new("string", :prefixes => {:a => "b"}) do |r|
+        @reader_class.new(@reader_input, :prefixes => {:a => "b"}) do |r|
           reader_mock.got_here
           expect(r.prefixes).to eq({:a => "b"})
         end
