@@ -28,7 +28,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version      = '>= 1.9.2'
   gem.requirements               = []
   gem.add_development_dependency 'rdf',   '~> 1.1'
-  gem.add_runtime_dependency     'rspec', '>= 2.14'
-  gem.add_development_dependency 'yard' , '>= 0.8'
+  gem.add_runtime_dependency     'rspec', '~> 2.14'
+  gem.add_development_dependency 'yard' , '~> 0.8'
   gem.post_install_message       = nil
 end
