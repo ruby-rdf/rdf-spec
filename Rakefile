@@ -5,7 +5,7 @@ require 'rdf/spec'
 
 namespace :gem do
   desc "Build the rdf-spec-#{File.read('VERSION').chomp}.gem file"
-  task :build => "lib/rdf/turtle/meta.rb" do
+  task :build  do
     sh "gem build rdf-spec.gemspec && mv rdf-spec-#{File.read('VERSION').chomp}.gem pkg/"
   end
 
