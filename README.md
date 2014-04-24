@@ -1,6 +1,6 @@
 # RSpec Extensions for RDF.rb
 
-This is an [RDF.rb][] plugin that provides RDF-specific [RSpec][] matchers
+This is an [RDF.rb][] extension that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
 
 * <http://github.com/ruby-rdf/rdf-spec>

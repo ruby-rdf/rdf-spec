@@ -1,16 +1,18 @@
 #!/usr/bin/env ruby
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
 require 'rubygems'
-begin
-  require 'rakefile' # @see http://github.com/bendiken/rakefile
-rescue LoadError => e
-end
-
 require 'rdf/spec'
 
-desc "Build the rdf-spec-#{File.read('VERSION').chomp}.gem file"
-task :build do
-  sh "gem build .gemspec"
+namespace :gem do
+  desc "Build the rdf-spec-#{File.read('VERSION').chomp}.gem file"
+  task :build  do
+    sh "gem build rdf-spec.gemspec && mv rdf-spec-#{File.read('VERSION').chomp}.gem pkg/"
+  end
+
+  desc "Release the rdf-spec-#{File.read('VERSION').chomp}.gem file"
+  task :release do
+    sh "gem push pkg/rdf-spec-#{File.read('VERSION').chomp}.gem"
+  end
 end
 
 desc "Build etc files"
