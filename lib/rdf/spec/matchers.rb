@@ -141,10 +141,16 @@ module RDF; module Spec
       end
     end
 
-    RSpec::Matchers.define :have_subclasses do |base_uri, klasses|
+    RSpec::Matchers.define :have_terms do |base_uri, klasses|
       match do |vocabulary|
         klasses.map { |k| k.to_sym }.each do |klass|
-          pending "checks that #{base_uri} has subClassOf for #{klass}"
+          expect(vocabulary[klass]).to be_a_uri
+          expect(vocabulary[klass].to_s).to eq "#{base_uri}#{klass}"
+          expect(vocabulary).to respond_to(klass)
+          expect { vocabulary.send(klass) }.not_to raise_error
+          expect(vocabulary.send(klass)).to be_a_uri
+          expect(vocabulary.send(klass.to_s)).to be_a_uri
+          expect(vocabulary.send(klass).to_s).to eq "#{base_uri}#{klass}"
         end
         true
       end
