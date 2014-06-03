@@ -439,7 +439,7 @@ module RDF_Enumerable
         subject {@enumerable.enum_graph}
         it {should be_an_enumerator}
         it {should be_countable}
-        it "enumerates the same as #each_graph", :pending => "graph inclusion issue" do
+        it "enumerates the same as #each_graph" do
           expect(subject.to_a).to include(*@enumerable.each_graph.to_a) if @supports_context # expect with match problematic
         end
       end

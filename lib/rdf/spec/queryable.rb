@@ -188,11 +188,11 @@ module RDF_Queryable
               its(:count) {should == 2}
 
               it "has two solutions" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}).to be_true
+                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}).to be_truthy
               end
 
               it "has xi2 as a solution" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}).to be_true
+                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}).to be_truthy
               end
             end
 
@@ -201,7 +201,7 @@ module RDF_Queryable
               its(:count) {should == 1}
 
               it "has xd1 as a solution" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}).to be_true
+                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}).to be_truthy
               end
             end
           end
@@ -213,7 +213,7 @@ module RDF_Queryable
     # @see RDF::Queryable#query_execute
     describe "#query_execute" do
       it "defines a protected #query_execute method" do
-        expect(subject.class.protected_method_defined?(:query_execute)).to be_true
+        expect(subject.class.protected_method_defined?(:query_execute)).to be_truthy
       end
 
       context "when called" do
@@ -237,7 +237,7 @@ module RDF_Queryable
     # @see RDF::Queryable#query_pattern
     describe "#query_pattern" do
       it "defines a protected #query_pattern method" do
-        expect(subject.class.protected_method_defined?(:query_pattern)).to be_true
+        expect(subject.class.protected_method_defined?(:query_pattern)).to be_truthy
       end
 
       context "when called" do

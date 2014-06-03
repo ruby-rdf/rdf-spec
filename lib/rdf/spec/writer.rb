@@ -31,7 +31,7 @@ module RDF_Writer
 
     describe ".open" do
       before(:each) do
-        RDF::Util::File.stub(:open_file).and_yield(StringIO.new("foo"))
+        allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new("foo"))
         @dir = Dir.mktmpdir
         @basename = File.join(@dir, "foo")
       end
