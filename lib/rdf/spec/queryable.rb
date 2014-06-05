@@ -11,7 +11,9 @@ module RDF_Queryable
     @statements = RDF::Spec.quads
 
     if @queryable.empty?
-      if @queryable.respond_to?(:<<) && (@queryable.writable? rescue true)
+      if (@queryable.writable? rescue false)
+        @queryable.insert(*@statements)
+      elsif @queryable.respond_to?(:<<)
         @statements.each { |statement| @queryable << statement }
       else
         raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"

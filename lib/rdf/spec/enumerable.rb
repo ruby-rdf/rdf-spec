@@ -10,7 +10,9 @@ module RDF_Enumerable
     @statements ||= RDF::Spec.quads
 
     if @enumerable.empty?
-      if @enumerable.respond_to?(:<<) && (@enumerable.writable? rescue true)
+      if (@enumerable.writable? rescue false)
+        @enumerable.insert(*@statements)
+      elsif @enumerable.respond_to?(:<<)
         @statements.each { |statement| @enumerable << statement }
       else
         raise "@enumerable must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
