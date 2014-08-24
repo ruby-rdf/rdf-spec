@@ -179,5 +179,73 @@ module RDF; module Spec
         end
       end
     end
+
+    RSpec::Matchers.define :write do |message|
+      chain(:to) do |io|
+        @io = io
+      end
+
+      supports_block_expectations {true}
+
+      match do |block|
+        @output =
+          case io
+          when :output then fake_stdout(&block)
+          when :error  then fake_stderr(&block)
+          else raise("Allowed values for `to` are :output and :error, got `#{io.inspect}`")
+          end
+        @output.include? message
+      end
+
+      description do
+        "write \"#{message}\" #{io_name}"
+      end
+
+      failure_message do
+        @exception ? @exception.message :
+          "expected to include #{description.inspect} in #{@output.inspect}"
+      end
+
+      failure_message_when_negated do
+        @exception ? @exception.message :
+          "expected to not include #{description.inspect} in #{@output.inspect}"
+      end
+
+      # Fake $stderr and return a string written to it.
+      def fake_stderr
+        original_stderr = $stderr
+        $stderr = StringIO.new
+        yield
+        $stderr.string
+      rescue RSpec::Expectations::ExpectationNotMetError => e
+        @exception = e
+        raise
+      ensure
+        $stderr = original_stderr
+      end
+
+      # Fake $stdout and return a string written to it.
+      def fake_stdout
+        original_stdout = $stdout
+        $stdout = StringIO.new
+        yield
+        $stdout.string
+      rescue RSpec::Expectations::ExpectationNotMetError => e
+        @exception = e
+        raise
+      ensure
+        $stdout = original_stdout
+      end
+
+      # default IO is standard output
+      def io
+        @io ||= :output
+      end
+
+      # IO name is used for description message
+      def io_name
+        {:output => "standard output", :error => "standard error"}[io]
+      end
+    end
   end # Matchers
 end; end # RDF::Spec
