@@ -194,7 +194,14 @@ module RDF; module Spec
           when :error  then fake_stderr(&block)
           else raise("Allowed values for `to` are :output and :error, got `#{io.inspect}`")
           end
-        @output.include? message
+        case message
+        when nil, :something, :anything
+          !@output.empty?
+        when Regexp
+          message.match(@output)
+        else
+          @output.include? message
+        end
       end
 
       description do
