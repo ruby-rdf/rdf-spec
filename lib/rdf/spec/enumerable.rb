@@ -10,7 +10,9 @@ module RDF_Enumerable
     @statements ||= RDF::Spec.quads
 
     if @enumerable.empty?
-      if @enumerable.respond_to?(:<<) && (@enumerable.writable? rescue true)
+      if (@enumerable.writable? rescue false)
+        @enumerable.insert(*@statements)
+      elsif @enumerable.respond_to?(:<<)
         @statements.each { |statement| @enumerable << statement }
       else
         raise "@enumerable must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
@@ -439,7 +441,7 @@ module RDF_Enumerable
         subject {@enumerable.enum_graph}
         it {should be_an_enumerator}
         it {should be_countable}
-        it "enumerates the same as #each_graph", :pending => "graph inclusion issue" do
+        it "enumerates the same as #each_graph" do
           expect(subject.to_a).to include(*@enumerable.each_graph.to_a) if @supports_context # expect with match problematic
         end
       end

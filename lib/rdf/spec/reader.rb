@@ -22,7 +22,7 @@ module RDF_Reader
 
     describe ".open" do
       before(:each) do
-        RDF::Util::File.stub(:open_file).and_yield(StringIO.new(@reader_input))
+        allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(@reader_input))
       end
 
       it "yields reader given file_name" do
