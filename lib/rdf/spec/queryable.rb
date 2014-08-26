@@ -328,7 +328,7 @@ module RDF_Queryable
         expect(subject.first).to eq subject.each.first # uses an Enumerator
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], subject.each.first]
         matching_patterns.each do |matching_pattern|
           expect(subject.first(matching_pattern)).to eq subject.query(matching_pattern).each.first
@@ -355,12 +355,12 @@ module RDF_Queryable
         expect(subject).to respond_to(:first_subject)
       end
 
-      it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enumerator without a pattern" do
         expect { subject.first_subject }.not_to raise_error
         expect(subject.first_subject).to eq subject.first.subject
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [subject.first.subject, nil, nil]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_subject(matching_pattern)).to eq subject.query(matching_pattern).first.subject
@@ -386,12 +386,12 @@ module RDF_Queryable
 
       it {should respond_to(:first_predicate)}
 
-      it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enumerator without a pattern" do
         expect { subject.first_predicate }.not_to raise_error
         expect(subject.first_predicate).to eq subject.first.predicate
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, subject.first.predicate, nil]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_predicate(matching_pattern)).to eq subject.query(matching_pattern).first.predicate
@@ -416,12 +416,12 @@ module RDF_Queryable
       let(:failing_pattern) {[nil, nil, RDF::Node.new]}
       it {should respond_to(:first_object)}
 
-      it "returns enurator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enurator without a pattern" do
         expect { subject.first_object }.not_to raise_error
         expect(subject.first_object).to eq subject.first.object
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, nil, subject.first.object]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_object(matching_pattern)).to eq subject.query(matching_pattern).first.object

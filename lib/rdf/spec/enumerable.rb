@@ -50,7 +50,7 @@ module RDF_Enumerable
             expect {subject.valid?}.to raise_error(NotImplementedError)
           end
         else
-          pending("can't add statement to immutable enumerable")
+          skip("can't add statement to immutable enumerable")
         end
       end
     end
