@@ -14,15 +14,15 @@ require 'rdf/spec'
 #      File.delete('test.db') if File.exists?('test.db')
 #    end
 #
-#    include RDF_Repository
+#    it_behaves_like 'an RDF::Repository'
 #  end
 #end
-module RDF_Durable
-  extend RSpec::SharedContext
+RSpec.shared_examples 'an RDF::Durable' do
   include RDF::Spec::Matchers
 
   before :each do
-    raise '+@load_durable+ must be defined in a before(:each) block' unless instance_variable_get('@load_durable')
+    raise '+@load_durable+ must be defined in a before(:each) block' unless
+      instance_variable_get('@load_durable')
   end
 
   describe RDF::Durable do

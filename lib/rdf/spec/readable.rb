@@ -1,16 +1,17 @@
 require 'rdf/spec'
 
-module RDF_Readable
-  extend RSpec::SharedContext
+RSpec.shared_examples 'an RDF::Readable' do
   include RDF::Spec::Matchers
 
-  before :each do
-    raise '+@readable+ must be defined in a before(:each) block' unless instance_variable_get('@readable')
+  before do
+    raise 'readable must be defined in with let(:readable)' unless
+      defined? readable
   end
 
   describe RDF::Readable do
-    subject {@readable}
-    it {should respond_to(:readable?)}
-    its(:readable?) {should == subject.readable?}
+    subject { readable }
+    it { is_expected.to respond_to :readable? }
+    it { is_expected.to respond_to :readable? }
+    its(:readable?) { is_expected.to eq subject.readable? }
   end
 end

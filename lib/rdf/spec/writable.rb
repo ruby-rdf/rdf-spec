@@ -1,26 +1,26 @@
 require 'rdf/spec'
 
-module RDF_Writable
-  extend RSpec::SharedContext
+RSpec.shared_examples 'an RDF::Writable' do
   include RDF::Spec::Matchers
 
   before :each do
-    raise '+@writable+ must be defined in a before(:each) block' unless instance_variable_get('@writable')
+    raise 'writable must be defined in with let(:readable)' unless
+      defined? writable
 
     @filename = RDF::Spec::TRIPLES_FILE
     @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
 
-    @supports_context = @writable.respond_to?(:supports?) && @writable.supports?(:context)
+    @supports_context = writable.respond_to?(:supports?) && writable.supports?(:context)
   end
 
   describe RDF::Writable do
-    subject {@writable}
+    subject { writable }
     let(:statement) {@statements.detect {|s| s.to_a.all? {|r| r.uri?}}}
     let(:count) {@statements.size}
 
     it {should respond_to(:writable?)}
     its(:writable?) {should == !!subject.writable?}
-  
+
     describe "#<<" do
       it "inserts a reader" do
         skip("writability") unless subject.writable?

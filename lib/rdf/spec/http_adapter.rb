@@ -1,30 +1,24 @@
 require 'rdf/spec'
 require 'webmock/rspec'
 
-module RDF_HttpAdapter
-  extend RSpec::SharedContext
-
+RSpec.shared_examples 'an RDF::HttpAdapter' do
   DOAP_FILE = File.expand_path("../../../../etc/doap.nt", __FILE__)
 
   before(:each) do
-    raise '+@http_adapter+ must be defined in a before(:each) block' unless instance_variable_get('@http_adapter')
+    raise '`http_adapter` must be defined with `let(:http_adapter`' unless
+      defined? http_adapter
   end
-  
+
   let(:uri) {"http://ruby-rdf.github.com/rdf/etc/doap.nt"}
-  
+
   let(:opened) {double("opened")}
   before(:each) do
     expect(opened).to receive(:opened)
   end
 
   context "using a HTTP client" do
-    before do
-      RDF::Util::File.http_adapter = @http_adapter
-    end
-
-    after do
-      RDF::Util::File.http_adapter = nil
-    end
+    before { RDF::Util::File.http_adapter = http_adapter }
+    after { RDF::Util::File.http_adapter = nil }
 
     it "returns an http URL" do
       WebMock.stub_request(:get, uri).
@@ -273,5 +267,5 @@ module RDF_HttpAdapter
       end
     end
   end
-  
+
 end

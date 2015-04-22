@@ -1,39 +1,34 @@
 require 'rdf/spec'
 require 'rdf/ntriples'
 
-module RDF_Mutable
-  extend RSpec::SharedContext
+RSpec.shared_examples 'an RDF::Mutable' do
   include RDF::Spec::Matchers
 
-  before :each do
-    raise '+@mutable+ must be defined in a before(:each) block' unless instance_variable_get('@mutable')
+  before do
+    raise 'mutable must be defined with let(:mutable)' unless
+      defined? mutable
 
-    @supports_context = @mutable.respond_to?(:supports?) && @mutable.supports?(:context)
+    @supports_context = mutable.respond_to?(:supports?) && mutable.supports?(:context)
   end
-  let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
-  let(:context) {RDF::URI('http://example.org/context')}
+
+  let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
+  let(:context) { RDF::URI('http://example.org/context') }
 
   describe RDF::Mutable do
-    subject {@mutable}
+    subject { mutable }
 
     context "readability" do
       require 'rdf/spec/readable'
 
-      before :each do
-        @readable = @mutable
-      end
-
-      include RDF_Readable
+      let(:readable) { mutable }
+      it_behaves_like 'an RDF::Readable'
     end
 
     context "writability" do
       require 'rdf/spec/writable'
 
-      before :each do
-        @writable = @mutable
-      end
-
-      include RDF_Writable
+      let(:writable) { mutable }
+      it_behaves_like 'an RDF::Writable'
     end
 
     it {should be_empty}
