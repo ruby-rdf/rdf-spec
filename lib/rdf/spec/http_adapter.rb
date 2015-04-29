@@ -106,7 +106,7 @@ module RDF_HttpAdapter
     it "sets arbitrary header" do
       WebMock.stub_request(:get, uri).to_return(body: "foo", headers: {"Foo" => "Bar"})
       RDF::Util::File.open_file(uri) do |f|
-        expect(f.headers).to include(:foo => %(Bar))
+        expect(f.headers[:foo]).to eq "Bar"
         opened.opened
       end
     end
