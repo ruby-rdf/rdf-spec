@@ -80,7 +80,7 @@ module RDF_Mutable
     context "#from_{reader}" do
       it "should instantiate a reader" do
         reader = double("reader")
-        expect(reader).to receive(:new).and_return(RDF::NTriples::Reader.new(""))
+        expect(reader).to receive(:new).and_return(RDF::Spec.quads.first)
         expect(RDF::Reader).to receive(:for).with(:a_reader).and_return(reader)
         subject.send(:from_a_reader)
       end

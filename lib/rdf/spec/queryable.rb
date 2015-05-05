@@ -317,7 +317,7 @@ module RDF_Queryable
     ##
     # @see RDF::Queryable#first
     describe "#first" do
-      let(:failing_pattern) {[RDF::Node.new] * 3}
+      let(:failing_pattern) {[RDF::URI("http://no-such-resource"), RDF.type, RDF::Node.new]}
 
       it "should respond to #first" do
         expect(subject).to respond_to(:first)
@@ -349,7 +349,7 @@ module RDF_Queryable
     ##
     # @see RDF::Queryable#first_subject
     describe "#first_subject" do
-      let(:failing_pattern) {[RDF::Node.new, nil, nil]}
+      let(:failing_pattern) {[RDF::URI("http://no-such-resource"), nil, nil]}
 
       it "should respond to #first_subject" do
         expect(subject).to respond_to(:first_subject)
@@ -361,7 +361,7 @@ module RDF_Queryable
       end
 
       it "returns the correct value when the pattern matches" do
-        matching_patterns = [[nil, nil, nil], [subject.first.subject, nil, nil]]
+        matching_patterns = [[nil, nil, nil], [RDF::URI("http://rubygems.org/gems/rdf"), nil, nil]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_subject(matching_pattern)).to eq subject.query(matching_pattern).first.subject
         end
@@ -382,7 +382,7 @@ module RDF_Queryable
     # @see RDF::Queryable#first_predicate
 
     describe "#first_predicate" do
-      let(:failing_pattern) {[nil, RDF::Node.new, nil]}
+      let(:failing_pattern) {[nil, RDF::URI("http://no-such-resource"), nil]}
 
       it {should respond_to(:first_predicate)}
 
@@ -413,7 +413,7 @@ module RDF_Queryable
     # @see RDF::Queryable#first_object
 
     describe "#first_object" do
-      let(:failing_pattern) {[nil, nil, RDF::Node.new]}
+      let(:failing_pattern) {[nil, nil, RDF::URI("http://no-such-resource")]}
       it {should respond_to(:first_object)}
 
       it "returns enurator without a pattern" do

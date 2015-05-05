@@ -61,14 +61,6 @@ module RDF_Writable
         expect(subject).to have_statement(statement)
         expect(subject.count).to eq 1
       end
-
-      it "inserts an invalid statement" do
-        skip("writability") unless subject.writable?
-        s = RDF::Statement.from([nil, nil, nil])
-        expect(s).not_to  be_valid
-        subject << s
-        expect(subject.count).to eq 1
-      end
     end
 
     context "when inserting statements" do
