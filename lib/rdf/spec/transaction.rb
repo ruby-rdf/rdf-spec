@@ -3,7 +3,7 @@ require 'rdf/spec'
 # Pass in an instance of RDF::Transaction as follows:
 #
 #   it_behaves_like "RDF::Transaction", RDF::Transaction
-shared_examples "RDF::Transaction" do |klass|
+shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
   subject {klass.new(:context => RDF::URI("name"), :insert => RDF::Graph.new, :delete => RDF::Graph.new)}
@@ -105,4 +105,8 @@ shared_examples "RDF::Transaction" do |klass|
       expect(subject.inserts.to_a).to eq [s]
     end
   end
+end
+
+shared_examples "RDF_Transaction" do |klass|
+  it_behaves_like 'an RDF::Transaction', klass
 end

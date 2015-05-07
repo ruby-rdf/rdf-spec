@@ -45,3 +45,23 @@ RSpec.shared_examples 'an RDF::Countable' do
     end
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Countable"` instead
+module RDF_Countable
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Countable` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Countable'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Countable' do
+      let(:countable) { @countable }
+
+      before do
+        raise '@countable must be defined' unless defined?(countable)
+      end
+    end
+  end
+end

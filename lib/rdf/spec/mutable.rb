@@ -143,3 +143,23 @@ RSpec.shared_examples 'an RDF::Mutable' do
     end
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Mutable"` instead
+module RDF_Mutable
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Mutable` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Mutable'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Mutable' do
+      let(:mutable) { @mutable }
+
+      before do
+        raise '@mutable must be defined' unless defined?(mutable)
+      end
+    end
+  end
+end

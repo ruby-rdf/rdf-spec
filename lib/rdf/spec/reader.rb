@@ -204,3 +204,29 @@ RSpec.shared_examples 'an RDF::Reader' do
 
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Reader"` instead
+module RDF_Reader
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Reader` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Reader'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Reader' do
+      let(:reader) { @reader }
+      let(:reader_input) { @reader_input }
+      let(:reader_count) { @reader_count }
+      let(:reader_class) { @reader_class }
+
+      before do
+        raise '@reader must be defined' unless defined?(reader)
+        raise '@reader_input must be defined' unless defined?(reader_input)
+        raise '@reader_count must be defined' unless defined?(reader_count)
+        raise '@reader_class must be defined' unless defined?(reader_class)
+      end
+    end
+  end
+end

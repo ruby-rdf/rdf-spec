@@ -468,3 +468,23 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Enumerable"` instead
+module RDF_Enumerable
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Enumerable` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Enumerable'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Enumerable' do
+      let(:enumerable) { @enumerable }
+
+      before do
+        raise '@enumerable must be defined' unless defined?(enumerable)
+      end
+    end
+  end
+end

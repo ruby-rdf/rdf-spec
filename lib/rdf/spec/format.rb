@@ -51,3 +51,23 @@ RSpec.shared_examples 'an RDF::Format' do
     end
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Format"` instead
+module RDF_Format
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Format` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Format'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Format' do
+      let(:format_class) { @format_class }
+
+      before do
+        raise '@format_class must be defined' unless defined?(format_class)
+      end
+    end
+  end
+end

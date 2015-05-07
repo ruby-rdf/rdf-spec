@@ -173,3 +173,25 @@ RSpec.shared_examples 'an RDF::Writer' do
     end
   end
 end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Writer"` instead
+module RDF_Writer
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Writer` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Writer'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Writer' do
+      let(:writer_class) { @writer_class }
+      let(:writer) { @writer }
+
+      before do
+        raise '@writer_class must be defined' unless defined?(writer_class)
+        raise '@writer must be defined' unless defined?(writer)
+      end
+    end
+  end
+end

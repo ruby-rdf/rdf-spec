@@ -25,24 +25,40 @@ RSpec.shared_examples 'an RDF::Durable' do
       instance_variable_get('@load_durable')
   end
 
-  describe RDF::Durable do
-    subject {@load_durable.call}
-    it {should respond_to(:durable?)}
-    it "should support #durable?" do
-      expect([true,false]).to be_member(subject.durable?)
-    end
+  subject {@load_durable.call}
 
-    it {should respond_to(:nondurable?)}
-    it "should support #nondurable?" do
-      expect([true,false]).to be_member(@load_durable.call.nondurable?)
-    end
-    its(:nondurable?) {should_not == subject.durable?}
+  it { should respond_to(:durable?) }
 
-    it "should save contents between instantiations" do
-      if subject.durable?
-       subject.load(RDF::Spec::TRIPLES_FILE)
-       expect(subject.count).to eq File.readlines(RDF::Spec::TRIPLES_FILE).size
-      end
+  it "should support #durable?" do
+    expect([true,false]).to be_member(subject.durable?)
+  end
+
+  it {should respond_to(:nondurable?)}
+
+  it "should support #nondurable?" do
+    expect([true,false]).to be_member(@load_durable.call.nondurable?)
+  end
+
+  its(:nondurable?) {should_not == subject.durable?}
+
+  it "should save contents between instantiations" do
+    if subject.durable?
+      subject.load(RDF::Spec::TRIPLES_FILE)
+      expect(subject.count).to eq File.readlines(RDF::Spec::TRIPLES_FILE).size
     end
+  end
+end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Durable"` instead
+module RDF_Durable
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  warn "[DEPRECATION] `RDF_Durable` is deprecated. "\
+       "Please use `it_behaves_like 'an RDF::Durable'`"
+
+  describe 'examples for' do
+    include_examples 'an RDF::Durable'
   end
 end
