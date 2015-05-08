@@ -276,8 +276,10 @@ module RDF_HttpAdapter
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_HttpAdapter` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::HttpAdapter'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_HttpAdapter` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::HttpAdapter'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::HttpAdapter' do

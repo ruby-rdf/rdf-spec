@@ -475,8 +475,10 @@ module RDF_Enumerable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Enumerable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Enumerable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Enumerable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Enumerable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Enumerable' do

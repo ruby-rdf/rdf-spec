@@ -150,8 +150,10 @@ module RDF_Mutable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Mutable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Mutable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Mutable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Mutable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Mutable' do

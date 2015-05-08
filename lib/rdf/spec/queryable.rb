@@ -534,8 +534,10 @@ module RDF_Queryable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Queryable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Queryable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Queryable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Queryable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Queryable' do

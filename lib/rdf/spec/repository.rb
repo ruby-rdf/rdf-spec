@@ -63,8 +63,10 @@ module RDF_Repository
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Repository` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Repository'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Repository` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Repository'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Repository' do

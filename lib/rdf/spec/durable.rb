@@ -55,8 +55,10 @@ module RDF_Durable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Durable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Durable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Durable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Durable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Durable'

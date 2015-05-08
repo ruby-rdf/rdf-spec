@@ -120,8 +120,10 @@ module RDF_Writable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Writable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Writable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Writable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Writable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Writable' do

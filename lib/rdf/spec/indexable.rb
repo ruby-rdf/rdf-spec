@@ -30,8 +30,10 @@ module RDF_Indexable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Indexable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Indexable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Indexable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Indexable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Indexable' do

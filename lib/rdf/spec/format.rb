@@ -58,8 +58,10 @@ module RDF_Format
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Format` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Format'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Format` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Format'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Format' do

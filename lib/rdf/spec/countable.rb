@@ -52,8 +52,10 @@ module RDF_Countable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Countable` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Countable'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Countable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Countable'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Countable' do

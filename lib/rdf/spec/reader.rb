@@ -211,8 +211,10 @@ module RDF_Reader
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
 
-  warn "[DEPRECATION] `RDF_Reader` is deprecated. "\
-       "Please use `it_behaves_like 'an RDF::Reader'`"
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Reader` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Reader'`"
+  end
 
   describe 'examples for' do
     include_examples 'an RDF::Reader' do
