@@ -2,7 +2,7 @@ require 'rdf/spec'
 require 'webmock/rspec'
 
 RSpec.shared_examples 'an RDF::HttpAdapter' do
-  DOAP_FILE = File.expand_path("../../../../etc/doap.nt", __FILE__)
+  let(:doap_file) {File.expand_path("../../../../etc/doap.nt", __FILE__)}
 
   before(:each) do
     raise '`http_adapter` must be defined with `let(:http_adapter`' unless
@@ -22,7 +22,7 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
 
     it "returns an http URL" do
       WebMock.stub_request(:get, uri).
-        to_return(body: File.read(DOAP_FILE),
+        to_return(body: File.read(doap_file),
                   status: 200,
                   headers: { 'Content-Type' => RDF::NTriples::Format.content_type.first})
       f = RDF::Util::File.open_file(uri)
@@ -184,7 +184,7 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
     context "proxy" do
       it "requests through proxy" do
         WebMock.stub_request(:get, uri).
-          to_return(body: File.read(DOAP_FILE),
+          to_return(body: File.read(doap_file),
                     status: 200,
                     headers: { 'Content-Type' => RDF::NTriples::Format.content_type.first})
         RDF::Util::File.open_file(uri, proxy: "http://proxy.example.com") do |f|
