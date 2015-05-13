@@ -59,6 +59,7 @@ follows:
 ## Contributors
 
 * [John Fieber](http://github.com/jfieber) - <http://github.com/jfieber>
+* [Tom Johnson](https://github.com/no-reply) - <https://github.com/no-reply>
 
 ## Contributing
 
