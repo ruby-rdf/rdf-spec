@@ -1,28 +1,28 @@
 require 'rdf/spec'
 
-module RDF_Queryable
-  extend RSpec::SharedContext
+RSpec.shared_examples 'an RDF::Queryable' do
   include RDF::Spec::Matchers
 
   before :each do
-    raise '+@queryable+ must be defined in a before(:each) block' unless instance_variable_get('@queryable')
+    raise 'querable must be set with `let(:queryable)' unless
+      defined? queryable
 
     @doap = RDF::Spec::QUADS_FILE
     @statements = RDF::Spec.quads
 
-    if @queryable.empty?
-      if (@queryable.writable? rescue false)
-        @queryable.insert(*@statements)
-      elsif @queryable.respond_to?(:<<)
-        @statements.each { |statement| @queryable << statement }
+    if queryable.empty?
+      if (queryable.writable? rescue false)
+        queryable.insert(*@statements)
+      elsif queryable.respond_to?(:<<)
+        @statements.each { |statement| queryable << statement }
       else
-        raise "@queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"
+        raise "queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"
       end
     end
   end
 
   describe RDF::Queryable do
-    subject {@queryable}
+    subject {queryable}
     let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
     let(:literal) {RDF::Literal.new('J. Random Hacker')}
     let(:query) {RDF::Query.new {pattern [:s, :p, :o]}}
@@ -186,24 +186,37 @@ module RDF_Queryable
           # From data-r2/expr-equals
           context "data/r2/expr-equals" do
             context "graph-1" do
-              subject {@queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Integer.new(1)).to_a}
-              its(:count) {should == 2}
+              let(:result) do
+                queryable.query(:predicate => RDF::URI("http://example.org/p"),
+                                :object => RDF::Literal::Integer.new(1)).to_a
+              end
 
-              it "has two solutions" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}).to be_truthy
+              it 'has two solutions' do
+                expect(result.count).to eq 2
+              end
+
+              it "has xi1 as a solution" do
+                expect(result.any? {|s| s.subject == RDF::URI("http://example.org/xi1")}).to be_truthy
               end
 
               it "has xi2 as a solution" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}).to be_truthy
+                expect(result.any? {|s| s.subject == RDF::URI("http://example.org/xi2")}).to be_truthy
               end
             end
 
             context "graph-2" do
-              subject {@queryable.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal::Double.new("1.0e0")).to_a}
-              its(:count) {should == 1}
+              let(:result) do
+                queryable.query(:predicate => RDF::URI("http://example.org/p"),
+                                :object => RDF::Literal::Double.new("1.0e0"))
+                  .to_a
+              end
+
+              it 'has one solution' do
+                expect(result.count).to eq 1
+              end
 
               it "has xd1 as a solution" do
-                expect(subject.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}).to be_truthy
+                expect(result.any? {|s| s.subject == RDF::URI("http://example.org/xd1")}).to be_truthy
               end
             end
           end
@@ -224,7 +237,7 @@ module RDF_Queryable
         end
 
         it "yields to the given block" do
-          expect {|b| subject.send(:query_execute, query, &b)}.to yield_control.exactly(@queryable.count).times
+          expect {|b| subject.send(:query_execute, query, &b)}.to yield_control.exactly(queryable.count).times
         end
 
         it "yields solutions" do
@@ -248,7 +261,7 @@ module RDF_Queryable
         end
 
         it "yields to the given block" do
-          expect {|b| subject.send(:query_pattern, RDF::Query::Pattern.new, &b)}.to yield_control.exactly(@queryable.count).times
+          expect {|b| subject.send(:query_pattern, RDF::Query::Pattern.new, &b)}.to yield_control.exactly(queryable.count).times
         end
 
         it "yields statements" do
@@ -256,7 +269,7 @@ module RDF_Queryable
             expect(statement).to be_a_statement
           end
         end
-    
+
         context "with specific patterns" do
           # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
           {
@@ -317,7 +330,7 @@ module RDF_Queryable
     ##
     # @see RDF::Queryable#first
     describe "#first" do
-      let(:failing_pattern) {[RDF::Node.new] * 3}
+      let(:failing_pattern) {[RDF::URI("http://no-such-resource"), RDF.type, RDF::Node.new]}
 
       it "should respond to #first" do
         expect(subject).to respond_to(:first)
@@ -328,7 +341,7 @@ module RDF_Queryable
         expect(subject.first).to eq subject.each.first # uses an Enumerator
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], subject.each.first]
         matching_patterns.each do |matching_pattern|
           expect(subject.first(matching_pattern)).to eq subject.query(matching_pattern).each.first
@@ -349,19 +362,19 @@ module RDF_Queryable
     ##
     # @see RDF::Queryable#first_subject
     describe "#first_subject" do
-      let(:failing_pattern) {[RDF::Node.new, nil, nil]}
+      let(:failing_pattern) {[RDF::URI("http://no-such-resource"), nil, nil]}
 
       it "should respond to #first_subject" do
         expect(subject).to respond_to(:first_subject)
       end
 
-      it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enumerator without a pattern" do
         expect { subject.first_subject }.not_to raise_error
         expect(subject.first_subject).to eq subject.first.subject
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
-        matching_patterns = [[nil, nil, nil], [subject.first.subject, nil, nil]]
+      it "returns the correct value when the pattern matches" do
+        matching_patterns = [[nil, nil, nil], [RDF::URI("http://rubygems.org/gems/rdf"), nil, nil]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_subject(matching_pattern)).to eq subject.query(matching_pattern).first.subject
         end
@@ -382,16 +395,16 @@ module RDF_Queryable
     # @see RDF::Queryable#first_predicate
 
     describe "#first_predicate" do
-      let(:failing_pattern) {[nil, RDF::Node.new, nil]}
+      let(:failing_pattern) {[nil, RDF::URI("http://no-such-resource"), nil]}
 
       it {should respond_to(:first_predicate)}
 
-      it "returns enumerator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enumerator without a pattern" do
         expect { subject.first_predicate }.not_to raise_error
         expect(subject.first_predicate).to eq subject.first.predicate
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, subject.first.predicate, nil]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_predicate(matching_pattern)).to eq subject.query(matching_pattern).first.predicate
@@ -413,15 +426,15 @@ module RDF_Queryable
     # @see RDF::Queryable#first_object
 
     describe "#first_object" do
-      let(:failing_pattern) {[nil, nil, RDF::Node.new]}
+      let(:failing_pattern) {[nil, nil, RDF::URI("http://no-such-resource")]}
       it {should respond_to(:first_object)}
 
-      it "returns enurator without a pattern", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns enurator without a pattern" do
         expect { subject.first_object }.not_to raise_error
         expect(subject.first_object).to eq subject.first.object
       end
 
-      it "returns the correct value when the pattern matches", :pending => (defined?(RUBY_PLATFORM) && RUBY_PLATFORM == 'java') do
+      it "returns the correct value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, nil, subject.first.object]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_object(matching_pattern)).to eq subject.query(matching_pattern).first.object
@@ -510,6 +523,28 @@ module RDF_Queryable
         queryable = [].extend(RDF::Queryable)
         expect(queryable.first_value).to be_nil
         expect(queryable.first_value(failing_pattern)).to be_nil
+      end
+    end
+  end
+end
+
+##
+# @deprecated use `it_behaves_like "an RDF::Queryable"` instead
+module RDF_Queryable
+  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
+
+  def self.included(mod)
+    warn "[DEPRECATION] `RDF_Queryable` is deprecated. "\
+         "Please use `it_behaves_like 'an RDF::Queryable'`"
+  end
+
+  describe 'examples for' do
+    include_examples 'an RDF::Queryable' do
+      let(:queryable) { @queryable }
+
+      before do
+        raise '@queryable must be defined' unless defined?(queryable)
       end
     end
   end
