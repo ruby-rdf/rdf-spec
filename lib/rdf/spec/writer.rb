@@ -3,7 +3,7 @@ require 'fileutils'
 require 'tmpdir'
 
 RSpec.shared_examples 'an RDF::Writer' do
-  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
 
   before(:each) do
     raise 'writer must be defined with let(:writer)' unless

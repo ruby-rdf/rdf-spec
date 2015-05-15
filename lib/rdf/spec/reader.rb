@@ -1,7 +1,7 @@
 require 'rdf/spec'
 
 RSpec.shared_examples 'an RDF::Reader' do
-  extend RSpec::SharedContext
+  include RDF::Spec::Matchers
 
   before(:each) do
     raise 'reader must be defined with let(:reader)' unless defined? reader
