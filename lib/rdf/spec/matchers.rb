@@ -34,6 +34,10 @@ module RDF; module Spec
       end
     end
 
+    RSpec::Matchers.define :match_triple_pattern do |*pattern|
+      match { |queryable| not queryable.first(pattern).nil? }
+    end
+
     RSpec::Matchers.define :be_mutable do
       match do |enumerable|
         expect(enumerable).to be_a_kind_of(RDF::Mutable)
