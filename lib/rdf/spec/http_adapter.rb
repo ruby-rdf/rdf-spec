@@ -162,6 +162,18 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
         end
       end
 
+      it "follows 302 to a relative location" do
+        rel = "../etc/doap.ttl"
+
+        WebMock.stub_request(:get, uri).to_return({status: 302, headers: {"Location" => rel}})
+        WebMock.stub_request(:get, RDF::URI(uri).join(rel).to_s).to_return({body: "foo"})
+        RDF::Util::File.open_file(uri) do |f|
+          expect(f.base_uri).to eq RDF::URI(uri).join(rel).to_s
+          expect(f.read).to eq "foo"
+          opened.opened
+        end
+      end
+
       it "raises an IOError for HTTP 4xx status codes" do
         opened.opened
 
