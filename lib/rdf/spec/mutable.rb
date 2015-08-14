@@ -76,6 +76,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
       it "should instantiate a reader" do
         reader = double("reader")
         expect(reader).to receive(:new).and_return(RDF::Spec.quads.first)
+        allow(RDF::Reader).to receive(:for).and_call_original
         expect(RDF::Reader).to receive(:for).with(:a_reader).and_return(reader)
         subject.send(:from_a_reader)
       end
