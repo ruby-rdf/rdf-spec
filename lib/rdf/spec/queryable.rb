@@ -128,19 +128,15 @@ RSpec.shared_examples 'an RDF::Queryable' do
           end
 
           context "with a Query argument" do
-            it "returns solutions" do
-              expect(subject.query(query)).to be_a(RDF::Query::Solutions)
+            it "returns an enumerator" do
+              expect(subject.query(query)).to be_an_enumerator
             end
 
-            it "does not return an enumerable enumerator" do
-              expect(subject.query(query)).not_to be_enumerable
+            it "returns a queryable enumerator" do
+              expect(subject.query(query)).to be_queryable
             end
 
-            it "does not return a queryable enumerator" do
-              expect(subject.query(query)).not_to be_queryable
-            end
-
-            it "returns solutions given a query" do
+            it "yields solutions given a query" do
               subject.query(query).each do |solution|
                 expect(solution).not_to  be_a_statement
                 expect(solution).to be_a RDF::Query::Solution
