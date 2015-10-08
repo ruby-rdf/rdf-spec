@@ -40,10 +40,10 @@ shared_examples "an RDF::Transaction" do |klass|
     end
   end
 
-  its(:deletes) {should be_a(RDF::Enumerable)}
-  its(:inserts) {should be_a(RDF::Enumerable)}
-  it {should be_mutable}
-  it {should_not be_readable}
+  its(:deletes) {is_expected.to be_a(RDF::Enumerable)}
+  its(:inserts) {is_expected.to be_a(RDF::Enumerable)}
+  it {is_expected.to be_mutable}
+  it {is_expected.to_not be_readable}
 
   it "does not respond to #load" do
     expect {subject.load("http://example/")}.to raise_error(NoMethodError)
@@ -76,12 +76,12 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it "calls before_execute" do
-      expect(subject).to receive(:before_execute).with(r, {})
+      is_expected.to receive(:before_execute).with(r, {})
       subject.execute(r)
     end
 
     it "calls after_execute" do
-      expect(subject).to receive(:after_execute).with(r, {})
+      is_expected.to receive(:after_execute).with(r, {})
       subject.execute(r)
     end
 

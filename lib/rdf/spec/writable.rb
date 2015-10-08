@@ -17,15 +17,15 @@ RSpec.shared_examples 'an RDF::Writable' do
   let(:statement) {@statements.detect {|s| s.to_a.all? {|r| r.uri?}}}
   let(:count) {@statements.size}
 
-  it {should respond_to(:writable?)}
-  its(:writable?) {should == !!subject.writable?}
+  it {is_expected.to respond_to(:writable?)}
+  its(:writable?) {is_expected.to eq !!subject.writable?}
 
   describe "#<<" do
     it "inserts a reader" do
       skip("writability") unless subject.writable?
       reader = RDF::NTriples::Reader.new(File.open(@filename)).to_a
       subject << reader
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
       expect(subject.count).to eq count
     end
 
@@ -33,7 +33,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       skip("writability") unless subject.writable?
       graph = RDF::Graph.new << @statements
       subject << graph
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
       expect(subject.count).to eq count
     end
 
@@ -41,7 +41,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       skip("writability") unless subject.writable?
       enumerable = @statements.dup.extend(RDF::Enumerable)
       subject << enumerable
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
       expect(subject.count).to eq count
     end
 
@@ -50,54 +50,54 @@ RSpec.shared_examples 'an RDF::Writable' do
       mock = double('mock')
       allow(mock).to receive(:to_rdf).and_return(@statements)
       subject << mock
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
       expect(subject.count).to eq count
     end
 
     it "inserts a statement" do
       skip("writability") unless subject.writable?
       subject << statement
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
       expect(subject.count).to eq 1
     end
   end
 
   context "when inserting statements" do
-    it "should support #insert" do
+    it "is_expected.to support #insert" do
       skip("writability") unless subject.writable?
-      expect(subject).to respond_to(:insert)
+      is_expected.to respond_to(:insert)
     end
 
-    it "should not raise errors" do
+    it "is_expected.to not raise errors" do
       skip("writability") unless subject.writable?
       expect { subject.insert(statement) }.not_to raise_error
     end
 
-    it "should support inserting one statement at a time" do
+    it "is_expected.to support inserting one statement at a time" do
       skip("writability") unless subject.writable?
       subject.insert(statement)
-      expect(subject).to have_statement(statement)
+      is_expected.to have_statement(statement)
     end
 
-    it "should support inserting multiple statements at a time" do
+    it "is_expected.to support inserting multiple statements at a time" do
       skip("writability") unless subject.writable?
       subject.insert(*@statements)
     end
 
-    it "should insert statements successfully" do
+    it "is_expected.to insert statements successfully" do
       skip("writability") unless subject.writable?
       subject.insert(*@statements)
       expect(subject.count).to eq count
     end
 
-    it "should not insert a statement twice" do
+    it "is_expected.to not insert a statement twice" do
       skip("writability") unless subject.writable?
       subject.insert(statement)
       subject.insert(statement)
       expect(subject.count).to eq 1
     end
 
-    it "should treat statements with a different context as distinct" do
+    it "is_expected.to treat statements with a different context as distinct" do
       skip("writability") unless subject.writable?
       s1 = statement.dup
       s1.context = nil

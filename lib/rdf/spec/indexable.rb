@@ -10,8 +10,8 @@ RSpec.shared_examples 'an RDF::Indexable' do
 
   subject { indexable }
 
-  it {should respond_to(:indexed?)}
-  it {should respond_to(:index!)}
+  it {is_expected.to respond_to(:indexed?)}
+  it {is_expected.to respond_to(:index!)}
 
   it "returns boolean for #indexed?" do
     expect(subject.indexed?).to satisfy {|x| x.is_a?(TrueClass) || x.is_a?(FalseClass)}

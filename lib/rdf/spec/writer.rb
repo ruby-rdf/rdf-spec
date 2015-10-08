@@ -136,8 +136,8 @@ RSpec.shared_examples 'an RDF::Writer' do
 
     #it "calls #write_prologue" do
     #  writer_mock = double("writer")
-    #  writer_mock.should_receive(:got_here)
-    #  writer_class.any_instance.should_receive(:write_prologue)
+    #  writer_mock.is_expected.to_receive(:got_here)
+    #  writer_class.any_instance.is_expected.to_receive(:write_prologue)
     #  writer_class.new(StringIO.new) do |r|
     #    writer_mock.got_here
     #  end
@@ -145,8 +145,8 @@ RSpec.shared_examples 'an RDF::Writer' do
     #
     #it "calls #write_epilogue" do
     #  writer_mock = double("writer")
-    #  writer_mock.should_receive(:got_here)
-    #  writer_class.any_instance.should_receive(:write_epilogue)
+    #  writer_mock.is_expected.to_receive(:got_here)
+    #  writer_class.any_instance.is_expected.to_receive(:write_epilogue)
     #  writer_class.new(StringIO.new) do |r|
     #    writer_mock.got_here
     #  end

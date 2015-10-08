@@ -24,22 +24,22 @@ RSpec.shared_examples 'an RDF::Countable' do
   describe RDF::Countable do
     subject {countable}
 
-    it {should respond_to(:empty?)}
-    it {should_not be_empty}
-    it {should respond_to(:count)}
-    its(:count) {should == @statements.size}
-    it {should respond_to(:size)}
-    its(:size) {should == @statements.size}
+    it {is_expected.to respond_to(:empty?)}
+    it {is_expected.to_not be_empty}
+    it {is_expected.to respond_to(:count)}
+    its(:count) {is_expected.to eq @statements.size}
+    it {is_expected.to respond_to(:size)}
+    its(:size) {is_expected.to eq @statements.size}
 
     context "when empty" do
       subject {[].extend(RDF::Countable)}
-      it {should be_empty}
-      its(:count) {should == 0}
-      its(:size) {should == 0}
+      it {is_expected.to be_empty}
+      its(:count) {is_expected.to eq 0}
+      its(:size) {is_expected.to eq 0}
     end
 
-    its(:to_enum) {should be_countable}
-    its(:enum_for) {should be_countable}
+    its(:to_enum) {is_expected.to be_countable}
+    its(:enum_for) {is_expected.to be_countable}
     it "#enum_for(:each)" do
       expect(subject.enum_for(:each)).to be_countable
     end

@@ -31,49 +31,49 @@ RSpec.shared_examples 'an RDF::Mutable' do
       it_behaves_like 'an RDF::Writable'
     end
 
-    it {should be_empty}
-    it {should be_readable}
-    it {should be_writable}
-    it {should be_mutable}
-    it {should_not be_immutable}
-    it {should respond_to(:load)}
-    it {should respond_to(:clear)}
-    it {should respond_to(:delete)}
+    it {is_expected.to be_empty}
+    it {is_expected.to be_readable}
+    it {is_expected.to be_writable}
+    it {is_expected.to be_mutable}
+    it {is_expected.to_not be_immutable}
+    it {is_expected.to respond_to(:load)}
+    it {is_expected.to respond_to(:clear)}
+    it {is_expected.to respond_to(:delete)}
 
-    its(:count) {should be_zero}
+    its(:count) {is_expected.to be_zero}
 
     context "#load" do
-      it "should require an argument" do
+      it "is_expected.to require an argument" do
         expect { subject.load }.to raise_error(ArgumentError)
       end
 
-      it "should accept a string filename argument" do
+      it "is_expected.to accept a string filename argument" do
         skip("mutability") unless subject.mutable?
         expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error
       end
 
-      it "should accept an optional hash argument" do
+      it "is_expected.to accept an optional hash argument" do
         skip("mutability") unless subject.mutable?
         expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error
       end
 
-      it "should load statements" do
+      it "is_expected.to load statements" do
         skip("mutability") unless subject.mutable?
         subject.load RDF::Spec::TRIPLES_FILE
         expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
-        expect(subject).to have_subject(resource)
+        is_expected.to have_subject(resource)
       end
 
-      it "should load statements with a context override" do
+      it "is_expected.to load statements with a context override" do
         skip("mutability and contextuality") unless (subject.mutable? && @supports_context)
         subject.load RDF::Spec::TRIPLES_FILE, :context => context
-        expect(subject).to have_context(context)
+        is_expected.to have_context(context)
         expect(subject.query(:context => context).size).to eq subject.size
       end
     end
 
     context "#from_{reader}" do
-      it "should instantiate a reader" do
+      it "is_expected.to instantiate a reader" do
         reader = double("reader")
         expect(reader).to receive(:new).and_return(RDF::Spec.quads.first)
         allow(RDF::Reader).to receive(:for).and_call_original
@@ -88,38 +88,38 @@ RSpec.shared_examples 'an RDF::Mutable' do
         subject.insert(*@statements)
       end
 
-      it "should not raise errors" do
+      it "is_expected.to not raise errors" do
         skip("mutability") unless subject.mutable?
         expect { subject.delete(@statements.first) }.not_to raise_error
       end
 
-      it "should support deleting one statement at a time" do
+      it "is_expected.to support deleting one statement at a time" do
         skip("mutability") unless subject.mutable?
         subject.delete(@statements.first)
-        expect(subject).not_to  have_statement(@statements.first)
+        is_expected.not_to  have_statement(@statements.first)
       end
 
-      it "should support deleting multiple statements at a time" do
+      it "is_expected.to support deleting multiple statements at a time" do
         skip("mutability") unless subject.mutable?
         subject.delete(*@statements)
         expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
       end
 
-      it "should support wildcard deletions" do
+      it "is_expected.to support wildcard deletions" do
         skip("mutability") unless subject.mutable?
         # nothing deleted
         require 'digest/sha1'
         count = subject.count
         subject.delete([nil, nil, Digest::SHA1.hexdigest(File.read(__FILE__))])
-        expect(subject).not_to  be_empty
+        is_expected.not_to  be_empty
         expect(subject.count).to eq count
 
         # everything deleted
         subject.delete([nil, nil, nil])
-        expect(subject).to be_empty
+        is_expected.to be_empty
       end
 
-      it "should only delete statements when the context matches" do
+      it "is_expected.to only delete statements when the context matches" do
         skip("mutability") unless subject.mutable?
         # Setup three statements identical except for context
         count = subject.count + (@supports_context ? 3 : 1)
