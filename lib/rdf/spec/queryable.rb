@@ -63,7 +63,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
         end
 
         it "does not alter a given hash argument" do
-          query = {subject: resource, predicate: RDF::DOAP.name, object: RDF::FOAF.Person}
+          query = {subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name"), object: RDF::URI("http://xmlns.com/foaf/0.1/Person")}
           original_query = query.dup
           subject.query(query)
           expect(query).to eq original_query
@@ -147,15 +147,15 @@ RSpec.shared_examples 'an RDF::Queryable' do
               expect(subject.query([nil, nil, nil]).size).to eq @statements.size
               expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
               expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-              expect(subject.query([resource, RDF::DOAP.name, nil]).size).to eq 1
-              expect(subject.query([nil, nil, RDF::DOAP.Project]).size).to eq 1
+              expect(subject.query([resource, RDF::URI("http://usefulinc.com/ns/doap#name"), nil]).size).to eq 1
+              expect(subject.query([nil, nil, RDF::URI("http://usefulinc.com/ns/doap#Project")]).size).to eq 1
             end
 
             it "returns the correct number of results for hash queries" do
               expect(subject.query({}).size).to eq @statements.size
               expect(subject.query(subject: resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-              expect(subject.query(subject: resource, predicate: RDF::DOAP.name).size).to eq 1
-              expect(subject.query(object: RDF::DOAP.Project).size).to eq 1
+              expect(subject.query(subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name")).size).to eq 1
+              expect(subject.query(object: RDF::URI("http://usefulinc.com/ns/doap#Project")).size).to eq 1
             end
 
             it "returns the correct number of results for query queries" do
@@ -456,9 +456,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
       let(:resource) {RDF::Node.new}
       subject {
         RDF::Graph.new do |graph|
-          graph << [resource, RDF.type, RDF::DOAP.Project]
-          graph << [resource, RDF::DC.creator, RDF::URI.new('http://example.org/#jhacker')]
-          graph << [resource, RDF::DC.creator, literal]
+          graph << [resource, RDF.type, RDF::URI("http://usefulinc.com/ns/doap#Project")]
+          graph << [resource, RDF::URI("http://purl.org/dc/terms/creator"), RDF::URI.new('http://example.org/#jhacker')]
+          graph << [resource, RDF::URI("http://purl.org/dc/terms/creator"), literal]
         end
       }
       it {is_expected.to respond_to(:first_literal)}
@@ -469,7 +469,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       end
 
       it "returns the correct value when the pattern matches" do
-        matching_patterns = [[nil, nil, nil], [resource, nil, nil], [nil, RDF::DC.creator, nil], [nil, nil, literal]]
+        matching_patterns = [[nil, nil, nil], [resource, nil, nil], [nil, RDF::URI("http://purl.org/dc/terms/creator"), nil], [nil, nil, literal]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_literal(matching_pattern)).to eq literal
         end
