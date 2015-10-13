@@ -2,20 +2,18 @@ require 'rdf/spec'
 
 RSpec.shared_examples 'an RDF::Writable' do
   include RDF::Spec::Matchers
+  let(:filename) {RDF::Spec::TRIPLES_FILE}
+  let(:statements) {RDF::NTriples::Reader.new(File.open(filename)).to_a}
+  let(:supports_graph_name) {writable.respond_to?(:supports?) && writable.supports?(:graph_name)}
 
   before :each do
     raise 'writable must be defined in with let(:readable)' unless
       defined? writable
-
-    @filename = RDF::Spec::TRIPLES_FILE
-    @statements = RDF::NTriples::Reader.new(File.open(@filename)).to_a
-
-    @supports_context = writable.respond_to?(:supports?) && writable.supports?(:context)
   end
 
   subject { writable }
-  let(:statement) {@statements.detect {|s| s.to_a.all? {|r| r.uri?}}}
-  let(:count) {@statements.size}
+  let(:statement) {statements.detect {|s| s.to_a.all? {|r| r.uri?}}}
+  let(:count) {statements.size}
 
   it {is_expected.to respond_to(:writable?)}
   its(:writable?) {is_expected.to eq !!subject.writable?}
@@ -23,7 +21,7 @@ RSpec.shared_examples 'an RDF::Writable' do
   describe "#<<" do
     it "inserts a reader" do
       skip("writability") unless subject.writable?
-      reader = RDF::NTriples::Reader.new(File.open(@filename)).to_a
+      reader = RDF::NTriples::Reader.new(File.open(filename)).to_a
       subject << reader
       is_expected.to have_statement(statement)
       expect(subject.count).to eq count
@@ -31,7 +29,7 @@ RSpec.shared_examples 'an RDF::Writable' do
 
     it "inserts a graph" do
       skip("writability") unless subject.writable?
-      graph = RDF::Graph.new << @statements
+      graph = RDF::Graph.new << statements
       subject << graph
       is_expected.to have_statement(statement)
       expect(subject.count).to eq count
@@ -39,7 +37,7 @@ RSpec.shared_examples 'an RDF::Writable' do
 
     it "inserts an enumerable" do
       skip("writability") unless subject.writable?
-      enumerable = @statements.dup.extend(RDF::Enumerable)
+      enumerable = statements.dup.extend(RDF::Enumerable)
       subject << enumerable
       is_expected.to have_statement(statement)
       expect(subject.count).to eq count
@@ -48,7 +46,7 @@ RSpec.shared_examples 'an RDF::Writable' do
     it "inserts data responding to #to_rdf" do
       skip("writability") unless subject.writable?
       mock = double('mock')
-      allow(mock).to receive(:to_rdf).and_return(@statements)
+      allow(mock).to receive(:to_rdf).and_return(statements)
       subject << mock
       is_expected.to have_statement(statement)
       expect(subject.count).to eq count
@@ -81,12 +79,15 @@ RSpec.shared_examples 'an RDF::Writable' do
 
     it "is_expected.to support inserting multiple statements at a time" do
       skip("writability") unless subject.writable?
-      subject.insert(*@statements)
+      subject.insert(*statements)
+      statements.each do |statement|
+        is_expected.to have_statement(statement) unless statement.to_a.any?(&:node?)
+      end
     end
 
     it "is_expected.to insert statements successfully" do
       skip("writability") unless subject.writable?
-      subject.insert(*@statements)
+      subject.insert(*statements)
       expect(subject.count).to eq count
     end
 
@@ -109,7 +110,22 @@ RSpec.shared_examples 'an RDF::Writable' do
       subject.insert(s2)
       subject.insert(s3)
       # If contexts are not suported, all three are redundant
-      expect(subject.count).to eq (@supports_context ? 3 : 1)
+      expect(subject.count).to eq (supports_graph_name ? 3 : 1)
+    end
+
+    it "is_expected.to treat statements with a different graph_name as distinct" do
+      skip("writability") unless subject.writable?
+      s1 = statement.dup
+      s1.graph_name = nil
+      s2 = statement.dup
+      s2.graph_name = RDF::URI.new("urn:context:1")
+      s3 = statement.dup
+      s3.graph_name = RDF::URI.new("urn:context:2")
+      subject.insert(s1)
+      subject.insert(s2)
+      subject.insert(s3)
+      # If graph_names are not suported, all three are redundant
+      expect(subject.count).to eq (supports_graph_name ? 3 : 1)
     end
   end
 end

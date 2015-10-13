@@ -320,6 +320,42 @@ RSpec.shared_examples 'an RDF::Queryable' do
             end
           end
         end
+
+        context "with graph_name" do
+          it "returns statements from all graphs with no graph_name" do
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
+            solutions = []
+            subject.send(:query_pattern, pattern) {|s| solutions << s}
+            expect(solutions.size).to eq @statements.size
+          end
+
+          it "returns statements from unnamed graphss with false graph_name" do
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
+            solutions = []
+            subject.send(:query_pattern, pattern) {|s| solutions << s}
+            named_statements = subject.statements.reject {|st| st.has_name?}.length
+            expect(solutions.size).to eq named_statements
+          end
+
+          it "returns statements from named graphss with variable graph_name" do
+            unless subject.graph_names.to_a.empty?
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
+              solutions = []
+              subject.send(:query_pattern, pattern) {|s| solutions << s}
+              named_statements = subject.statements.select {|st| st.has_name?}.length
+              expect(solutions.size).to eq named_statements
+            end
+          end
+
+          it "returns statements from specific graph with URI graph_name" do
+            unless subject.graph_names.to_a.empty?
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
+              solutions = []
+              subject.send(:query_pattern, pattern) {|s| solutions << s}
+              expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+            end
+          end
+        end
       end
     end
 
@@ -328,7 +364,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
     describe "#first" do
       let(:failing_pattern) {[RDF::URI("http://no-such-resource"), RDF.type, RDF::Node.new]}
 
-      it "is_expected.to respond to #first" do
+      it "should respond to #first" do
         is_expected.to respond_to(:first)
       end
 
@@ -360,7 +396,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
     describe "#first_subject" do
       let(:failing_pattern) {[RDF::URI("http://no-such-resource"), nil, nil]}
 
-      it "is_expected.to respond to #first_subject" do
+      it "should respond to #first_subject" do
         is_expected.to respond_to(:first_subject)
       end
 

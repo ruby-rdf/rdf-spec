@@ -19,7 +19,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
     end
 
-    @supports_context = enumerable.supports?(:context) rescue true
+    @supports_named_graphs = enumerable.supports?(:graph_name) rescue true
   end
 
   let(:subject_count) {@statements.map(&:subject).uniq.length}
@@ -82,19 +82,19 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:has_statement?)}
     context "#has_statement?" do
       let(:unknown_statement) {RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)}
-      it "is_expected.to have all statements" do
+      it "should have all statements" do
         # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
         non_bnode_statements.each do |statement|
           is_expected.to have_statement(statement)
         end
       end
 
-      it "does not have statement in different context" do
-        if @supports_context
-          context = RDF::URI.new("urn:context:1")
+      it "does not have statement in different named graph" do
+        if @supports_named_graphs
+          graph_name = RDF::URI.new("urn:graph_name:1")
           non_bnode_statements.each do |statement|
             s = statement.dup
-            s.context = context
+            s.graph_name = graph_name
             is_expected.not_to have_statement(s)
           end
         end
@@ -115,7 +115,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_statement) {is_expected.to be_enumerable}
     its(:enum_statement) {is_expected.to be_queryable}
     context "#enum_statement" do
-      it "is_expected.to enumerate all statements" do
+      it "should enumerate all statements" do
         expect(subject.enum_statement.count).to eq enumerable.each_statement.count
         subject.enum_statement.each do |s|
           expect(s).to be_a_statement
@@ -148,7 +148,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:each_triple) {is_expected.to be_an_enumerator}
     context "#each_triple" do
       specify {expect(subject.each_triple).to all(be_a_triple)}
-      it "is_expected.to iterate over all triples" do
+      it "should iterate over all triples" do
         subject.each_triple do |*triple|
           expect(triple.each).to all(be_a_term)
           expect(enumerable).to have_triple(triple) unless triple.any?(&:node?)
@@ -159,7 +159,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_triple) {is_expected.to be_an_enumerator}
     its(:enum_triple) {is_expected.to be_countable}
     context "#enum_triple" do
-      it "is_expected.to enumerate all triples" do
+      it "should enumerate all triples" do
         expect(subject.enum_triple.count).to eq enumerable.each_triple.count
         subject.enum_triple.each do |s, p, o|
           expect([s, p, o]).to all(be_a_term)
@@ -183,7 +183,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     context "#has_quad?" do
       specify do
-        if @supports_context
+        if @supports_named_graphs
           non_bnode_statements.each do |statement|
             is_expected.to have_quad(statement.to_quad)
           end
@@ -194,7 +194,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:each_quad) {is_expected.to be_an_enumerator}
     context "#each_quad" do
       specify {expect(subject.each_quad).to all(be_a_quad)}
-      it "is_expected.to iterate over all quads" do
+      it "should iterate over all quads" do
         subject.each_quad do |*quad|
           expect(quad.compact).to all(be_a_term)
           expect(enumerable).to have_quad(quad) unless quad.compact.any?(&:node?)
@@ -205,7 +205,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_quad) {is_expected.to be_an_enumerator}
     its(:enum_quad) {is_expected.to be_countable}
     context "#enum_quad" do
-      it "is_expected.to enumerate all quads" do
+      it "should enumerate all quads" do
         expect(subject.enum_quad.count).to eq enumerable.each_quad.count
         subject.enum_quad.each do |s, p, o, c|
           expect([s, p, o, c].compact).to all(be_a_term)
@@ -257,7 +257,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_subject) {is_expected.to be_countable}
     context "#enum_subject" do
       specify {expect(subject.enum_subject.to_a.reject(&:node?).size).to eq subjects.reject(&:node?).size}
-      it "is_expected.to enumerate all subjects" do
+      it "should enumerate all subjects" do
         subject.enum_subject.each do |s|
           expect(s).to be_a_resource
           expect(subjects.to_a).to include(s) unless s.node?
@@ -307,7 +307,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_predicate) {is_expected.to be_an_enumerator}
     its(:enum_predicate) {is_expected.to be_countable}
     context "#enum_predicate" do
-      it "is_expected.to enumerate all predicates" do
+      it "should enumerate all predicates" do
         expect(subject.enum_predicate.to_a).to include(*predicates)
       end
     end
@@ -354,7 +354,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_object) {is_expected.to be_an_enumerator}
     its(:enum_object) {is_expected.to be_countable}
     context "#enum_object" do
-      it "is_expected.to enumerate all objects" do
+      it "should enumerate all objects" do
         subject.enum_object.each do |o|
           expect(o).to be_a_term
           expect(objects.to_a).to include(o) unless o.node?
@@ -374,7 +374,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       subject { enumerable.contexts }
       specify {is_expected.to be_an_enumerator}
       specify {is_expected.to all(be_a_resource)}
-      context ":unique => false" do
+      context "unique: false" do
         subject { enumerable.contexts(:unique => false) }
         specify {is_expected.to be_an_enumerator}
         specify {is_expected.to all(be_a_resource)}
@@ -382,7 +382,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     it "is_expected.to implement #has_context?" do
-      if @supports_context
+      if @supports_named_graphs
         @statements.each do |statement|
           if statement.has_context?
             expect(enumerable).to have_context(statement.context)
@@ -397,7 +397,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     context "#each_context" do
       let(:contexts) {@statements.map { |s| s.context }.uniq.compact}
       it "has appropriate number of contexts" do
-        if @supports_context
+        if @supports_named_graphs
           expect(subject.each_context.to_a.size).to eq contexts.size
         end
       end
@@ -410,7 +410,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_context) {is_expected.to be_an_enumerator}
     its(:enum_context) {is_expected.to be_countable}
     context "#enum_context" do
-      it "is_expected.to enumerate all contexts" do
+      it "should enumerate all contexts" do
         expect(subject.enum_context.to_a).to include(*enumerable.each_context.to_a)
       end
     end
@@ -436,11 +436,63 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
   end
 
+  context "when enumerating graphs" do
+    it {is_expected.to respond_to(:graph_names)}
+    it {is_expected.to respond_to(:has_graph?)}
+    it {is_expected.to respond_to(:each_graph)}
+    it {is_expected.to respond_to(:enum_graph)}
+
+    its(:graph_names) {is_expected.to be_a(Array)}
+    describe "#graph_names" do
+      subject { enumerable.graph_names }
+      specify {is_expected.to be_a(Array)}
+      specify {is_expected.to all(be_a_resource)}
+      context ":unique => false" do
+        subject { enumerable.graph_names(:unique => false) }
+        specify {is_expected.to be_a(Array)}
+        specify {is_expected.to all(be_a_resource)}
+      end
+    end
+
+    it "should implement #has_graph?" do
+      if @supports_named_graphs
+        @statements.each do |statement|
+          if statement.has_graph?
+            expect(enumerable).to have_graph(statement.graph_name)
+          end
+        end
+        uri = RDF::URI.new('http://example.org/does/not/have/this/uri')
+        expect(enumerable).not_to have_graph(uri)
+      end
+    end
+
+    its(:each_graph) {is_expected.to be_an_enumerator}
+
+    describe "#each_graph" do
+      let(:graph_names) {@statements.map { |s| s.graph_name }.uniq.compact}
+      subject { enumerable.each_graph }
+      it {is_expected.to be_an_enumerator}
+      specify {expect(subject.each_graph).to all(be_a_graph)}
+      it "has appropriate number of graphs" do
+        expect(subject.each_graph.to_a.size).to eq (graph_names.size + 1)
+      end if @supports_named_graphs
+    end
+
+    describe "#enum_graph" do
+      subject { enumerable.enum_graph }
+      it {is_expected.to be_an_enumerator}
+      it {is_expected.to be_countable}
+      it "enumerates the same as #each_graph" do
+        expect(subject.to_a).to include(*enumerable.each_graph.to_a)
+      end if @supports_named_graphs # expect with match problematic
+    end
+  end
+
   context "when converting" do
     it {is_expected.to respond_to(:to_hash)}
     its(:to_hash) {is_expected.to be_instance_of(Hash)}
     context "#to_hash" do
-      it "is_expected.to have as many keys as subjects" do
+      it "should have as many keys as subjects" do
         expect(subject.to_hash.keys.size).to eq enumerable.subjects.to_a.size
       end
     end
@@ -449,7 +501,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
   context "when dumping" do
     it {is_expected.to respond_to(:dump)}
 
-    it "is_expected.to implement #dump" do
+    it "should implement #dump" do
       expect(subject.dump(:ntriples)).to eq RDF::NTriples::Writer.buffer() {|w| w << enumerable}
     end
 

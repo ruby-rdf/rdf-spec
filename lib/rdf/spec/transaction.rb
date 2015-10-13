@@ -6,7 +6,7 @@ require 'rdf/spec'
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
-  subject {klass.new(:context => RDF::URI("name"), :insert => RDF::Graph.new, :delete => RDF::Graph.new)}
+  subject {klass.new(graph_name: RDF::URI("name"), inser: RDF::Graph.new, delete: RDF::Graph.new)}
 
   describe "#initialize" do
     subject {klass}
@@ -25,6 +25,17 @@ shared_examples "an RDF::Transaction" do |klass|
       this = subject.new(:context => c)
       expect(this.graph).to eq c
       expect(this.context).to eq c
+    end
+
+    it "accepts a graph_name" do
+      c = double("graph_name")
+      this = subject.new(:graph => c)
+      expect(this.graph).to eq c
+      expect(this.graph_name).to eq c
+
+      this = subject.new(:graph_name => c)
+      expect(this.graph).to eq c
+      expect(this.graph_name).to eq c
     end
 
     it "accepts inserts" do

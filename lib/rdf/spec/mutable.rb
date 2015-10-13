@@ -8,11 +8,11 @@ RSpec.shared_examples 'an RDF::Mutable' do
     raise 'mutable must be defined with let(:mutable)' unless
       defined? mutable
 
-    @supports_context = mutable.respond_to?(:supports?) && mutable.supports?(:context)
+    @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
   end
 
   let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
-  let(:context) { RDF::URI('http://example.org/context') }
+  let(:graph_name) { RDF::URI('http://example.org/graph_name') }
 
   describe RDF::Mutable do
     subject { mutable }
@@ -65,10 +65,17 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
 
       it "is_expected.to load statements with a context override" do
-        skip("mutability and contextuality") unless (subject.mutable? && @supports_context)
-        subject.load RDF::Spec::TRIPLES_FILE, :context => context
-        is_expected.to have_context(context)
-        expect(subject.query(:context => context).size).to eq subject.size
+        skip("mutability and contextuality") unless (subject.mutable? && @supports_named_graphs)
+        subject.load RDF::Spec::TRIPLES_FILE, context: graph_name
+        is_expected.to have_context(graph_name)
+        expect(subject.query(context: graph_name).size).to eq subject.size
+      end
+
+      it "is_expected.to load statements with a graph_name override" do
+        skip("mutability and contextuality") unless (subject.mutable? && @supports_named_graphs)
+        subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
+        is_expected.to have_graph(graph_name)
+        expect(subject.query(graph_name: graph_name).size).to eq subject.size
       end
     end
 
@@ -119,15 +126,15 @@ RSpec.shared_examples 'an RDF::Mutable' do
         is_expected.to be_empty
       end
 
-      it "is_expected.to only delete statements when the context matches" do
+      it "is_expected.to only delete statements when the graph_name matches" do
         skip("mutability") unless subject.mutable?
-        # Setup three statements identical except for context
-        count = subject.count + (@supports_context ? 3 : 1)
+        # Setup three statements identical except for graph_name
+        count = subject.count + (@supports_named_graphs ? 3 : 1)
         s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
         s2 = s1.dup
-        s2.context = RDF::URI.new("urn:context:1")
+        s2.graph_name = RDF::URI.new("urn:graph_name:1")
         s3 = s1.dup
-        s3.context = RDF::URI.new("urn:context:2")
+        s3.graph_name = RDF::URI.new("urn:graph_name:2")
         subject.insert(s1)
         subject.insert(s2)
         subject.insert(s3)
@@ -135,11 +142,11 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         # Delete one by one
         subject.delete(s1)
-        expect(subject.count).to eq count - (@supports_context ? 1 : 1)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 1 : 1)
         subject.delete(s2)
-        expect(subject.count).to eq count - (@supports_context ? 2 : 1)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 2 : 1)
         subject.delete(s3)
-        expect(subject.count).to eq count - (@supports_context ? 3 : 1)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
       end
     end
   end
