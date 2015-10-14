@@ -44,7 +44,7 @@ RSpec.shared_examples 'an RDF::Writer' do
         f.file_extensions.each_pair do |sym, content_type|
           writer_mock = double("writer")
           expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(writer_class)
+          expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
           writer_class.open("#{@basename}.#{sym}") do |r|
             expect(r).to be_a(RDF::Writer)
             writer_mock.got_here
@@ -59,20 +59,20 @@ RSpec.shared_examples 'an RDF::Writer' do
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
         expect(writer_class).to receive(:for).with(sym).and_return(writer_class)
-        writer_class.open("#{@basename}.#{sym}", :format => sym) do |r|
+        writer_class.open("#{@basename}.#{sym}", format: sym) do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
         end
       end
     end
 
-    it "yields writer given {:file_name => file_name}" do
+    it "yields writer given {file_name: file_name}" do
       writer_class.format.each do |f|
         f.file_extensions.each_pair do |sym, content_type|
           writer_mock = double("writer")
           expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(:file_name => "#{@basename}.#{sym}").and_return(writer_class)
-          writer_class.open("#{@basename}.#{sym}", :file_name => "#{@basename}.#{sym}") do |r|
+          expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
+          writer_class.open("#{@basename}.#{sym}", file_name: "#{@basename}.#{sym}") do |r|
             expect(r).to be_a(RDF::Writer)
             writer_mock.got_here
           end
@@ -80,13 +80,13 @@ RSpec.shared_examples 'an RDF::Writer' do
       end
     end
 
-    it "yields writer given {:content_type => 'a/b'}" do
+    it "yields writer given {content_type: 'a/b'}" do
       writer_class.format.each do |f|
         f.content_types.each_pair do |content_type, formats|
           writer_mock = double("writer")
           expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(:content_type => content_type, :file_name => @basename).and_return(writer_class)
-          writer_class.open(@basename, :content_type => content_type) do |r|
+          expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @basename).and_return(writer_class)
+          writer_class.open(@basename, content_type: content_type) do |r|
             expect(r).to be_a(RDF::Writer)
             writer_mock.got_here
           end
@@ -125,12 +125,12 @@ RSpec.shared_examples 'an RDF::Writer' do
       end
     end
 
-    it "sets prefixes given :prefixes => {}" do
+    it "sets prefixes given prefixes: {}" do
       writer_mock = double("writer")
       expect(writer_mock).to receive(:got_here)
-      writer_class.new(StringIO.new, :prefixes => {:a => "b"}) do |r|
+      writer_class.new(StringIO.new, prefixes: {a: "b"}) do |r|
         writer_mock.got_here
-        expect(r.prefixes).to eq({:a => "b"})
+        expect(r.prefixes).to eq({a: "b"})
       end
     end
 
@@ -155,8 +155,8 @@ RSpec.shared_examples 'an RDF::Writer' do
 
   describe "#prefixes=" do
     it "sets prefixes from hash" do
-      writer.prefixes = {:a => "b"}
-      expect(writer.prefixes).to eq({:a => "b"})
+      writer.prefixes = {a: "b"}
+      expect(writer.prefixes).to eq({a: "b"})
     end
   end
 

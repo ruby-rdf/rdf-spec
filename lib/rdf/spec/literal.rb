@@ -69,7 +69,7 @@ end
 shared_examples 'RDF::Literal lookup' do |uri_hash|
   uri_hash.each do |uri, klass|
     it "finds #{klass} for #{uri}" do
-      expect(RDF::Literal("0", :datatype => uri).class).to eq klass
+      expect(RDF::Literal("0", datatype: uri).class).to eq klass
     end
   end
 end

@@ -29,7 +29,7 @@ RSpec.shared_examples 'an RDF::Reader' do
         f.file_extensions.each_pair do |sym, content_type|
           reader_mock = double("reader")
           expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(:file_name => "foo.#{sym}").and_return(reader_class)
+          expect(reader_class).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
           reader_class.open("foo.#{sym}") do |r|
             expect(r).to be_a(RDF::Reader)
             reader_mock.got_here
@@ -44,20 +44,20 @@ RSpec.shared_examples 'an RDF::Reader' do
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
         expect(reader_class).to receive(:for).with(sym).and_return(reader_class)
-        reader_class.open("foo.#{sym}", :format => sym) do |r|
+        reader_class.open("foo.#{sym}", format: sym) do |r|
           expect(r).to be_a(RDF::Reader)
           reader_mock.got_here
         end
       end
     end
 
-    it "yields reader given {:file_name => file_name}" do
+    it "yields reader given {file_name: file_name}" do
       reader_class.format.each do |f|
         f.file_extensions.each_pair do |sym, content_type|
           reader_mock = double("reader")
           expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(:file_name => "foo.#{sym}").and_return(reader_class)
-          reader_class.open("foo.#{sym}", :file_name => "foo.#{sym}") do |r|
+          expect(reader_class).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
+          reader_class.open("foo.#{sym}", file_name: "foo.#{sym}") do |r|
             expect(r).to be_a(RDF::Reader)
             reader_mock.got_here
           end
@@ -65,13 +65,13 @@ RSpec.shared_examples 'an RDF::Reader' do
       end
     end
 
-    it "yields reader given {:content_type => 'a/b'}" do
+    it "yields reader given {content_type: 'a/b'}" do
       reader_class.format.each do |f|
         f.content_types.each_pair do |content_type, formats|
           reader_mock = double("reader")
           expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(:content_type => content_type, :file_name => "foo").and_return(reader_class)
-          reader_class.open("foo", :content_type => content_type) do |r|
+          expect(reader_class).to receive(:for).with(content_type: content_type, file_name: "foo").and_return(reader_class)
+          reader_class.open("foo", content_type: content_type) do |r|
             expect(r).to be_a(RDF::Reader)
             reader_mock.got_here
           end
@@ -107,44 +107,44 @@ RSpec.shared_examples 'an RDF::Reader' do
       end
     end
 
-    it "sets validate given :validate => true" do
-      reader_class.new(reader_input, :validate => true) do |r|
+    it "sets validate given validate: true" do
+      reader_class.new(reader_input, validate: true) do |r|
         expect(r).to be_valid
       end
     end
 
-    it "sets canonicalize given :canonicalize => true" do
+    it "sets canonicalize given canonicalize: true" do
       reader_mock = double("reader")
       expect(reader_mock).to receive(:got_here)
-      reader_class.new(reader_input, :canonicalize => true) do |r|
+      reader_class.new(reader_input, canonicalize: true) do |r|
         reader_mock.got_here
         expect(r).to be_canonicalize
       end
     end
 
-    it "sets intern given :intern => true" do
+    it "sets intern given intern: true" do
       reader_mock = double("reader")
       expect(reader_mock).to receive(:got_here)
-      reader_class.new(reader_input, :intern => true) do |r|
+      reader_class.new(reader_input, intern: true) do |r|
         reader_mock.got_here
         expect(r).to be_intern
       end
     end
 
-    it "sets prefixes given :prefixes => {}" do
+    it "sets prefixes given prefixes: {}" do
       reader_mock = double("reader")
       expect(reader_mock).to receive(:got_here)
-      reader_class.new(reader_input, :prefixes => {:a => "b"}) do |r|
+      reader_class.new(reader_input, prefixes: {a: "b"}) do |r|
         reader_mock.got_here
-        expect(r.prefixes).to eq({:a => "b"})
+        expect(r.prefixes).to eq({a: "b"})
       end
     end
   end
 
   describe "#prefixes=" do
     it "sets prefixes from hash" do
-      reader.prefixes = {:a => "b"}
-      expect(reader.prefixes).to eq({:a => "b"})
+      reader.prefixes = {a: "b"}
+      expect(reader.prefixes).to eq({a: "b"})
     end
   end
 

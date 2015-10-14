@@ -16,7 +16,7 @@ namespace :gem do
 end
 
 desc "Build etc files"
-task :etc => %w(etc/triples.nt etc/quads.nq)
+task etc: %w(etc/triples.nt etc/quads.nq)
 
 desc "Clean etc files"
 task :clean do

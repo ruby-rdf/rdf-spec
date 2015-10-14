@@ -12,41 +12,41 @@ shared_examples "an RDF::Transaction" do |klass|
     subject {klass}
     it "accepts a graph" do
       g = double("graph")
-      this = subject.new(:graph => g)
+      this = subject.new(graph: g)
       expect(this.graph).to eq g
     end
 
     it "accepts a context", unless: RDF::VERSION.to_s >= "1.99" do
       c = double("context")
-      this = subject.new(:graph => c)
+      this = subject.new(graph: c)
       expect(this.graph).to eq c
       expect(this.context).to eq c
 
-      this = subject.new(:context => c)
+      this = subject.new(context: c)
       expect(this.graph).to eq c
       expect(this.context).to eq c
     end
 
     it "accepts a graph_name", if: RDF::VERSION.to_s >= "1.99" do
       c = double("graph_name")
-      this = subject.new(:graph => c)
+      this = subject.new(graph: c)
       expect(this.graph).to eq c
       expect(this.graph_name).to eq c
 
-      this = subject.new(:graph_name => c)
+      this = subject.new(graph_name: c)
       expect(this.graph).to eq c
       expect(this.graph_name).to eq c
     end
 
     it "accepts inserts" do
       g = double("inserts")
-      this = subject.new(:insert => g)
+      this = subject.new(insert: g)
       expect(this.inserts).to eq g
     end
 
     it "accepts deletes" do
       g = double("deletes")
-      this = subject.new(:delete => g)
+      this = subject.new(delete: g)
       expect(this.deletes).to eq g
     end
   end
