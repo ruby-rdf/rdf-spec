@@ -285,7 +285,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
           end
         end
 
-        context "with context" do
+        context "with context", unless: RDF::VERSION.to_s >= "1.99" do
           it "returns statements from all contexts with no context" do
             pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
             solutions = []
@@ -321,7 +321,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
           end
         end
 
-        context "with graph_name" do
+        context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
           it "returns statements from all graphs with no graph_name" do
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
             solutions = []

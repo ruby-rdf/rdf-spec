@@ -98,7 +98,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       expect(subject.count).to eq 1
     end
 
-    it "is_expected.to treat statements with a different context as distinct" do
+    it "is_expected.to treat statements with a different context as distinct", unless: RDF::VERSION.to_s >= "1.99" do
       skip("writability") unless subject.writable?
       s1 = statement.dup
       s1.context = nil
@@ -113,7 +113,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       expect(subject.count).to eq (supports_graph_name ? 3 : 1)
     end
 
-    it "is_expected.to treat statements with a different graph_name as distinct" do
+    it "is_expected.to treat statements with a different graph_name as distinct", if: RDF::VERSION.to_s >= "1.99" do
       skip("writability") unless subject.writable?
       s1 = statement.dup
       s1.graph_name = nil
