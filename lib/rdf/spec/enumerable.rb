@@ -48,8 +48,6 @@ RSpec.shared_examples 'an RDF::Enumerable' do
         else
           expect {subject.valid?}.to raise_error(NotImplementedError)
         end
-      else
-        skip("can't add statement to immutable enumerable")
       end
     end
   end
