@@ -7,7 +7,7 @@
 
 shared_examples 'RDF::Literal' do |value, datatype_uri|
   include_examples 'RDF::Literal with datatype and grammar', value, datatype_uri
-  include_examples 'RDF::Literal equality', value
+  include_examples 'RDF::Literal equality', value, value
   include_examples 'RDF::Literal lexical values', value
 end
 
@@ -75,7 +75,8 @@ shared_examples 'RDF::Literal lookup' do |uri_hash|
 end
 
 shared_examples 'RDF::Literal canonicalization' do |datatype, pairs|
-  pairs.each do |value, str|
+  pairs.each do |value, str, human = nil|
+    human ||= value
     klass = RDF::Literal.datatyped_class(datatype.to_s)
 
     it "does not normalize '#{value}' by default" do
@@ -85,18 +86,18 @@ shared_examples 'RDF::Literal canonicalization' do |datatype, pairs|
         .to eq value
     end
 
-    it "normalizes double '#{value}' to '#{str}'" do
+    it "normalizes '#{value}' to '#{str}'" do
       expect(RDF::Literal.new(value,
                               datatype: datatype,
                               canonicalize: true).to_s)
         .to eq str
     end
 
-    it "humanizes double '#{value}' to '#{str}'" do
+    it "humanizes '#{value}' to '#{str}'" do
       expect(RDF::Literal.new(value,
                               datatype: datatype,
                               canonicalize: false).humanize)
-        .to eq value
+        .to eq human
     end
 
     it "instantiates '#{value}' as #{klass}" do
