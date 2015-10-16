@@ -117,7 +117,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
         expect(subject.enum_statement.count).to eq enumerable.each_statement.count
         subject.enum_statement.each do |s|
           expect(s).to be_a_statement
-          expect(enumerable.each_statement.to_a).to include(s) unless s.has_blank_nodes?
+          expect(enumerable.each_statement.to_a).to include(s) unless s.node?
         end
       end
     end
