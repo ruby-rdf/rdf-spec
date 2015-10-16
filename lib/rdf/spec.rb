@@ -1,5 +1,6 @@
 require 'rdf'   # @see http://rubygems.org/gems/rdf
 require 'rspec' # @see http://rubygems.org/gems/rspec
+require 'rdf/spec/inspects'
 require 'rspec/its'
 
 module RDF
