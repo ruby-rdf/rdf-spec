@@ -108,8 +108,11 @@ RSpec.shared_examples 'an RDF::Reader' do
     end
 
     it "sets validate given validate: true" do
-      reader_class.new(reader_input, validate: true) do |r|
-        expect(r).to be_valid
+      reader_mock = double("reader")
+      expect(reader_mock).to receive(:got_here)
+      reader_class.new(reader_input, :validate => true) do |r|
+        reader_mock.got_here
+        expect(r).to be_validate
       end
     end
 
@@ -161,6 +164,20 @@ RSpec.shared_examples 'an RDF::Reader' do
     end
   end
 
+  describe '#each_statement' do
+    context 'with validate!' do
+      it 'reads with valid data' do
+        expect { reader_class.new(reader_input).each_statement(&:subject) }
+          .not_to raise_error
+      end
+
+      it 'errors with invalid data' do
+        expect { reader_class.new('~-!&*()blah-').each_statement(&:subject) }
+          .to raise_error RDF::ReaderError
+      end
+    end
+  end
+
   context RDF::Enumerable do
     it "#count" do
       reader_class.new(reader_input) {|r| expect(r.count).to eq reader_count}
@@ -202,6 +219,15 @@ RSpec.shared_examples 'an RDF::Reader' do
       reader_class.new(reader_input) {|r| expect(r.enum_quad.count).to eq reader_count}
     end
 
+    describe '#valid?' do
+      it 'is true for valid input' do
+        expect(reader_class.new(reader_input)).to be_valid 
+      end
+
+      it 'is invalid for nonsense input' do
+        expect(reader_class.new('~-!&*()blah-')).not_to be_valid
+      end
+    end
   end
 end
 
