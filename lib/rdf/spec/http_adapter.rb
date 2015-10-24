@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 require 'rdf/spec'
 require 'webmock/rspec'
 
