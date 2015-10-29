@@ -66,22 +66,22 @@ RSpec.shared_examples 'an RDF::Writable' do
   end
 
   context "when inserting statements" do
-    it "is_expected.to support #insert" do
+    it "should support #insert" do
       is_expected.to respond_to(:insert) if subject.writable?
     end
 
-    it "is_expected.to not raise errors" do
+    it "should not raise errors" do
       expect { subject.insert(statement) }.not_to raise_error if subject.writable?
     end
 
-    it "is_expected.to support inserting one statement at a time" do
+    it "should support inserting one statement at a time" do
       if subject.writable?
         subject.insert(statement)
         is_expected.to have_statement(statement)
       end
     end
 
-    it "is_expected.to support inserting multiple statements at a time" do
+    it "should support inserting multiple statements at a time" do
       if subject.writable?
         subject.insert(*statements)
         statements.each do |statement|
@@ -90,14 +90,14 @@ RSpec.shared_examples 'an RDF::Writable' do
       end
     end
 
-    it "is_expected.to insert statements successfully" do
+    it "should insert statements successfully" do
       if subject.writable?
         subject.insert(*statements)
         expect(subject.count).to eq count
       end
     end
 
-    it "is_expected.to not insert a statement twice" do
+    it "should not insert a statement twice" do
       if subject.writable?
         subject.insert(statement)
         subject.insert(statement)
@@ -105,7 +105,16 @@ RSpec.shared_examples 'an RDF::Writable' do
       end
     end
 
-    it "is_expected.to treat statements with a different context as distinct", unless: RDF::VERSION.to_s >= "1.99" do
+    it "should not insert an incomplete statement" do
+      if subject.writable?
+        subject.insert(RDF::Statement.from(statement.to_hash.merge(subject: nil)))
+        subject.insert(RDF::Statement.from(statement.to_hash.merge(predicate: nil)))
+        subject.insert(RDF::Statement.from(statement.to_hash.merge(object: nil)))
+        expect(subject.count).to eql 0
+      end
+    end
+
+    it "should treat statements with a different context as distinct", unless: RDF::VERSION.to_s >= "1.99" do
       if subject.writable?
         s1 = statement.dup
         s1.context = nil
@@ -121,7 +130,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       end
     end
 
-    it "is_expected.to treat statements with a different graph_name as distinct", if: RDF::VERSION.to_s >= "1.99" do
+    it "should treat statements with a different graph_name as distinct", if: RDF::VERSION.to_s >= "1.99" do
       if subject.writable?
         s1 = statement.dup
         s1.graph_name = nil
