@@ -107,9 +107,9 @@ RSpec.shared_examples 'an RDF::Writable' do
 
     it "should not insert an incomplete statement" do
       if subject.writable?
-        subject.insert(RDF::Statement.from(statement.to_hash.merge(subject: nil)))
-        subject.insert(RDF::Statement.from(statement.to_hash.merge(predicate: nil)))
-        subject.insert(RDF::Statement.from(statement.to_hash.merge(object: nil)))
+        expect {subject.insert(RDF::Statement.from(statement.to_hash.merge(subject: nil)))}.to raise_error(ArgumentError)
+        expect {subject.insert(RDF::Statement.from(statement.to_hash.merge(predicate: nil)))}.to raise_error(ArgumentError)
+        expect {subject.insert(RDF::Statement.from(statement.to_hash.merge(object: nil)))}.to raise_error(ArgumentError)
         expect(subject.count).to eql 0
       end
     end
