@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'lib')))
 require 'rubygems'
-require 'rdf/spec'
 
 namespace :gem do
   desc "Build the rdf-spec-#{File.read('VERSION').chomp}.gem file"
