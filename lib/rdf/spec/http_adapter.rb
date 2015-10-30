@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 require 'rdf/spec'
 require 'webmock/rspec'
 
@@ -64,19 +65,28 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
       WebMock.stub_request(:get, uri).to_return(body: "foo", headers: {"Content-Type" => "text/turtle"})
       RDF::Util::File.open_file(uri) do |f|
         expect(f.content_type).to eq "text/turtle"
-        expect(f.charset).to eq Encoding::UTF_8
-        expect(f.content_encoding).to eq "utf-8"
+        expect(f.charset).to eq "utf-8"
         expect(f.external_encoding.to_s.downcase).to eq "utf-8"
         opened.opened
       end
     end
 
-    it "sets content_type and encoding if provided" do
-      WebMock.stub_request(:get, uri).to_return(body: "foo", headers: {"Content-Type" => "text/turtle ; charset=ISO-8859-4"})
+    it "sets content_type and encoding if provided and UTF" do
+      WebMock.stub_request(:get, uri).to_return(body: "foo".force_encoding("UTF-16"), headers: {"Content-Type" => "text/turtle ; charset=UTF-16"})
       RDF::Util::File.open_file(uri) do |f|
         expect(f.content_type).to eq "text/turtle"
-        expect(f.charset).to eq "ISO-8859-4"
-        expect(f.external_encoding.to_s.downcase).to eq "iso-8859-4"
+        expect(f.charset).to eq "utf-16"
+        expect(f.external_encoding.to_s.downcase).to eq "utf-16"
+        opened.opened
+      end
+    end
+
+    it "sets content_type and encoding to UTF-8 if provided and not UTF" do
+      WebMock.stub_request(:get, uri).to_return(body: "foo".force_encoding("ISO-8859-4"), headers: {"Content-Type" => "text/turtle ; charset=ISO-8859-4"})
+      RDF::Util::File.open_file(uri) do |f|
+        expect(f.content_type).to eq "text/turtle"
+        expect(f.charset).to eq "iso-8859-4"
+        expect(f.external_encoding.to_s.downcase).to eq "utf-8"
         opened.opened
       end
     end
@@ -157,6 +167,18 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
         WebMock.stub_request(:get, "http://example/").to_return({body: "foo"})
         RDF::Util::File.open_file(uri) do |f|
           expect(f.base_uri).to eq "http://example/"
+          expect(f.read).to eq "foo"
+          opened.opened
+        end
+      end
+
+      it "follows 302 to a relative location" do
+        rel = "../etc/doap.ttl"
+
+        WebMock.stub_request(:get, uri).to_return({status: 302, headers: {"Location" => rel}})
+        WebMock.stub_request(:get, RDF::URI(uri).join(rel).to_s).to_return({body: "foo"})
+        RDF::Util::File.open_file(uri) do |f|
+          expect(f.base_uri).to eq RDF::URI(uri).join(rel).to_s
           expect(f.read).to eq "foo"
           opened.opened
         end

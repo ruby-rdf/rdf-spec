@@ -8,11 +8,11 @@ RSpec.shared_examples 'an RDF::Mutable' do
     raise 'mutable must be defined with let(:mutable)' unless
       defined? mutable
 
-    @supports_context = mutable.respond_to?(:supports?) && mutable.supports?(:context)
+    @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
   end
 
   let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
-  let(:context) { RDF::URI('http://example.org/context') }
+  let(:graph_name) { RDF::URI('http://example.org/graph_name') }
 
   describe RDF::Mutable do
     subject { mutable }
@@ -31,51 +31,60 @@ RSpec.shared_examples 'an RDF::Mutable' do
       it_behaves_like 'an RDF::Writable'
     end
 
-    it {should be_empty}
-    it {should be_readable}
-    it {should be_writable}
-    it {should be_mutable}
-    it {should_not be_immutable}
-    it {should respond_to(:load)}
-    it {should respond_to(:clear)}
-    it {should respond_to(:delete)}
+    it {is_expected.to be_empty}
+    it {is_expected.to be_readable}
+    it {is_expected.to be_writable}
+    it {is_expected.to be_mutable}
+    it {is_expected.to_not be_immutable}
+    it {is_expected.to respond_to(:load)}
+    it {is_expected.to respond_to(:clear)}
+    it {is_expected.to respond_to(:delete)}
 
-    its(:count) {should be_zero}
+    its(:count) {is_expected.to be_zero}
 
     context "#load" do
-      it "should require an argument" do
+      it "is_expected.to require an argument" do
         expect { subject.load }.to raise_error(ArgumentError)
       end
 
-      it "should accept a string filename argument" do
-        skip("mutability") unless subject.mutable?
-        expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error
+      it "is_expected.to accept a string filename argument" do
+        expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error if subject.mutable?
       end
 
-      it "should accept an optional hash argument" do
-        skip("mutability") unless subject.mutable?
-        expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error
+      it "is_expected.to accept an optional hash argument" do
+        expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error if subject.mutable?
       end
 
-      it "should load statements" do
-        skip("mutability") unless subject.mutable?
-        subject.load RDF::Spec::TRIPLES_FILE
-        expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
-        expect(subject).to have_subject(resource)
+      it "is_expected.to load statements" do
+        if subject.mutable?
+          subject.load RDF::Spec::TRIPLES_FILE
+          expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
+          is_expected.to have_subject(resource)
+        end
       end
 
-      it "should load statements with a context override" do
-        skip("mutability and contextuality") unless (subject.mutable? && @supports_context)
-        subject.load RDF::Spec::TRIPLES_FILE, :context => context
-        expect(subject).to have_context(context)
-        expect(subject.query(:context => context).size).to eq subject.size
+      it "is_expected.to load statements with a context override", unless: RDF::VERSION.to_s >= "1.99" do
+        if subject.mutable? && @supports_named_graphs
+          subject.load RDF::Spec::TRIPLES_FILE, context: graph_name
+          is_expected.to have_context(graph_name)
+          expect(subject.query(context: graph_name).size).to eq subject.size
+        end
+      end
+
+      it "is_expected.to load statements with a graph_name override", if: RDF::VERSION.to_s >= "1.99" do
+        if subject.mutable? && @supports_named_graphs
+          subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
+          is_expected.to have_graph(graph_name)
+          expect(subject.query(graph_name: graph_name).size).to eq subject.size
+        end
       end
     end
 
     context "#from_{reader}" do
-      it "should instantiate a reader" do
+      it "is_expected.to instantiate a reader" do
         reader = double("reader")
         expect(reader).to receive(:new).and_return(RDF::Spec.quads.first)
+        allow(RDF::Reader).to receive(:for).and_call_original
         expect(RDF::Reader).to receive(:for).with(:a_reader).and_return(reader)
         subject.send(:from_a_reader)
       end
@@ -87,58 +96,61 @@ RSpec.shared_examples 'an RDF::Mutable' do
         subject.insert(*@statements)
       end
 
-      it "should not raise errors" do
-        skip("mutability") unless subject.mutable?
-        expect { subject.delete(@statements.first) }.not_to raise_error
+      it "is_expected.to not raise errors" do
+        expect { subject.delete(@statements.first) }.not_to raise_error if subject.mutable?
       end
 
-      it "should support deleting one statement at a time" do
-        skip("mutability") unless subject.mutable?
-        subject.delete(@statements.first)
-        expect(subject).not_to  have_statement(@statements.first)
+      it "is_expected.to support deleting one statement at a time" do
+        if subject.mutable?
+          subject.delete(@statements.first)
+          is_expected.not_to  have_statement(@statements.first)
+        end
       end
 
-      it "should support deleting multiple statements at a time" do
-        skip("mutability") unless subject.mutable?
-        subject.delete(*@statements)
-        expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
+      it "is_expected.to support deleting multiple statements at a time" do
+        if subject.mutable?
+          subject.delete(*@statements)
+          expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
+        end
       end
 
-      it "should support wildcard deletions" do
-        skip("mutability") unless subject.mutable?
-        # nothing deleted
-        require 'digest/sha1'
-        count = subject.count
-        subject.delete([nil, nil, Digest::SHA1.hexdigest(File.read(__FILE__))])
-        expect(subject).not_to  be_empty
-        expect(subject.count).to eq count
+      it "is_expected.to support wildcard deletions" do
+        if subject.mutable?
+          # nothing deleted
+          require 'digest/sha1'
+          count = subject.count
+          subject.delete([nil, nil, Digest::SHA1.hexdigest(File.read(__FILE__))])
+          is_expected.not_to  be_empty
+          expect(subject.count).to eq count
 
-        # everything deleted
-        subject.delete([nil, nil, nil])
-        expect(subject).to be_empty
+          # everything deleted
+          subject.delete([nil, nil, nil])
+          is_expected.to be_empty
+        end
       end
 
-      it "should only delete statements when the context matches" do
-        skip("mutability") unless subject.mutable?
-        # Setup three statements identical except for context
-        count = subject.count + (@supports_context ? 3 : 1)
-        s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
-        s2 = s1.dup
-        s2.context = RDF::URI.new("urn:context:1")
-        s3 = s1.dup
-        s3.context = RDF::URI.new("urn:context:2")
-        subject.insert(s1)
-        subject.insert(s2)
-        subject.insert(s3)
-        expect(subject.count).to eq count
+      it "is_expected.to only delete statements when the graph_name matches" do
+        if subject.mutable?
+          # Setup three statements identical except for graph_name
+          count = subject.count + (@supports_named_graphs ? 3 : 1)
+          s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
+          s2 = s1.dup
+          s2.graph_name = RDF::URI.new("urn:graph_name:1")
+          s3 = s1.dup
+          s3.graph_name = RDF::URI.new("urn:graph_name:2")
+          subject.insert(s1)
+          subject.insert(s2)
+          subject.insert(s3)
+          expect(subject.count).to eq count
 
-        # Delete one by one
-        subject.delete(s1)
-        expect(subject.count).to eq count - (@supports_context ? 1 : 1)
-        subject.delete(s2)
-        expect(subject.count).to eq count - (@supports_context ? 2 : 1)
-        subject.delete(s3)
-        expect(subject.count).to eq count - (@supports_context ? 3 : 1)
+          # Delete one by one
+          subject.delete(s1)
+          expect(subject.count).to eq count - (@supports_named_graphs ? 1 : 1)
+          subject.delete(s2)
+          expect(subject.count).to eq count - (@supports_named_graphs ? 2 : 1)
+          subject.delete(s3)
+          expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
+        end
       end
     end
   end

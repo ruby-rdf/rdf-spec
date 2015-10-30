@@ -6,44 +6,55 @@ require 'rdf/spec'
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
-  subject {klass.new(:context => RDF::URI("name"), :insert => RDF::Graph.new, :delete => RDF::Graph.new)}
+  subject {klass.new(graph_name: RDF::URI("name"), inser: RDF::Graph.new, delete: RDF::Graph.new)}
 
   describe "#initialize" do
     subject {klass}
     it "accepts a graph" do
       g = double("graph")
-      this = subject.new(:graph => g)
+      this = subject.new(graph: g)
       expect(this.graph).to eq g
     end
 
-    it "accepts a context" do
+    it "accepts a context", unless: RDF::VERSION.to_s >= "1.99" do
       c = double("context")
-      this = subject.new(:graph => c)
+      this = subject.new(graph: c)
       expect(this.graph).to eq c
       expect(this.context).to eq c
 
-      this = subject.new(:context => c)
+      this = subject.new(context: c)
       expect(this.graph).to eq c
       expect(this.context).to eq c
+    end
+
+    it "accepts a graph_name", if: RDF::VERSION.to_s >= "1.99" do
+      c = double("graph_name")
+      this = subject.new(graph: c)
+      expect(this.graph).to eq c
+      expect(this.graph_name).to eq c
+
+      this = subject.new(graph_name: c)
+      expect(this.graph).to eq c
+      expect(this.graph_name).to eq c
     end
 
     it "accepts inserts" do
       g = double("inserts")
-      this = subject.new(:insert => g)
+      this = subject.new(insert: g)
       expect(this.inserts).to eq g
     end
 
     it "accepts deletes" do
       g = double("deletes")
-      this = subject.new(:delete => g)
+      this = subject.new(delete: g)
       expect(this.deletes).to eq g
     end
   end
 
-  its(:deletes) {should be_a(RDF::Enumerable)}
-  its(:inserts) {should be_a(RDF::Enumerable)}
-  it {should be_mutable}
-  it {should_not be_readable}
+  its(:deletes) {is_expected.to be_a(RDF::Enumerable)}
+  its(:inserts) {is_expected.to be_a(RDF::Enumerable)}
+  it {is_expected.to be_mutable}
+  it {is_expected.to_not be_readable}
 
   it "does not respond to #load" do
     expect {subject.load("http://example/")}.to raise_error(NoMethodError)
@@ -76,12 +87,12 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it "calls before_execute" do
-      expect(subject).to receive(:before_execute).with(r, {})
+      is_expected.to receive(:before_execute).with(r, {})
       subject.execute(r)
     end
 
     it "calls after_execute" do
-      expect(subject).to receive(:after_execute).with(r, {})
+      is_expected.to receive(:after_execute).with(r, {})
       subject.execute(r)
     end
 

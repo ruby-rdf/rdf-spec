@@ -27,21 +27,21 @@ RSpec.shared_examples 'an RDF::Durable' do
 
   subject {@load_durable.call}
 
-  it { should respond_to(:durable?) }
+  it { is_expected.to respond_to(:durable?) }
 
-  it "should support #durable?" do
+  it "is_expected.to support #durable?" do
     expect([true,false]).to be_member(subject.durable?)
   end
 
-  it {should respond_to(:nondurable?)}
+  it {is_expected.to respond_to(:nondurable?)}
 
-  it "should support #nondurable?" do
+  it "is_expected.to support #nondurable?" do
     expect([true,false]).to be_member(@load_durable.call.nondurable?)
   end
 
-  its(:nondurable?) {should_not == subject.durable?}
+  its(:nondurable?) {is_expected.to_not eq subject.durable?}
 
-  it "should save contents between instantiations" do
+  it "is_expected.to save contents between instantiations" do
     if subject.durable?
       subject.load(RDF::Spec::TRIPLES_FILE)
       expect(subject.count).to eq File.readlines(RDF::Spec::TRIPLES_FILE).size

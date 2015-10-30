@@ -30,7 +30,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
     ##
     # @see RDF::Queryable#query
     describe "#query" do
-      it {should respond_to(:query)}
+      it {is_expected.to respond_to(:query)}
 
       context "when called" do
         it "requires an argument" do
@@ -63,7 +63,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
         end
 
         it "does not alter a given hash argument" do
-          query = {:subject => resource, :predicate => RDF::DOAP.name, :object => RDF::FOAF.Person}
+          query = {subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name"), object: RDF::URI("http://xmlns.com/foaf/0.1/Person")}
           original_query = query.dup
           subject.query(query)
           expect(query).to eq original_query
@@ -83,8 +83,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
             end
 
             it "calls #query_pattern" do
-              expect(subject).to receive(:query_pattern)
-              expect(subject).not_to receive(:query_execute)
+              is_expected.to receive(:query_pattern)
+              is_expected.not_to receive(:query_execute)
               subject.query([:s, :p, :o]) {}
             end
           end
@@ -98,8 +98,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
             end
 
             it "calls #query_execute" do
-              expect(subject).to receive(:query_execute)
-              expect(subject).not_to receive(:query_pattern)
+              is_expected.to receive(:query_execute)
+              is_expected.not_to receive(:query_pattern)
               subject.query(query) {}
             end
           end
@@ -107,15 +107,11 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
         context "without a block" do
           context "with a triple argument" do
-            it "returns an enumerator" do
-              expect(subject.query([nil, nil, nil])).to be_an_enumerator
-            end
-
-            it "returns an enumerable enumerator" do
+            it "returns an enumerable" do
               expect(subject.query([nil, nil, nil])).to be_enumerable
             end
 
-            it "returns a queryable enumerator" do
+            it "returns a queryable" do
               expect(subject.query([nil, nil, nil])).to be_queryable
             end
 
@@ -151,15 +147,15 @@ RSpec.shared_examples 'an RDF::Queryable' do
               expect(subject.query([nil, nil, nil]).size).to eq @statements.size
               expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
               expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-              expect(subject.query([resource, RDF::DOAP.name, nil]).size).to eq 1
-              expect(subject.query([nil, nil, RDF::DOAP.Project]).size).to eq 1
+              expect(subject.query([resource, RDF::URI("http://usefulinc.com/ns/doap#name"), nil]).size).to eq 1
+              expect(subject.query([nil, nil, RDF::URI("http://usefulinc.com/ns/doap#Project")]).size).to eq 1
             end
 
             it "returns the correct number of results for hash queries" do
               expect(subject.query({}).size).to eq @statements.size
-              expect(subject.query(:subject => resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-              expect(subject.query(:subject => resource, :predicate => RDF::DOAP.name).size).to eq 1
-              expect(subject.query(:object => RDF::DOAP.Project).size).to eq 1
+              expect(subject.query(subject: resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query(subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name")).size).to eq 1
+              expect(subject.query(object: RDF::URI("http://usefulinc.com/ns/doap#Project")).size).to eq 1
             end
 
             it "returns the correct number of results for query queries" do
@@ -171,13 +167,13 @@ RSpec.shared_examples 'an RDF::Queryable' do
         context "with specific patterns from SPARQL" do
           context "triple pattern combinations" do
             it "?s p o" do
-              expect(subject.query(:predicate => RDF::URI("http://example.org/p"), :object => RDF::Literal.new(1)).to_a).to(
+              expect(subject.query(predicate: RDF::URI("http://example.org/p"), object: RDF::Literal.new(1)).to_a).to(
                 include *[RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
               )
             end
 
             it "s ?p o" do
-              expect(subject.query(:subject => RDF::URI("http://example.org/xi2"), :object => RDF::Literal.new(1)).to_a).to(
+              expect(subject.query(subject: RDF::URI("http://example.org/xi2"), object: RDF::Literal.new(1)).to_a).to(
                 include *[RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
               )
             end
@@ -187,8 +183,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
           context "data/r2/expr-equals" do
             context "graph-1" do
               let(:result) do
-                queryable.query(:predicate => RDF::URI("http://example.org/p"),
-                                :object => RDF::Literal::Integer.new(1)).to_a
+                queryable.query(predicate: RDF::URI("http://example.org/p"),
+                                object: RDF::Literal::Integer.new(1)).to_a
               end
 
               it 'has two solutions' do
@@ -206,8 +202,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
             context "graph-2" do
               let(:result) do
-                queryable.query(:predicate => RDF::URI("http://example.org/p"),
-                                :object => RDF::Literal::Double.new("1.0e0"))
+                queryable.query(predicate: RDF::URI("http://example.org/p"),
+                                object: RDF::Literal::Double.new("1.0e0"))
                   .to_a
               end
 
@@ -289,16 +285,16 @@ RSpec.shared_examples 'an RDF::Queryable' do
           end
         end
 
-        context "with context" do
+        context "with context", unless: RDF::VERSION.to_s >= "1.99" do
           it "returns statements from all contexts with no context" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => nil)
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
             solutions = []
             subject.send(:query_pattern, pattern) {|s| solutions << s}
             expect(solutions.size).to eq @statements.size
           end
 
           it "returns statements from unnamed contexts with false context" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => false)
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: false)
             solutions = []
             subject.send(:query_pattern, pattern) {|s| solutions << s}
             context_statements = subject.statements.reject {|st| st.has_context?}.length
@@ -307,7 +303,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
           it "returns statements from named contexts with variable context" do
             unless subject.contexts.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => :c)
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, context: :c)
               solutions = []
               subject.send(:query_pattern, pattern) {|s| solutions << s}
               context_statements = subject.statements.select {|st| st.has_context?}.length
@@ -317,7 +313,43 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
           it "returns statements from specific context with URI context" do
             unless subject.contexts.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, :context => RDF::URI("http://ar.to/#self"))
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, context: RDF::URI("http://ar.to/#self"))
+              solutions = []
+              subject.send(:query_pattern, pattern) {|s| solutions << s}
+              expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+            end
+          end
+        end
+
+        context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
+          it "returns statements from all graphs with no graph_name" do
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
+            solutions = []
+            subject.send(:query_pattern, pattern) {|s| solutions << s}
+            expect(solutions.size).to eq @statements.size
+          end
+
+          it "returns statements from unnamed graphss with false graph_name" do
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
+            solutions = []
+            subject.send(:query_pattern, pattern) {|s| solutions << s}
+            named_statements = subject.statements.reject {|st| st.has_name?}.length
+            expect(solutions.size).to eq named_statements
+          end
+
+          it "returns statements from named graphss with variable graph_name" do
+            unless subject.graph_names.to_a.empty?
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
+              solutions = []
+              subject.send(:query_pattern, pattern) {|s| solutions << s}
+              named_statements = subject.statements.select {|st| st.has_name?}.length
+              expect(solutions.size).to eq named_statements
+            end
+          end
+
+          it "returns statements from specific graph with URI graph_name" do
+            unless subject.graph_names.to_a.empty?
+              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
               solutions = []
               subject.send(:query_pattern, pattern) {|s| solutions << s}
               expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
@@ -333,16 +365,16 @@ RSpec.shared_examples 'an RDF::Queryable' do
       let(:failing_pattern) {[RDF::URI("http://no-such-resource"), RDF.type, RDF::Node.new]}
 
       it "should respond to #first" do
-        expect(subject).to respond_to(:first)
+        is_expected.to respond_to(:first)
       end
 
-      it "returns enumerator without a pattern" do
+      it "returns a statement or solution" do
         expect { subject.first }.not_to raise_error
-        expect(subject.first).to eq subject.each.first # uses an Enumerator
+        expect(subject.first).to be_a_statement
       end
 
       it "returns the correct value when the pattern matches" do
-        matching_patterns = [[nil, nil, nil], subject.each.first]
+        matching_patterns = [[nil, nil, nil], subject.detect {|s| s.to_a.none? {|r| r.node?}}]
         matching_patterns.each do |matching_pattern|
           expect(subject.first(matching_pattern)).to eq subject.query(matching_pattern).each.first
         end
@@ -365,7 +397,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       let(:failing_pattern) {[RDF::URI("http://no-such-resource"), nil, nil]}
 
       it "should respond to #first_subject" do
-        expect(subject).to respond_to(:first_subject)
+        is_expected.to respond_to(:first_subject)
       end
 
       it "returns enumerator without a pattern" do
@@ -397,7 +429,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
     describe "#first_predicate" do
       let(:failing_pattern) {[nil, RDF::URI("http://no-such-resource"), nil]}
 
-      it {should respond_to(:first_predicate)}
+      it {is_expected.to respond_to(:first_predicate)}
 
       it "returns enumerator without a pattern" do
         expect { subject.first_predicate }.not_to raise_error
@@ -427,7 +459,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
     describe "#first_object" do
       let(:failing_pattern) {[nil, nil, RDF::URI("http://no-such-resource")]}
-      it {should respond_to(:first_object)}
+      it {is_expected.to respond_to(:first_object)}
 
       it "returns enurator without a pattern" do
         expect { subject.first_object }.not_to raise_error
@@ -460,12 +492,12 @@ RSpec.shared_examples 'an RDF::Queryable' do
       let(:resource) {RDF::Node.new}
       subject {
         RDF::Graph.new do |graph|
-          graph << [resource, RDF.type, RDF::DOAP.Project]
-          graph << [resource, RDF::DC.creator, RDF::URI.new('http://example.org/#jhacker')]
-          graph << [resource, RDF::DC.creator, literal]
+          graph << [resource, RDF.type, RDF::URI("http://usefulinc.com/ns/doap#Project")]
+          graph << [resource, RDF::URI("http://purl.org/dc/terms/creator"), RDF::URI.new('http://example.org/#jhacker')]
+          graph << [resource, RDF::URI("http://purl.org/dc/terms/creator"), literal]
         end
       }
-      it {should respond_to(:first_literal)}
+      it {is_expected.to respond_to(:first_literal)}
 
       it "returns a literal without a pattern" do
         expect { subject.first_literal }.not_to raise_error
@@ -473,7 +505,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       end
 
       it "returns the correct value when the pattern matches" do
-        matching_patterns = [[nil, nil, nil], [resource, nil, nil], [nil, RDF::DC.creator, nil], [nil, nil, literal]]
+        matching_patterns = [[nil, nil, nil], [resource, nil, nil], [nil, RDF::URI("http://purl.org/dc/terms/creator"), nil], [nil, nil, literal]]
         matching_patterns.each do |matching_pattern|
           expect(subject.first_literal(matching_pattern)).to eq literal
         end
@@ -495,7 +527,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
     describe "#first_value" do
       let(:failing_pattern) {[nil, nil, RDF::Node.new]}
-      it {should respond_to(:first_value)}
+      it {is_expected.to respond_to(:first_value)}
 
       it "returns first literal without a pattern" do
         expect { subject.first_value }.not_to raise_error
