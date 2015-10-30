@@ -22,7 +22,7 @@ end
 
 class RDF::Graph
   def inspect
-    "\n" + dump(:n3) + "\n"
+    "\n" + dump(RDF.const_defined?(:Turtle) ? :ttl : :ntriples, standard_prefixes: true) + "\n"
   end
 end
 
