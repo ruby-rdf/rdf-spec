@@ -6,7 +6,7 @@ require 'rdf/spec'
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
-  subject {klass.new(graph_name: RDF::URI("name"), inser: RDF::Graph.new, delete: RDF::Graph.new)}
+  subject { klass.new(graph_name: RDF::URI("name")) }
 
   describe "#initialize" do
     subject {klass}
@@ -73,17 +73,48 @@ shared_examples "an RDF::Transaction" do |klass|
     let(:r) {double("repository")}
 
     it "deletes statements" do
-      expect(r).to receive(:delete).with(s)
+      statement = s.dup
+      statement.graph_name = (subject.graph_name rescue nil)
+      expect(r).to receive(:delete).with(statement)
       expect(r).not_to receive(:insert)
       subject.delete(s)
       subject.execute(r)
     end
 
     it "inserts statements" do
+      statement = s.dup
+      statement.graph_name = (subject.graph_name rescue nil)
       expect(r).not_to receive(:delete)
-      expect(r).to receive(:insert).with(s)
+      expect(r).to receive(:insert).with(statement)
       subject.insert(s)
       subject.execute(r)
+    end
+
+    context 'with graph names', if: RDF::VERSION.to_s >= "1.99" do
+      let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
+      let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
+      
+      it "deletes statements" do
+        statement = s.dup
+        statement.graph_name = subject.graph_name
+        expect(r).to receive(:delete).with(statement)
+        expect(r).to receive(:delete).with(s_with_c)
+        expect(r).not_to receive(:insert)
+        subject.delete(s)
+        subject.delete(s_with_c)
+        subject.execute(r)
+      end
+
+      it "inserts statements" do
+        statement = s.dup
+        statement.graph_name = subject.graph_name
+        expect(r).not_to receive(:delete)
+        expect(r).to receive(:insert).with(statement)
+        expect(r).to receive(:insert).with(s_with_c)
+        subject.insert(s)
+        subject.insert(s_with_c)
+        subject.execute(r)
+      end
     end
 
     it "calls before_execute" do
@@ -114,6 +145,27 @@ shared_examples "an RDF::Transaction" do |klass|
     it "adds statement to #inserts" do
       subject.insert(s)
       expect(subject.inserts.to_a).to eq [s]
+    end
+  end
+
+  context 'with graph names', if: RDF::VERSION.to_s >= "1.99" do
+    let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
+    let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
+
+    describe "#delete_statement" do
+      it "adds statement to #deletes" do
+        subject.delete(s)
+        subject.delete(s_with_c)
+        expect(subject.deletes.to_a).to contain_exactly(s, s_with_c)
+      end
+    end
+
+    describe "#insert_statement" do
+      it "adds statement to #inserts" do
+        subject.insert(s)
+        subject.insert(s_with_c)
+        expect(subject.inserts.to_a).to contain_exactly(s, s_with_c)
+      end
     end
   end
 end
