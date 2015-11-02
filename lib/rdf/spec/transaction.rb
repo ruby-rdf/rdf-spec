@@ -97,8 +97,7 @@ shared_examples "an RDF::Transaction" do |klass|
       it "deletes statements" do
         statement = s.dup
         statement.graph_name = subject.graph_name
-        expect(r).to receive(:delete).with(statement)
-        expect(r).to receive(:delete).with(s_with_c)
+        expect(r).to receive(:delete).with(statement, s_with_c)
         expect(r).not_to receive(:insert)
         subject.delete(s)
         subject.delete(s_with_c)
@@ -109,8 +108,7 @@ shared_examples "an RDF::Transaction" do |klass|
         statement = s.dup
         statement.graph_name = subject.graph_name
         expect(r).not_to receive(:delete)
-        expect(r).to receive(:insert).with(statement)
-        expect(r).to receive(:insert).with(s_with_c)
+        expect(r).to receive(:insert).with(statement, s_with_c)
         subject.insert(s)
         subject.insert(s_with_c)
         subject.execute(r)
