@@ -1,22 +1,21 @@
 require 'rdf'
-require 'rdf/ntriples'
 # override several inspect functions to improve output for what we're doing
 
 class RDF::Literal
   def inspect
-    RDF::NTriples::Writer.serialize(self) + " R:L:(#{self.class.to_s.match(/([^:]*)$/)})"
+    "\"#{self.class.escape(value)}\" R:L:(#{self.class.to_s.match(/([^:]*)$/)})"
   end
 end
 
 class RDF::URI
   def inspect
-    RDF::NTriples::Writer.serialize(self)
+    to_base
   end
 end
 
 class RDF::Node
   def inspect
-    RDF::NTriples::Writer.serialize(self) + "(#{object_id})"
+    to_base
   end
 end
 
