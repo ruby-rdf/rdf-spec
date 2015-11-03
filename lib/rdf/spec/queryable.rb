@@ -26,6 +26,129 @@ RSpec.shared_examples 'an RDF::Queryable' do
     let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
     let(:literal) {RDF::Literal.new('J. Random Hacker')}
     let(:query) {RDF::Query.new {pattern [:s, :p, :o]}}
+    
+    shared_examples 'query execution' do |method|
+      it "requires an argument" do
+        expect { subject.send(method) }.to raise_error(ArgumentError)
+      end
+
+      it "yields to the given block" do
+        expect {|b| subject.send(method, query, &b)}.to yield_control.exactly(queryable.count).times
+      end
+
+      it "yields solutions" do
+        subject.send(method, query) do |solution|
+          expect(solution).to be_a RDF::Query::Solution
+        end
+      end
+    end
+
+    shared_examples 'query pattern' do |method|
+      it "requires an argument" do
+        expect { subject.send(method) }.to raise_error(ArgumentError)
+      end
+
+      it "yields to the given block" do
+        expect {|b| subject.send(method, RDF::Query::Pattern.new, &b)}.to yield_control.exactly(queryable.count).times
+      end
+
+      it "yields statements" do
+        subject.send(method, RDF::Query::Pattern.new) do |statement|
+          expect(statement).to be_a_statement
+        end
+      end
+
+      context "with specific patterns" do
+        # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
+        {
+          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+          [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+          [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+          [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
+        }.each do |pattern, result|
+          pattern = RDF::Query::Pattern.from(pattern)
+          it "returns #{result.inspect} given #{pattern.inspect}" do
+            solutions = []
+            subject.send(method, pattern) {|s| solutions << s}
+            expect(solutions).to eq result
+          end
+        end
+      end
+
+      context "with context", unless: RDF::VERSION.to_s >= "1.99" do
+        it "returns statements from all contexts with no context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
+          solutions = []
+          subject.send(method, pattern) {|s| solutions << s}
+          expect(solutions.size).to eq @statements.size
+        end
+
+        it "returns statements from unnamed contexts with false context" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, context: false)
+          solutions = []
+          subject.send(method, pattern) {|s| solutions << s}
+          context_statements = subject.statements.reject {|st| st.has_context?}.length
+          expect(solutions.size).to eq context_statements
+        end
+
+        it "returns statements from named contexts with variable context" do
+          unless subject.contexts.to_a.empty?
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: :c)
+            solutions = []
+            subject.send(method, pattern) {|s| solutions << s}
+            context_statements = subject.statements.select {|st| st.has_context?}.length
+            expect(solutions.size).to eq context_statements
+          end
+        end
+
+        it "returns statements from specific context with URI context" do
+          unless subject.contexts.to_a.empty?
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: RDF::URI("http://ar.to/#self"))
+            solutions = []
+            subject.send(method, pattern) {|s| solutions << s}
+            expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+          end
+        end
+      end
+
+      context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
+        it "returns statements from all graphs with no graph_name" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
+          solutions = []
+          subject.send(method, pattern) {|s| solutions << s}
+          expect(solutions.size).to eq @statements.size
+        end
+
+        it "returns statements from unnamed graphss with false graph_name" do
+          pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
+          solutions = []
+          subject.send(method, pattern) {|s| solutions << s}
+          named_statements = subject.statements.reject {|st| st.has_name?}.length
+          expect(solutions.size).to eq named_statements
+        end
+
+        it "returns statements from named graphss with variable graph_name" do
+          unless subject.graph_names.to_a.empty?
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
+            solutions = []
+            subject.send(method, pattern) {|s| solutions << s}
+            named_statements = subject.statements.select {|st| st.has_name?}.length
+            expect(solutions.size).to eq named_statements
+          end
+        end
+
+        it "returns statements from specific graph with URI graph_name" do
+          unless subject.graph_names.to_a.empty?
+            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
+            solutions = []
+            subject.send(method, pattern) {|s| solutions << s}
+            expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+          end
+        end
+      end
+    end
 
     ##
     # @see RDF::Queryable#query
@@ -33,6 +156,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
       it {is_expected.to respond_to(:query)}
 
       context "when called" do
+        include_examples 'query execution', :query
+        include_examples 'query pattern',   :query
+
         it "requires an argument" do
           expect { subject.query }.to raise_error(ArgumentError)
         end
@@ -79,113 +205,6 @@ RSpec.shared_examples 'an RDF::Queryable' do
               subject.query([nil, nil, nil]) do |statement|
                 expect(statement).to be_a_statement
                 expect(statement).not_to  be_a RDF::Query::Solution
-              end
-            end
-
-            context "when called" do
-              it "requires an argument" do
-                expect { subject.query }.to raise_error(ArgumentError)
-              end
-
-              it "yields to the given block" do
-                expect { |b| subject.query(RDF::Query::Pattern.new, &b) }.to yield_control.exactly(queryable.count).times
-              end
-
-              it "yields statements" do
-                subject.query(RDF::Query::Pattern.new) do |statement|
-                  expect(statement).to be_a_statement
-                end
-              end
-
-              context "with specific patterns" do
-                # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
-                {
-                  [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-                  [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-                  [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-                  [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-                  [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-                  [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
-                }.each do |pattern, result|
-                  pattern = RDF::Query::Pattern.from(pattern)
-                  it "returns #{result.inspect} given #{pattern.inspect}" do
-                    solutions = []
-                    subject.query(pattern) {|s| solutions << s}
-                    expect(solutions).to eq result
-                  end
-                end
-              end
-
-              context "with context", unless: RDF::VERSION.to_s >= "1.99" do
-                it "returns statements from all contexts with no context" do
-                  pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
-                  solutions = []
-                  subject.query(pattern) { |s| solutions << s }
-                  expect(solutions.size).to eq @statements.size
-                end
-
-                it "returns statements from unnamed contexts with false context" do
-                  pattern = RDF::Query::Pattern.new(nil, nil, nil, context: false)
-                  solutions = []
-                  subject.query(pattern) { |s| solutions << s }
-                  context_statements = subject.statements.reject { |st| st.has_context? }.length
-                  expect(solutions.size).to eq context_statements
-                end
-
-                it "returns statements from named contexts with variable context" do
-                  unless subject.contexts.to_a.empty?
-                    pattern = RDF::Query::Pattern.new(nil, nil, nil, context: :c)
-                    solutions = []
-                    subject.query(pattern) { |s| solutions << s }
-                    context_statements = subject.statements.select {|st| st.has_context?}.length
-                    expect(solutions.size).to eq context_statements
-                  end
-                end
-
-                it "returns statements from specific context with URI context" do
-                  unless subject.contexts.to_a.empty?
-                    pattern = RDF::Query::Pattern.new(nil, nil, nil, context: RDF::URI("http://ar.to/#self"))
-                    solutions = []
-                    subject.query(pattern) { |s| solutions << s }
-                    expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-                  end
-                end
-              end
-
-              context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
-                it "returns statements from all graphs with no graph_name" do
-                  pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
-                  solutions = []
-                  subject.query(pattern) { |s| solutions << s }
-                  expect(solutions.size).to eq @statements.size
-                end
-
-                it "returns statements from unnamed graphss with false graph_name" do
-                  pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
-                  solutions = []
-                  subject.query(pattern) { |s| solutions << s }
-                  named_statements = subject.statements.reject {|st| st.has_name?}.length
-                  expect(solutions.size).to eq named_statements
-                end
-
-                it "returns statements from named graphss with variable graph_name" do
-                  unless subject.graph_names.to_a.empty?
-                    pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
-                    solutions = []
-                    subject.query(pattern) { |s| solutions << s }
-                    named_statements = subject.statements.select {|st| st.has_name?}.length
-                    expect(solutions.size).to eq named_statements
-                  end
-                end
-
-                it "returns statements from specific graph with URI graph_name" do
-                  unless subject.graph_names.to_a.empty?
-                    pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
-                    solutions = []
-                    subject.query(pattern) { |s| solutions << s }
-                    expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-                  end
-                end
               end
             end
           end
@@ -323,139 +342,26 @@ RSpec.shared_examples 'an RDF::Queryable' do
     ##
     # @see RDF::Queryable#query_execute
     describe "#query_execute" do
+      before { skip unless subject.respond_to?(:query_execute, true ) }
+
       it "defines a protected #query_execute method" do
-        expect(subject.class.protected_method_defined?(:query_execute)).to be_truthy
+        expect(subject.class.protected_method_defined?(:query_execute))
+          .to be_truthy
       end
 
-      context "when called" do
-        it "requires an argument" do
-          expect { subject.send(:query_execute) }.to raise_error(ArgumentError)
-        end
-
-        it "yields to the given block" do
-          expect {|b| subject.send(:query_execute, query, &b)}.to yield_control.exactly(queryable.count).times
-        end
-
-        it "yields solutions" do
-          subject.send(:query_execute, query) do |solution|
-            expect(solution).to be_a RDF::Query::Solution
-          end
-        end
-      end
+      include_examples 'query execution', :query_execute
     end
 
     ##
     # @see RDF::Queryable#query_pattern
     describe "#query_pattern" do
+      before { skip unless subject.respond_to?(:query_pattern, true ) }
+
       it "defines a protected #query_pattern method" do
         expect(subject.class.protected_method_defined?(:query_pattern)).to be_truthy
       end
-      context "when called" do
-        it "requires an argument" do
-          expect { subject.send(:query_pattern) }.to raise_error(ArgumentError)
-        end
-
-        it "yields to the given block" do
-          expect {|b| subject.send(:query_pattern, RDF::Query::Pattern.new, &b)}.to yield_control.exactly(queryable.count).times
-        end
-
-        it "yields statements" do
-          subject.send(:query_pattern, RDF::Query::Pattern.new) do |statement|
-            expect(statement).to be_a_statement
-          end
-        end
-
-        context "with specific patterns" do
-          # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
-          {
-            [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-            [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-            [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-            [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-            [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-            [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
-          }.each do |pattern, result|
-            pattern = RDF::Query::Pattern.from(pattern)
-            it "returns #{result.inspect} given #{pattern.inspect}" do
-              solutions = []
-              subject.send(:query_pattern, pattern) {|s| solutions << s}
-              expect(solutions).to eq result
-            end
-          end
-        end
-
-        context "with context", unless: RDF::VERSION.to_s >= "1.99" do
-          it "returns statements from all contexts with no context" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
-            solutions = []
-            subject.send(:query_pattern, pattern) {|s| solutions << s}
-            expect(solutions.size).to eq @statements.size
-          end
-
-          it "returns statements from unnamed contexts with false context" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: false)
-            solutions = []
-            subject.send(:query_pattern, pattern) {|s| solutions << s}
-            context_statements = subject.statements.reject {|st| st.has_context?}.length
-            expect(solutions.size).to eq context_statements
-          end
-
-          it "returns statements from named contexts with variable context" do
-            unless subject.contexts.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, context: :c)
-              solutions = []
-              subject.send(:query_pattern, pattern) {|s| solutions << s}
-              context_statements = subject.statements.select {|st| st.has_context?}.length
-              expect(solutions.size).to eq context_statements
-            end
-          end
-
-          it "returns statements from specific context with URI context" do
-            unless subject.contexts.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, context: RDF::URI("http://ar.to/#self"))
-              solutions = []
-              subject.send(:query_pattern, pattern) {|s| solutions << s}
-              expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-            end
-          end
-        end
-
-        context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
-          it "returns statements from all graphs with no graph_name" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
-            solutions = []
-            subject.send(:query_pattern, pattern) {|s| solutions << s}
-            expect(solutions.size).to eq @statements.size
-          end
-
-          it "returns statements from unnamed graphss with false graph_name" do
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
-            solutions = []
-            subject.send(:query_pattern, pattern) {|s| solutions << s}
-            named_statements = subject.statements.reject {|st| st.has_name?}.length
-            expect(solutions.size).to eq named_statements
-          end
-
-          it "returns statements from named graphss with variable graph_name" do
-            unless subject.graph_names.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
-              solutions = []
-              subject.send(:query_pattern, pattern) {|s| solutions << s}
-              named_statements = subject.statements.select {|st| st.has_name?}.length
-              expect(solutions.size).to eq named_statements
-            end
-          end
-
-          it "returns statements from specific graph with URI graph_name" do
-            unless subject.graph_names.to_a.empty?
-              pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
-              solutions = []
-              subject.send(:query_pattern, pattern) {|s| solutions << s}
-              expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-            end
-          end
-        end
-      end
+      
+      include_examples 'query pattern', :query_pattern 
     end
 
     ##
