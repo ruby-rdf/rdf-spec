@@ -13,21 +13,21 @@ RSpec.shared_examples 'an RDF::Format' do
   describe ".for" do
     RDF::Format.file_extensions.each do |ext, formats|
       it "detects #{formats.first} using file path foo.#{ext}" do
-        expect(RDF::Format.for("foo.#{ext}")).to eq formats.first
+        expect(RDF::Format.for("foo.#{ext}")).to eq formats.last
       end
 
       it "detects #{formats.first} using file_name foo.#{ext}" do
-        expect(RDF::Format.for(file_name: "foo.#{ext}")).to eq formats.first
+        expect(RDF::Format.for(file_name: "foo.#{ext}")).to eq formats.last
       end
 
       it "detects #{formats.first} using file_extension #{ext}" do
-        expect(RDF::Format.for(file_extension: ext)).to eq formats.first
+        expect(RDF::Format.for(file_extension: ext)).to eq formats.last
       end
     end
 
     RDF::Format.content_types.each do |content_type, formats|
       it "detects #{formats.first} using content_type #{content_type}" do
-        expect(RDF::Format.for(content_type: content_type)).to eq formats.first
+        expect(RDF::Format.for(content_type: content_type)).to eq formats.last
       end
     end
   end
