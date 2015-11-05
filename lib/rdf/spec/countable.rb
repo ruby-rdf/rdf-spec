@@ -3,17 +3,16 @@ require 'rdf/spec'
 RSpec.shared_examples 'an RDF::Countable' do
   include RDF::Spec::Matchers
 
+  let(:statements) {RDF::Spec.quads}
   before do
     raise 'countable must be set with `let(:countable)' unless
       defined? countable
 
-    @statements = RDF::Spec.quads
-
     if countable.empty?
       if (countable.writable? rescue false)
-        countable.send(:insert_statements, @statements)
+        countable.send(:insert_statements, statements)
       elsif countable.respond_to?(:<<)
-        @statements.each { |statement| countable << statement }
+        statements.each { |statement| countable << statement }
       else
         raise "+countable+ must respond to #<< or be pre-populated with the" \
               "statements in #{RDF::Spec::TRIPLES_FILE} in a before block"
@@ -27,9 +26,9 @@ RSpec.shared_examples 'an RDF::Countable' do
     it {is_expected.to respond_to(:empty?)}
     it {is_expected.to_not be_empty}
     it {is_expected.to respond_to(:count)}
-    its(:count) {is_expected.to eq @statements.size}
+    its(:count) {is_expected.to eq statements.size}
     it {is_expected.to respond_to(:size)}
-    its(:size) {is_expected.to eq @statements.size}
+    its(:size) {is_expected.to eq statements.size}
 
     context "when empty" do
       subject {[].extend(RDF::Countable)}

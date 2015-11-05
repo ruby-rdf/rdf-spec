@@ -16,18 +16,7 @@ shared_examples "an RDF::Transaction" do |klass|
       expect(this.graph).to eq g
     end
 
-    it "accepts a context", unless: RDF::VERSION.to_s >= "1.99" do
-      c = double("context")
-      this = subject.new(graph: c)
-      expect(this.graph).to eq c
-      expect(this.context).to eq c
-
-      this = subject.new(context: c)
-      expect(this.graph).to eq c
-      expect(this.context).to eq c
-    end
-
-    it "accepts a graph_name", if: RDF::VERSION.to_s >= "1.99" do
+     it "accepts a graph_name" do
       c = double("graph_name")
       this = subject.new(graph: c)
       expect(this.graph).to eq c

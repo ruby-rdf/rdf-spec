@@ -18,7 +18,7 @@ RSpec.shared_examples 'an RDF::Indexable' do
   end
 
   it "returns self on #index!" do
-    expect(subject.index!).to be
+    expect(subject.index!).to be eql(subject)
   end
 end
 

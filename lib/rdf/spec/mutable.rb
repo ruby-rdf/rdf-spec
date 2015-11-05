@@ -63,15 +63,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
       end
 
-      it "is_expected.to load statements with a context override", unless: RDF::VERSION.to_s >= "1.99" do
-        if subject.mutable? && @supports_named_graphs
-          subject.load RDF::Spec::TRIPLES_FILE, context: graph_name
-          is_expected.to have_context(graph_name)
-          expect(subject.query(context: graph_name).size).to eq subject.size
-        end
-      end
-
-      it "is_expected.to load statements with a graph_name override", if: RDF::VERSION.to_s >= "1.99" do
+      it "is_expected.to load statements with a graph_name override" do
         if subject.mutable? && @supports_named_graphs
           subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
           is_expected.to have_graph(graph_name)
