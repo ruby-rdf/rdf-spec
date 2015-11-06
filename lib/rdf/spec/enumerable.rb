@@ -84,7 +84,15 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       it "should have all statements" do
         # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
         non_bnode_statements.each do |statement|
-          is_expected.to have_statement(statement)
+          if subject.respond_to?(:graph_name)
+            if subject.graph_name == statement.graph_name
+              is_expected.to have_statement(statement)
+            else
+              is_expected.not_to have_statement(statement)
+            end
+          else
+            is_expected.to have_statement(statement)
+          end
         end
       end
 
@@ -491,7 +499,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       it "has appropriate number of graphs" do
         if @supports_named_graphs
           graph_names = @statements.map { |s| s.graph_name }.uniq.compact
-          expect(subject.each_graph.to_a.size).to eq (graph_names.size + 1)
+          expect(subject.to_a.size).to eq (graph_names.size + 1)
         end
       end
     end
