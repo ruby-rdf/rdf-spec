@@ -144,6 +144,58 @@ RSpec.shared_examples 'an RDF::Mutable' do
           expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
         end
       end
+      
+      describe '#delete_insert' do
+        let(:statement) do
+          RDF::Statement.new(resource, 
+                             RDF::URI.new("urn:predicate:1"), 
+                             RDF::URI.new("urn:object:1"))
+        end
+
+        it 'deletes and inserts' do
+          if subject.mutable?
+            subject.delete_insert(@statements, [statement])
+            is_expected.to contain_exactly statement
+          end
+        end
+
+        it 'deletes before inserting' do
+          if subject.mutable?
+            subject.delete_insert(@statements, [@statements.first])
+            is_expected.to contain_exactly @statements.first
+          end
+        end
+
+        it 'deletes patterns' do
+          if subject.mutable?
+            pattern = [@statements.subjects.first, nil, nil]
+            expect { subject.delete_insert([pattern], []) }
+              .to change { subject.has_subject?(@statements.subjects.first) }
+                   .from(true).to(false)
+          end
+        end
+
+        it 'handles Enumerables' do
+          if subject.mutable?
+            dels = @statements.take(10)
+            dels.extend(RDF::Enumerable)
+            ins = RDF::Graph.new << statement
+            expect { subject.delete_insert(dels, ins) }
+              .to change { dels.find { |s| subject.include?(s) } }.to be_nil
+            is_expected.to include statement
+          end
+        end
+
+        it 'handles Graph names' do
+          if subject.mutable? && @supports_named_graphs
+            dels = @statements.take(10)
+            dels.map! { |st| st.graph_name = RDF::URI('fake'); st }
+            dels.extend(RDF::Enumerable)
+            expect { subject.delete_insert(dels, []) }
+              .not_to change { subject.statements }
+          end
+        end
+      end
     end
   end
 end
