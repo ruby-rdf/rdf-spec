@@ -476,7 +476,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
       context "non-existing graph" do
         let(:graph_name) {RDF::URI.new('http://example.org/does/not/have/this/uri')}
-        specify {expect(subject.project_graph(graph_name)).to be_empty}
+        specify {expect(subject.project_graph(graph_name)).to be_empty if @supports_named_graphs}
       end
     end
 
@@ -486,12 +486,14 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       let(:graph_names) {@statements.map { |s| s.graph_name }.uniq.compact}
       subject { enumerable.each_graph }
       it {is_expected.to be_an_enumerator}
-      specify {is_expected.to all(be_a_graph)} if @supports_named_graphs
+      specify {is_expected.to all(be_a_graph) if @supports_named_graphs}
  
       it "has appropriate number of graphs" do
-        graph_names = @statements.map { |s| s.graph_name }.uniq.compact
-        expect(subject.each_graph.to_a.size).to eq (graph_names.size + 1)
-      end if @supports_named_graphs
+        if @supports_named_graphs
+          graph_names = @statements.map { |s| s.graph_name }.uniq.compact
+          expect(subject.each_graph.to_a.size).to eq (graph_names.size + 1)
+        end
+      end
     end
 
     describe "#enum_graph" do
