@@ -24,7 +24,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
   let(:subject_count) {@statements.map(&:subject).uniq.length}
   let(:bnode_subject_count) {@statements.map(&:subject).uniq.select(&:node?).length}
-  let(:non_bnode_statements) {@statements.reject {|s| s.subject.node? || s.object.node?}}
+  let(:non_bnode_statements) {@statements.reject(&:node?)}
   let(:non_bnode_terms) {@statements.map(&:to_quad).flatten.compact.reject(&:node?).uniq}
 
   subject { enumerable }
@@ -400,7 +400,6 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:each_term) {is_expected.to be_an_enumerator}
     context "#each_term" do
       specify {
-        #require 'byebug'; byebug
         expect(subject.each_term.reject(&:node?).size).to eq non_bnode_terms.length
       }
       specify {expect(subject.each_term).to all(be_a_term)}
