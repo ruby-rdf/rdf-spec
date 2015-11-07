@@ -6,6 +6,8 @@ and shared examples for Ruby projects that use RDF.rb and RSpec.
 * <http://github.com/ruby-rdf/rdf-spec>
 
 [![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](http://badge.fury.io/rb/rdf-spec)
+[![Build Status](https://travis-ci.org/ruby-rdf/rdf-spec.png?branch=master)](http://travis-ci.org/ruby-rdf/rdf-spec)
+[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/r/ruby-rdf/rdf-spec)
 
 ## Documentation
 

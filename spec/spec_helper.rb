@@ -1,5 +1,14 @@
 require "bundler/setup"
 require 'rdf'
+require 'simplecov'
+require 'coveralls'
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+  add_filter "/spec/"
+end
 require 'rdf/spec'
 require 'rdf/spec/matchers'
 
