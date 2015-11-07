@@ -6,3 +6,4 @@ tmp
 /*.gem
 /*.lock
 /doc/
+/coverage/
