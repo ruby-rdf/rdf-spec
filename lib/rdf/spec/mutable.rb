@@ -106,6 +106,13 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
       end
 
+      it 'handles Enumerables' do
+        if subject.mutable?
+          subject.delete(@statements)
+          expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
+        end
+      end
+
       it "is_expected.to support wildcard deletions" do
         if subject.mutable?
           # nothing deleted
