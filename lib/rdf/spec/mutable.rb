@@ -8,11 +8,13 @@ RSpec.shared_examples 'an RDF::Mutable' do
     raise 'mutable must be defined with let(:mutable)' unless
       defined? mutable
 
+    @statements = RDF::Spec.triples
     @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
   end
 
   let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
   let(:graph_name) { RDF::URI('http://example.org/graph_name') }
+  let(:non_bnode_statements) {@statements.reject(&:node?)}
 
   describe RDF::Mutable do
     subject { mutable }
@@ -43,19 +45,19 @@ RSpec.shared_examples 'an RDF::Mutable' do
     its(:count) {is_expected.to be_zero}
 
     context "#load" do
-      it "is_expected.to require an argument" do
+      it "should require an argument" do
         expect { subject.load }.to raise_error(ArgumentError)
       end
 
-      it "is_expected.to accept a string filename argument" do
+      it "should accept a string filename argument" do
         expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error if subject.mutable?
       end
 
-      it "is_expected.to accept an optional hash argument" do
+      it "should accept an optional hash argument" do
         expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error if subject.mutable?
       end
 
-      it "is_expected.to load statements" do
+      it "should load statements" do
         if subject.mutable?
           subject.load RDF::Spec::TRIPLES_FILE
           expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
@@ -63,7 +65,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
       end
 
-      it "is_expected.to load statements with a graph_name override" do
+      it "should load statements with a graph_name override" do
         if subject.mutable? && @supports_named_graphs
           subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
           is_expected.to have_graph(graph_name)
@@ -73,7 +75,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
     end
 
     context "#from_{reader}" do
-      it "is_expected.to instantiate a reader" do
+      it "should instantiate a reader" do
         reader = double("reader")
         expect(reader).to receive(:new).and_return(RDF::Spec.quads.first)
         allow(RDF::Reader).to receive(:for).and_call_original
@@ -84,36 +86,28 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
     context "when deleting statements" do
       before :each do
-        @statements = RDF::NTriples::Reader.new(File.open(RDF::Spec::TRIPLES_FILE)).to_a
         subject.insert(*@statements)
       end
 
-      it "is_expected.to not raise errors" do
-        expect { subject.delete(@statements.first) }.not_to raise_error if subject.mutable?
+      it "should not raise errors" do
+        expect { subject.delete(non_bnode_statements.first) }.not_to raise_error if subject.mutable?
       end
 
-      it "is_expected.to support deleting one statement at a time" do
+      it "should support deleting one statement at a time" do
         if subject.mutable?
-          subject.delete(@statements.first)
-          is_expected.not_to  have_statement(@statements.first)
+          subject.delete(non_bnode_statements.first)
+          is_expected.not_to  have_statement(non_bnode_statements.first)
         end
       end
 
-      it "is_expected.to support deleting multiple statements at a time" do
+      it "should support deleting multiple statements at a time" do
         if subject.mutable?
           subject.delete(*@statements)
           expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
         end
       end
 
-      it 'handles Enumerables' do
-        if subject.mutable?
-          subject.delete(@statements)
-          expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
-        end
-      end
-
-      it "is_expected.to support wildcard deletions" do
+      it "should support wildcard deletions" do
         if subject.mutable?
           # nothing deleted
           require 'digest/sha1'
@@ -128,7 +122,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
       end
 
-      it "is_expected.to only delete statements when the graph_name matches" do
+      it "should only delete statements when the graph_name matches" do
         if subject.mutable?
           # Setup three statements identical except for graph_name
           count = subject.count + (@supports_named_graphs ? 3 : 1)
@@ -175,16 +169,16 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         it 'deletes patterns' do
           if subject.mutable?
-            pattern = [@statements.subjects.first, nil, nil]
+            pattern = [non_bnode_statements.first.subject, nil, nil]
             expect { subject.delete_insert([pattern], []) }
-              .to change { subject.has_subject?(@statements.subjects.first) }
+              .to change { subject.has_subject?(non_bnode_statements.first.subject) }
                    .from(true).to(false)
           end
         end
 
         it 'handles Enumerables' do
           if subject.mutable?
-            dels = @statements.take(10)
+            dels = non_bnode_statements.take(10)
             dels.extend(RDF::Enumerable)
             ins = RDF::Graph.new << statement
             expect { subject.delete_insert(dels, ins) }
@@ -195,7 +189,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         it 'handles Graph names' do
           if subject.mutable? && @supports_named_graphs
-            dels = @statements.take(10)
+            dels = non_bnode_statements.take(10)
             dels.map! { |st| st.graph_name = RDF::URI('fake'); st }
             dels.extend(RDF::Enumerable)
             expect { subject.delete_insert(dels, []) }
