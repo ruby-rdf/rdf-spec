@@ -54,6 +54,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Format"` instead
+# :nocov:
 module RDF_Format
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

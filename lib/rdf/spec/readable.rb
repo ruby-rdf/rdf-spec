@@ -18,6 +18,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Readable"` instead
+# :nocov:
 module RDF_Readable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

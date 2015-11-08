@@ -207,6 +207,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Reader"` instead
+# :nocov:
 module RDF_Reader
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

@@ -539,6 +539,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Enumerable"` instead
+# :nocov:
 module RDF_Enumerable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

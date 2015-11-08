@@ -7,7 +7,8 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   Coveralls::SimpleCov::Formatter
 ]
 SimpleCov.start do
-  add_filter "/spec/"
+  add_filter "matchers.rb"
+  add_filter "inspects.rb"
 end
 require 'rdf/spec'
 require 'rdf/spec/matchers'

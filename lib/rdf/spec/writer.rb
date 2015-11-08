@@ -176,6 +176,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Writer"` instead
+# :nocov:
 module RDF_Writer
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

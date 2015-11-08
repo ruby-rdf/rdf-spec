@@ -567,6 +567,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Queryable"` instead
+# :nocov:
 module RDF_Queryable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

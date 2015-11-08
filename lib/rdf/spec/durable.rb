@@ -51,6 +51,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Durable"` instead
+# :nocov:
 module RDF_Durable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

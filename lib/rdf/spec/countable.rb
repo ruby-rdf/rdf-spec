@@ -47,6 +47,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Countable"` instead
+# :nocov:
 module RDF_Countable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

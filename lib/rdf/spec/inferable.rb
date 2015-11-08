@@ -8,6 +8,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Inferable"` instead
+# :nocov:
 module RDF_Inferable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

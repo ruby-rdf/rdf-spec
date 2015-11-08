@@ -203,6 +203,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Mutable"` instead
+# :nocov:
 module RDF_Mutable
   extend RSpec::SharedContext
   include RDF::Spec::Matchers

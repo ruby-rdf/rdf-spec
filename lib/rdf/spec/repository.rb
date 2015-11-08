@@ -59,6 +59,7 @@ end
 
 ##
 # @deprecated use `it_behaves_like "an RDF::Repository"` instead
+# :nocov:
 module RDF_Repository
   extend RSpec::SharedContext
   include RDF::Spec::Matchers
