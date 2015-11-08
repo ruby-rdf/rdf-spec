@@ -189,11 +189,13 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         it 'handles Graph names' do
           if subject.mutable? && @supports_named_graphs
-            dels = non_bnode_statements.take(10)
+            dels = non_bnode_statements.take(10).map do |st|
+              RDF::Statement.from(st.to_hash.merge(graph_name: RDF::URI('fake')))
+            end
             dels.map! { |st| st.graph_name = RDF::URI('fake'); st }
             dels.extend(RDF::Enumerable)
             expect { subject.delete_insert(dels, []) }
-              .not_to change { subject.statements }
+              .not_to change { subject.statements.count }
           end
         end
       end
