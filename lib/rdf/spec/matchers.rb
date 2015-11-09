@@ -1,4 +1,5 @@
 require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
+require 'rdf/isomorphic' # @see http://rubygems.org/gems/rdf-isomorphic
 
 module RDF; module Spec
   ##
@@ -258,6 +259,85 @@ module RDF; module Spec
         {:output => "standard output", :error => "standard error"}[io]
       end
     end
+
+    Info = Struct.new(:id, :logger, :action, :result)
+
+    RSpec::Matchers.define :be_equivalent_graph do |expected, info|
+      match do |actual|
+        def normalize(graph)
+          case graph
+          when RDF::Enumerable then graph
+          when IO, StringIO
+            RDF::Repository.new(graph, base_uri: @info.action)
+          else
+            # Figure out which parser to use
+            r = RDF::Repository.new
+            reader_class = RDF::Reader.for(graph)
+            reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
+            r
+          end
+        end
+
+        @info = if (info.id rescue false)
+          info
+        elsif info.is_a?(Logger)
+          Info.new("", info)
+        elsif info.is_a?(Hash)
+          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:metadata])
+        else
+          Info.new(info)
+        end
+        @expected = normalize(expected)
+        @actual = normalize(actual)
+        @actual.isomorphic_with?(@expected) rescue false
+      end
+  
+      failure_message do |actual|
+        trace = case @info.logger
+        when Logger then @info.logger.to_s
+        when Array then @info.logger.join("\n")
+        end
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+        if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
+          "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
+        else
+          "Graphs differ\n"
+        end +
+        "\n#{info + "\n" unless info.empty?}" + +
+        "Expected:\n#{@expected.dump(:ttl, standard_prefixes: true, literal_shorthand: false)}" +
+        "Results:\n#{@actual.dump(:ttl, standard_prefixes: true, literal_shorthand: false)}" +
+        (trace ? "\nDebug:\n#{trace}" : "")
+      end  
+    end
+
+    RSpec::Matchers.define :produce do |expected, info|
+      match do |actual|
+        @info = if (info.id rescue false)
+          info
+        elsif info.is_a?(Logger)
+          Info.new("", info)
+        elsif info.is_a?(Hash)
+          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:metadata])
+        else
+          Info.new(info)
+        end
+        expect(actual).to eq expected
+      end
+  
+      failure_message do |actual|
+        trace = case @info.logger
+        when Logger then @info.logger.to_s
+        when Array then @info.logger.join("\n")
+        end
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+
+        "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "\n#{info + "\n" unless info.empty?}" + + +
+        (trace ? "\nDebug:\n#{trace}" : "")
+      end
+    end
+
   end # Matchers
 end; end # RDF::Spec
 
