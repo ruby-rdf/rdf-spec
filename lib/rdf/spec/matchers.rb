@@ -272,7 +272,7 @@ module RDF; module Spec
           else
             # Figure out which parser to use
             r = RDF::Repository.new
-            reader_class = RDF::Reader.for(graph)
+            reader_class = RDF::Reader.for() {graph}
             reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
             r
           end
@@ -283,7 +283,7 @@ module RDF; module Spec
         elsif info.is_a?(Logger)
           Info.new("", info)
         elsif info.is_a?(Hash)
-          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:metadata])
+          Info.new(info[:id], info[:logger], info[:action], info[:result])
         else
           Info.new(info)
         end
@@ -317,7 +317,7 @@ module RDF; module Spec
         elsif info.is_a?(Logger)
           Info.new("", info)
         elsif info.is_a?(Hash)
-          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:metadata])
+          Info.new(info[:id], info[:logger], info[:action], info[:result])
         else
           Info.new(info)
         end
