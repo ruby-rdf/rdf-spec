@@ -68,5 +68,22 @@ module RDF
       require 'rdf/ntriples'
       (@triples ||=  RDF::NTriples::Reader.new(File.open(TRIPLES_FILE)).to_a).dup
     end
+
+    # Logger used for Specs; allows clearing and converting to string
+    require 'logger'
+    def self.logger
+      logger = Logger.new(StringIO.new)
+      def logger.clear
+        @logdev.instance_variable_set(:@dev, StringIO.new)
+      end
+      def logger.to_s
+        dev = @logdev.instance_variable_get(:@dev)
+        dev.rewind
+        dev.read
+      end
+      logger.level = Logger::DEBUG
+      logger.formatter = lambda {|severity, datetime, progname, msg| "#{msg}\n"}
+      logger
+    end
   end # Spec
 end # RDF
