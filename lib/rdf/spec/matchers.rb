@@ -1,5 +1,4 @@
 require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
-require 'rdf/isomorphic' # @see http://rubygems.org/gems/rdf-isomorphic
 
 module RDF; module Spec
   ##
@@ -309,6 +308,14 @@ module RDF; module Spec
         (trace ? "\nDebug:\n#{trace}" : "")
       end  
     end
+
+    JSON_STATE = JSON::State.new(
+       indent:        "  ",
+       space:         " ",
+       space_before:  "",
+       object_nl:     "\n",
+       array_nl:      "\n"
+     )
 
     RSpec::Matchers.define :produce do |expected, info|
       match do |actual|

@@ -1,4 +1,5 @@
 require 'rdf'   # @see http://rubygems.org/gems/rdf
+require 'rdf/isomorphic' # @see http://rubygems.org/gems/rdf-isomorphic
 require 'rspec' # @see http://rubygems.org/gems/rspec
 require 'rdf/spec/inspects'
 require 'rspec/its'
