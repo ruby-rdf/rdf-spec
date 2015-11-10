@@ -9,6 +9,6 @@ group :development do
 end
 
 group :development, :test do
-  gem 'simplecov',  require: false
-  gem 'coveralls',  require: false
+  gem 'simplecov',  require: false, platform: :mri_21 # Travis doesn't understand 22 yet.
+  gem 'coveralls',  require: false, platform: :mri_21 # Travis doesn't understand 22 yet.
 end

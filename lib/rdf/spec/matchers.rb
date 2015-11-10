@@ -309,7 +309,8 @@ module RDF; module Spec
       end  
     end
 
-    JSON_STATE = JSON::State.new(
+    require 'json'
+    JSON_STATE = ::JSON::State.new(
        indent:        "  ",
        space:         " ",
        space_before:  "",
