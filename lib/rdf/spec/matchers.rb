@@ -296,15 +296,16 @@ module RDF; module Spec
         when Logger then @info.logger.to_s
         when Array then @info.logger.join("\n")
         end
+        format = RDF.const_defined?(:Turtle) ? :ttl : :ntriples
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
           "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
         else
           "Graphs differ\n"
         end +
-        "\n#{info + "\n" unless info.empty?}" + +
-        "Expected:\n#{@expected.dump(:ttl, standard_prefixes: true, literal_shorthand: false)}" +
-        "Results:\n#{@actual.dump(:ttl, standard_prefixes: true, literal_shorthand: false)}" +
+        "\n#{info + "\n" unless info.empty?}" +
+        "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false)}" +
+        "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false)}" +
         (trace ? "\nDebug:\n#{trace}" : "")
       end  
     end
