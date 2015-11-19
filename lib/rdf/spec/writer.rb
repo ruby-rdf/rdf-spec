@@ -134,23 +134,46 @@ RSpec.shared_examples 'an RDF::Writer' do
       end
     end
 
-    #it "calls #write_prologue" do
-    #  writer_mock = double("writer")
-    #  writer_mock.is_expected.to_receive(:got_here)
-    #  writer_class.any_instance.is_expected.to_receive(:write_prologue)
-    #  writer_class.new(StringIO.new) do |r|
-    #    writer_mock.got_here
-    #  end
-    #end
-    #
-    #it "calls #write_epilogue" do
-    #  writer_mock = double("writer")
-    #  writer_mock.is_expected.to_receive(:got_here)
-    #  writer_class.any_instance.is_expected.to_receive(:write_epilogue)
-    #  writer_class.new(StringIO.new) do |r|
-    #    writer_mock.got_here
-    #  end
-    #end
+    it "raises WriterError if writing an invalid statement" do
+      file = StringIO.new
+      expect do
+        writer_class.new(file, logger: false) do |w|
+          w << RDF::Statement.new(
+                 RDF::URI("http://rubygems.org/gems/rdf"),
+                 RDF::URI("http://purl.org/dc/terms/creator"),
+                 nil)
+        end
+      end.to raise_error(RDF::WriterError)
+    end
+
+    it "raises WriterError on any logged error" do
+      file = StringIO.new
+      logger = RDF::Spec.logger
+      expect do
+        writer_class.new(file, logger: logger) do |w|
+          w.log_error("some error")
+        end
+      end.to raise_error(RDF::WriterError)
+      expect(logger.to_s).to include("ERROR")
+    end
+
+    it "calls #write_prologue" do
+      writer_mock = double("writer")
+      expect(writer_mock).to receive(:got_here)
+      expect_any_instance_of(writer_class).to receive(:write_epilogue)
+      writer_class.new(StringIO.new) do |r|
+        writer_mock.got_here
+      end
+    end
+
+    it "calls #write_epilogue" do
+      writer_mock = double("writer")
+      expect(writer_mock).to receive(:got_here)
+      expect_any_instance_of(writer_class).to receive(:write_epilogue)
+      writer_class.new(StringIO.new) do |r|
+        writer_mock.got_here
+      end
+    end
   end
 
   describe "#prefixes=" do

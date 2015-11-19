@@ -83,7 +83,7 @@ module RDF
         dev.read
       end
       logger.level = Logger::DEBUG
-      logger.formatter = lambda {|severity, datetime, progname, msg| "#{msg}\n"}
+      logger.formatter = lambda {|severity, datetime, progname, msg| "#{severity} #{msg}\n"}
       logger
     end
   end # Spec
