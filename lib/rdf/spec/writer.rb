@@ -157,23 +157,24 @@ RSpec.shared_examples 'an RDF::Writer' do
       expect(logger.to_s).to include("ERROR")
     end
 
-    it "calls #write_prologue" do
-      writer_mock = double("writer")
-      expect(writer_mock).to receive(:got_here)
-      expect_any_instance_of(writer_class).to receive(:write_epilogue)
-      writer_class.new(StringIO.new) do |r|
-        writer_mock.got_here
-      end
-    end
-
-    it "calls #write_epilogue" do
-      writer_mock = double("writer")
-      expect(writer_mock).to receive(:got_here)
-      expect_any_instance_of(writer_class).to receive(:write_epilogue)
-      writer_class.new(StringIO.new) do |r|
-        writer_mock.got_here
-      end
-    end
+    # FIXME: RSpec seems to blead over __write_epilogue_without_any_instance__ to other specs
+    #it "calls #write_prologue" do
+    #  writer_mock = double("writer")
+    #  expect(writer_mock).to receive(:got_here)
+    #  expect_any_instance_of(writer_class).to receive(:write_epilogue)
+    #  writer_class.new(StringIO.new) do |r|
+    #    writer_mock.got_here
+    #  end
+    #end
+    #
+    #it "calls #write_epilogue" do
+    #  writer_mock = double("writer")
+    #  expect(writer_mock).to receive(:got_here)
+    #  expect_any_instance_of(writer_class).to receive(:write_epilogue)
+    #  writer_class.new(StringIO.new) do |r|
+    #    writer_mock.got_here
+    #  end
+    #end
   end
 
   describe "#prefixes=" do
