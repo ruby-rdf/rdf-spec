@@ -292,11 +292,11 @@ module RDF; module Spec
       end
   
       failure_message do |actual|
-        trace = case @info.logger
-        when Logger then @info.logger.to_s
-        when Array then @info.logger.join("\n")
+        format = case
+        when RDF.const_defined?(:TriG) then :trig
+        when RDF.const_defined?(:Turtle) then :ttl
+        else :nquads
         end
-        format = RDF.const_defined?(:Turtle) ? :ttl : :ntriples
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
           "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
@@ -304,9 +304,9 @@ module RDF; module Spec
           "Graphs differ\n"
         end +
         "\n#{info + "\n" unless info.empty?}" +
-        "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false)}" +
-        "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false)}" +
-        (trace ? "\nDebug:\n#{trace}" : "")
+        "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
+        "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "\nDebug:\n#{@info.logger}"
       end  
     end
 
@@ -334,16 +334,12 @@ module RDF; module Spec
       end
   
       failure_message do |actual|
-        trace = case @info.logger
-        when Logger then @info.logger.to_s
-        when Array then @info.logger.join("\n")
-        end
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
         "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
         "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
         "\n#{info + "\n" unless info.empty?}" + + +
-        (trace ? "\nDebug:\n#{trace}" : "")
+        "\nDebug:\n#{@info.logger}"
       end
     end
 
