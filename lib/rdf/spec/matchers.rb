@@ -338,7 +338,7 @@ module RDF; module Spec
 
         "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
         "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
-        "\n#{info + "\n" unless info.empty?}" + + +
+        "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
       end
     end
