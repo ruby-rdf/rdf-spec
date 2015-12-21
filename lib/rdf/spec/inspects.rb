@@ -9,19 +9,19 @@ end
 
 class RDF::URI
   def inspect
-    to_base
+    "RDF::URI(#{to_base})"
   end
 end
 
 class RDF::Node
   def inspect
-    to_base
+    "RDF::Node(#{to_base})"
   end
 end
 
 class RDF::Graph
   def inspect
-    "\n" + dump(RDF.const_defined?(:Turtle) ? :ttl : :ntriples, standard_prefixes: true) + "\n"
+    "RDF::Graph(graph_name: #{self.graph_name || 'nil'})"
   end
 end
 
