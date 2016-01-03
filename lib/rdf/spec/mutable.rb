@@ -200,5 +200,42 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
       end
     end
+    
+    describe '#apply_changeset' do
+      let(:changeset) { RDF::Changeset.new }
+
+      it 'is a no-op when changeset is empty' do
+        expect { subject.apply_changeset(changeset) }
+          .not_to change { subject.statements }
+      end
+
+      it 'inserts statements' do
+        changeset.insert(*non_bnode_statements)
+
+        expect { subject.apply_changeset(changeset) }
+          .to change { subject.statements }
+               .to contain_exactly(*non_bnode_statements)
+      end
+
+      it 'deletes statements' do
+        subject.insert(*non_bnode_statements)
+        deletes = non_bnode_statements.take(10)
+        
+        changeset.delete(*deletes)
+        subject.apply_changeset(changeset)
+
+        expect(subject).not_to include(*deletes)
+      end
+
+      it 'deletes before inserting' do
+        statement = non_bnode_statements.first
+        
+        changeset.insert(statement)
+        changeset.delete(statement)
+        subject.apply_changeset(changeset)
+
+        expect(subject).to include(statement)
+      end
+    end
   end
 end
