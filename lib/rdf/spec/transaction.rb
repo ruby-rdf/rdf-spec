@@ -6,8 +6,12 @@ require 'rdf/spec'
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
+  before do
+    raise 'repository must be set with `let(:repository)' unless 
+      defined? repository
+  end
+
   subject          { klass.new(repository, mutable: true) }
-  let(:repository) { RDF::Repository.new }
 
   it { is_expected.to be_readable }
 
