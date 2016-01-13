@@ -79,7 +79,7 @@ shared_examples "an RDF::Transaction" do |klass|
       subject.execute(r)
     end
 
-    context 'with graph names', if: RDF::VERSION.to_s >= "1.99" do
+    context 'with graph names' do
       let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
       let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
       
@@ -135,7 +135,7 @@ shared_examples "an RDF::Transaction" do |klass|
     end
   end
 
-  context 'with graph names', if: RDF::VERSION.to_s >= "1.99" do
+  context 'with graph names' do
     let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
     let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
 

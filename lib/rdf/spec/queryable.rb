@@ -77,43 +77,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
         end
       end
 
-      context "with context", unless: RDF::VERSION.to_s >= "1.99" do
-        it "returns statements from all contexts with no context" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, context: nil)
-          solutions = []
-          subject.send(method, pattern) {|s| solutions << s}
-          expect(solutions.size).to eq @statements.size
-        end
-
-        it "returns statements from unnamed contexts with false context" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, context: false)
-          solutions = []
-          subject.send(method, pattern) {|s| solutions << s}
-          context_statements = subject.statements.reject {|st| st.has_context?}.length
-          expect(solutions.size).to eq context_statements
-        end
-
-        it "returns statements from named contexts with variable context" do
-          unless subject.contexts.to_a.empty?
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: :c)
-            solutions = []
-            subject.send(method, pattern) {|s| solutions << s}
-            context_statements = subject.statements.select {|st| st.has_context?}.length
-            expect(solutions.size).to eq context_statements
-          end
-        end
-
-        it "returns statements from specific context with URI context" do
-          unless subject.contexts.to_a.empty?
-            pattern = RDF::Query::Pattern.new(nil, nil, nil, context: RDF::URI("http://ar.to/#self"))
-            solutions = []
-            subject.send(method, pattern) {|s| solutions << s}
-            expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
-          end
-        end
-      end
-
-      context "with graph_name", if: RDF::VERSION.to_s >= "1.99" do
+      context "with graph_name" do
         it "returns statements from all graphs with no graph_name" do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
           solutions = []

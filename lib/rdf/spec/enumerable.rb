@@ -500,7 +500,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       it {is_expected.to be_an_enumerator}
       it {is_expected.to be_countable}
       it "enumerates the same as #each_graph" do
-        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if @supports_context # expect with match problematic
+        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if @supports_named_graphs # expect with match problematic
       end
     end
   end

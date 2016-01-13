@@ -114,23 +114,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       end
     end
 
-    it "should treat statements with a different context as distinct", unless: RDF::VERSION.to_s >= "1.99" do
-      if subject.writable?
-        s1 = statement.dup
-        s1.context = nil
-        s2 = statement.dup
-        s2.context = RDF::URI.new("urn:context:1")
-        s3 = statement.dup
-        s3.context = RDF::URI.new("urn:context:2")
-        subject.insert(s1)
-        subject.insert(s2)
-        subject.insert(s3)
-        # If contexts are not suported, all three are redundant
-        expect(subject.count).to eq (supports_graph_name ? 3 : 1)
-      end
-    end
-
-    it "should treat statements with a different graph_name as distinct", if: RDF::VERSION.to_s >= "1.99" do
+    it "should treat statements with a different graph_name as distinct" do
       if subject.writable?
         s1 = statement.dup
         s1.graph_name = nil
