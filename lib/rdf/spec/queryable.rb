@@ -528,26 +528,3 @@ RSpec.shared_examples 'an RDF::Queryable' do
     end
   end
 end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Queryable"` instead
-# :nocov:
-module RDF_Queryable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Queryable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Queryable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Queryable' do
-      let(:queryable) { @queryable }
-
-      before do
-        raise '@queryable must be defined' unless defined?(queryable)
-      end
-    end
-  end
-end

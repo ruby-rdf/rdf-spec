@@ -56,26 +56,3 @@ RSpec.shared_examples 'an RDF::Repository' do
     it_behaves_like 'an RDF::Durable'
   end
 end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Repository"` instead
-# :nocov:
-module RDF_Repository
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Repository` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Repository'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Repository' do
-      let(:repository) { @repository }
-
-      before do
-        raise '@repository must be defined' unless defined?(repository)
-      end
-    end
-  end
-end
