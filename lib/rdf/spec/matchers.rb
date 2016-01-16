@@ -184,12 +184,18 @@ module RDF; module Spec
       end
     end
 
-    RSpec::Matchers.define :write do |message|
-      chain(:to) do |io|
-        @io = io
-      end
+    RSpec::Matchers.define :write_each do |*messages|
+      supports_block_expectations { true }
 
-      supports_block_expectations {true}
+      match do |block|
+        messages.each { |message| expect(&block).to write(message) }
+      end
+    end
+
+    RSpec::Matchers.define :write do |message|
+      chain(:to) { |io| @io = io }
+
+      supports_block_expectations { true }
 
       match do |block|
         @output =
@@ -290,7 +296,7 @@ module RDF; module Spec
         @actual = normalize(actual)
         @actual.isomorphic_with?(@expected) rescue false
       end
-  
+
       failure_message do |actual|
         format = case
         when RDF.const_defined?(:TriG) then :trig
@@ -307,7 +313,7 @@ module RDF; module Spec
         "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
         "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
-      end  
+      end
     end
 
     require 'json'
@@ -332,7 +338,7 @@ module RDF; module Spec
         end
         expect(actual).to eq expected
       end
-  
+
       failure_message do |actual|
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
