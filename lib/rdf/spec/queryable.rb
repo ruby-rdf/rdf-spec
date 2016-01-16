@@ -72,7 +72,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
           it "returns #{result.inspect} given #{pattern.inspect}" do
             solutions = []
             subject.send(method, pattern) {|s| solutions << s}
-            expect(solutions).to eq result
+            expect(solutions).to contain_exactly(*result)
           end
         end
       end
