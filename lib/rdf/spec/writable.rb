@@ -5,6 +5,7 @@ RSpec.shared_examples 'an RDF::Writable' do
   let(:filename) {RDF::Spec::TRIPLES_FILE}
   let(:statements) {RDF::NTriples::Reader.new(File.open(filename)).to_a}
   let(:supports_graph_name) {writable.respond_to?(:supports?) && writable.supports?(:graph_name)}
+  let(:supports_literal_equality) {writable.respond_to?(:supports?) && writable.supports?(:literal_equality)}
 
   before :each do
     raise 'writable must be defined in with let(:writable)' unless
@@ -86,6 +87,30 @@ RSpec.shared_examples 'an RDF::Writable' do
       subject.insert(statement)
       subject.insert(statement)
       expect(subject.count).to eq 1
+    end
+
+    it "should insert statement with literal with unique language" do
+      if subject.writable?
+        statement.object = RDF::Literal('abc', language: 'en')
+        subject.insert(statement)
+
+        statement.object = RDF::Literal('abc', language: 'fi')
+        subject.insert(statement)
+
+        expect(subject.count).to eq 2
+      end
+    end
+
+    it "should insert statement with literal with unique datatype" do
+      if subject.writable? && supports_literal_equality
+        statement.object = RDF::Literal::Float.new(1.0)
+        subject.insert(statement)
+
+        statement.object = RDF::Literal::Double.new(1.0)
+        subject.insert(statement)
+
+        expect(subject.count).to eq 2
+      end
     end
 
     it "should not insert an incomplete statement" do
