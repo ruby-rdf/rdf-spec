@@ -7,3 +7,4 @@ tmp
 /*.lock
 /doc/
 /coverage/
+/.byebug_history

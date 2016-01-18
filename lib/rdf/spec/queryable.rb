@@ -374,10 +374,11 @@ RSpec.shared_examples 'an RDF::Queryable' do
         expect(subject.first_subject).to eq subject.first.subject
       end
 
-      it "returns the correct value when the pattern matches" do
+      it "returns an appropriate value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [RDF::URI("http://rubygems.org/gems/rdf"), nil, nil]]
         matching_patterns.each do |matching_pattern|
-          expect(subject.first_subject(matching_pattern)).to eq subject.query(matching_pattern).first.subject
+          matching_values = subject.query(matching_pattern).map(&:subject)
+          expect(matching_values).to include subject.first_subject(matching_pattern)
         end
       end
 
@@ -405,10 +406,11 @@ RSpec.shared_examples 'an RDF::Queryable' do
         expect(subject.first_predicate).to eq subject.first.predicate
       end
 
-      it "returns the correct value when the pattern matches" do
+      it "returns an appropriate value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, subject.first.predicate, nil]]
         matching_patterns.each do |matching_pattern|
-          expect(subject.first_predicate(matching_pattern)).to eq subject.query(matching_pattern).first.predicate
+          matching_values = subject.query(matching_pattern).map(&:predicate)
+          expect(matching_values).to include subject.first_predicate(matching_pattern)
         end
       end
 
@@ -435,10 +437,11 @@ RSpec.shared_examples 'an RDF::Queryable' do
         expect(subject.first_object).to eq subject.first.object
       end
 
-      it "returns the correct value when the pattern matches" do
+      it "returns an appropriate value when the pattern matches" do
         matching_patterns = [[nil, nil, nil], [nil, nil, subject.first.object]]
         matching_patterns.each do |matching_pattern|
-          expect(subject.first_object(matching_pattern)).to eq subject.query(matching_pattern).first.object
+          matching_values = subject.query(matching_pattern).map(&:object)
+          expect(matching_values).to include subject.first_object(matching_pattern)
         end
       end
 
@@ -503,14 +506,16 @@ RSpec.shared_examples 'an RDF::Queryable' do
         expect(subject.first_value).to eq subject.first_literal.value
       end
 
-      it "returns the correct value when the pattern matches" do
+      it "returns an appropriate value when the pattern matches" do
         matching_patterns = []
         subject.each do |statement|
           if statement.object.is_a?(RDF::Literal)
             matching_pattern = [statement.subject, statement.predicate, nil]
             unless matching_patterns.include?(matching_pattern)
               matching_patterns << matching_pattern
-              expect(subject.first_value(matching_pattern)).to eq subject.first_literal(matching_pattern).value
+              matching_values = subject.query(matching_pattern).map(&:object).map(&:value)
+              first_value = subject.first_value(matching_pattern)
+              expect(matching_values).to include(first_value)
             end
           end
         end
