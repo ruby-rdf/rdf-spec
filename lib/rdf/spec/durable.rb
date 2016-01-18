@@ -48,20 +48,3 @@ RSpec.shared_examples 'an RDF::Durable' do
     end
   end
 end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Durable"` instead
-# :nocov:
-module RDF_Durable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Durable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Durable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Durable'
-  end
-end

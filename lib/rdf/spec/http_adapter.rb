@@ -291,26 +291,3 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
   end
 
 end
-
-##
-# @deprecated use `it_behaves_like "an RDF::HttpAdapter"` instead
-# :nocov:
-module RDF_HttpAdapter
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_HttpAdapter` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::HttpAdapter'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::HttpAdapter' do
-      let(:http_adapter) { @http_adapter }
-
-      before do
-        raise '@http_adapter must be defined' unless defined?(http_adapter)
-      end
-    end
-  end
-end

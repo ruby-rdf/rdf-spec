@@ -500,7 +500,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       it {is_expected.to be_an_enumerator}
       it {is_expected.to be_countable}
       it "enumerates the same as #each_graph" do
-        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if @supports_context # expect with match problematic
+        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if @supports_named_graphs # expect with match problematic
       end
     end
   end
@@ -525,29 +525,6 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     it "raises error on unknown format" do
       expect {subject.dump(:foobar)}.to raise_error(RDF::WriterError, /No writer found/)
-    end
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Enumerable"` instead
-# :nocov:
-module RDF_Enumerable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Enumerable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Enumerable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Enumerable' do
-      let(:enumerable) { @enumerable }
-
-      before do
-        raise '@enumerable must be defined' unless defined?(enumerable)
-      end
     end
   end
 end

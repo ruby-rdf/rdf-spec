@@ -114,23 +114,7 @@ RSpec.shared_examples 'an RDF::Writable' do
       end
     end
 
-    it "should treat statements with a different context as distinct", unless: RDF::VERSION.to_s >= "1.99" do
-      if subject.writable?
-        s1 = statement.dup
-        s1.context = nil
-        s2 = statement.dup
-        s2.context = RDF::URI.new("urn:context:1")
-        s3 = statement.dup
-        s3.context = RDF::URI.new("urn:context:2")
-        subject.insert(s1)
-        subject.insert(s2)
-        subject.insert(s3)
-        # If contexts are not suported, all three are redundant
-        expect(subject.count).to eq (supports_graph_name ? 3 : 1)
-      end
-    end
-
-    it "should treat statements with a different graph_name as distinct", if: RDF::VERSION.to_s >= "1.99" do
+    it "should treat statements with a different graph_name as distinct" do
       if subject.writable?
         s1 = statement.dup
         s1.graph_name = nil
@@ -143,29 +127,6 @@ RSpec.shared_examples 'an RDF::Writable' do
         subject.insert(s3)
         # If graph_names are not suported, all three are redundant
         expect(subject.count).to eq (supports_graph_name ? 3 : 1)
-      end
-    end
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Writable"` instead
-# :nocov:
-module RDF_Writable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Writable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Writable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Writable' do
-      let(:writable) { @writable }
-
-      before do
-        raise '@writable must be defined' unless defined?(writable)
       end
     end
   end
