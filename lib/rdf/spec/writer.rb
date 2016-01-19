@@ -10,6 +10,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       defined? writer
   end
   let(:writer_class) { writer.class }
+  let(:reader_class) { writer_class.format.reader}
 
   describe ".each" do
     it "yields each writer" do
@@ -24,6 +25,24 @@ RSpec.shared_examples 'an RDF::Writer' do
       expect(writer_class).to receive(:new)
       writer_class.buffer do |r|
         expect(r).to be_a(writer_class)
+      end
+    end
+
+    it "should serialize different BNodes sharing a common identifier to using different BNode ids" do
+      if reader_class
+        s = RDF::Statement(RDF::Node("a"), RDF.type, RDF::RDFS.Resource)
+        s2 = s.dup
+        s2.subject = RDF::Node("a")
+        graph = RDF::Graph.new.insert(s, s2)
+        expect(graph.count).to eql 2
+        serialized = writer_class.buffer do |w|
+          w << graph
+        end
+        expect(serialized).not_to be_empty
+        graph2 = RDF::Graph.new do |g|
+          g << reader_class.new(serialized)
+        end
+        expect(graph2.count).to eql 2
       end
     end
   end

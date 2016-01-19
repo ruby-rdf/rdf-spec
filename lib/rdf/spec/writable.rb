@@ -7,7 +7,7 @@ RSpec.shared_examples 'an RDF::Writable' do
   let(:supports_graph_name) {writable.respond_to?(:supports?) && writable.supports?(:graph_name)}
 
   before :each do
-    raise 'writable must be defined in with let(:readable)' unless
+    raise 'writable must be defined in with let(:writable)' unless
       defined? writable
   end
 
