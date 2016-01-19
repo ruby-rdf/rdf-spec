@@ -30,11 +30,15 @@ RSpec.shared_examples 'an RDF::Writer' do
 
     it "should serialize different BNodes sharing a common identifier to using different BNode ids" do
       if reader_class
-        s = RDF::Statement(RDF::Node("a"), RDF.type, RDF::RDFS.Resource)
-        s2 = s.dup
-        s2.subject = RDF::Node("a")
-        graph = RDF::Graph.new.insert(s, s2)
-        expect(graph.count).to eql 2
+        n1 = RDF::Node("a")
+        n2 = RDF::Node("a")
+        p = RDF::URI("http://example/pred")
+        s1 = RDF::Statement(n1, p, n1)
+        s2 = RDF::Statement(n2, p, n2)
+        s3 = RDF::Statement(n1, p, n2)
+        s4 = RDF::Statement(n2, p, n1)
+        graph = RDF::Graph.new.insert(s1, s2, s3, s4)
+        expect(graph.count).to eql 4
         serialized = writer_class.buffer do |w|
           w << graph
         end
@@ -42,7 +46,7 @@ RSpec.shared_examples 'an RDF::Writer' do
         graph2 = RDF::Graph.new do |g|
           g << reader_class.new(serialized)
         end
-        expect(graph2.count).to eql 2
+        expect(graph2.count).to eql 4
       end
     end
   end
