@@ -43,7 +43,7 @@ RSpec.shared_examples 'an RDF::Repository' do
 
     it_behaves_like 'an RDF::Mutable'
   end
-
+ 
   # FIXME: This should be condition on the repository being mutable
   context "as a durable repository" do
     require 'rdf/spec/durable'
@@ -54,5 +54,29 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
 
     it_behaves_like 'an RDF::Durable'
+  end
+
+  context "with snapshot support" do
+    it 'returns a queryable #snapshot' do
+      if repository.supports? :snapshots
+        expect(repository.snapshot).to be_a RDF::Queryable
+      end
+    end
+
+    it 'gives an accurate snapshot' do
+      if repository.supports? :snapshots
+        snap = repository.snapshot
+        expect(snap.query([:s, :p, :o]))
+          .to contain_exactly(*repository.query([:s, :p, :o]))
+      end
+    end
+
+    it 'gives static snapshot' do
+      if repository.supports? :snapshots
+        snap = repository.snapshot
+        expect { repository.clear }
+          .not_to change { snap.query([:s, :p, :o]).to_a }
+      end
+    end
   end
 end

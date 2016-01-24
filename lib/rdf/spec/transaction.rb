@@ -11,13 +11,24 @@ shared_examples "an RDF::Transaction" do |klass|
       defined? repository
   end
 
-  subject          { klass.new(repository, mutable: true) }
+  subject { klass.new(repository, mutable: true) }
 
   it { is_expected.to be_readable }
+  it { is_expected.to be_queryable }
+
+  context "when querying statements" do
+    require 'rdf/spec/queryable'
+    let(:queryable) do
+      repository.insert(*RDF::Spec.quads)
+      q = klass.new(repository, mutable: true)
+    end
+    it_behaves_like 'an RDF::Queryable'
+  end
 
   describe "#initialize" do
     it 'accepts a repository' do
       repo = double('repository')
+      allow(repo).to receive_messages(:supports? => false)
 
       expect(klass.new(repo).repository).to eq repo
     end
@@ -127,9 +138,22 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe '#execute' do
-    it 'calls changes#apply with repository' do
-      expect(subject.changes).to receive(:apply).with(subject.repository)
-      subject.execute
+    context 'after rollback' do
+      before { subject.rollback }
+
+      it 'does not execute' do
+        expect { subject.execute }
+          .to raise_error RDF::Transaction::TransactionError
+      end
+    end
+  end
+
+  describe '#rollback' do
+    before { subject.insert(st); subject.delete(st) }
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+
+    it 'empties changes when available' do
+      expect { subject.rollback }.to change { subject.changes }.to be_empty
     end
   end
 end
