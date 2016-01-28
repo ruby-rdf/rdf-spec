@@ -6,153 +6,154 @@ require 'rdf/spec'
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
-  subject { klass.new(graph_name: RDF::URI("name")) }
+  before do
+    raise 'repository must be set with `let(:repository)' unless 
+      defined? repository
+  end
+
+  subject { klass.new(repository, mutable: true) }
+
+  it { is_expected.to be_readable }
+  it { is_expected.to be_queryable }
+
+  context "when querying statements" do
+    require 'rdf/spec/queryable'
+    let(:queryable) do
+      repository.insert(*RDF::Spec.quads)
+      q = klass.new(repository, mutable: true)
+    end
+    it_behaves_like 'an RDF::Queryable'
+  end
 
   describe "#initialize" do
-    subject {klass}
-    it "accepts a graph" do
-      g = double("graph")
-      this = subject.new(graph: g)
-      expect(this.graph).to eq g
+    it 'accepts a repository' do
+      repo = double('repository')
+      allow(repo).to receive_messages(:supports? => false)
+
+      expect(klass.new(repo).repository).to eq repo
     end
 
-     it "accepts a graph_name" do
-      c = double("graph_name")
-      this = subject.new(graph: c)
-      expect(this.graph).to eq c
-      expect(this.graph_name).to eq c
-
-      this = subject.new(graph_name: c)
-      expect(this.graph).to eq c
-      expect(this.graph_name).to eq c
+    it 'defaults immutable (read only)' do
+      expect(klass.new(repository).mutable?).to be false
     end
 
-    it "accepts inserts" do
-      g = double("inserts")
-      this = subject.new(insert: g)
-      expect(this.inserts).to eq g
-    end
-
-    it "accepts deletes" do
-      g = double("deletes")
-      this = subject.new(delete: g)
-      expect(this.deletes).to eq g
+    it 'allows mutability' do
+      expect(klass.new(repository, mutable: true)).to be_mutable
     end
   end
 
-  its(:deletes) {is_expected.to be_a(RDF::Enumerable)}
-  its(:inserts) {is_expected.to be_a(RDF::Enumerable)}
-  it {is_expected.to be_mutable}
-  it {is_expected.to_not be_readable}
-
   it "does not respond to #load" do
-    expect {subject.load("http://example/")}.to raise_error(NoMethodError)
+    expect { subject.load("http://example/") }.to raise_error(NoMethodError)
   end
 
   it "does not respond to #update" do
-    expect {subject.update(RDF::Statement.new)}.to raise_error(NoMethodError)
+    expect { subject.update(RDF::Statement.new) }.to raise_error(NoMethodError)
   end
 
   it "does not respond to #clear" do
-    expect {subject.clear}.to raise_error(NoMethodError)
+    expect { subject.clear }.to raise_error(NoMethodError)
   end
 
-  describe "#execute" do
-    let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-    let(:r) {double("repository")}
+  describe '#buffered?' do
+    it 'is false when changeset is empty' do
+      expect(subject).not_to be_buffered
+    end
+  end
 
-    it "deletes statements" do
-      statement = s.dup
-      statement.graph_name = (subject.graph_name rescue nil)
-      expect(r).to receive(:delete).with(statement)
-      expect(r).not_to receive(:insert)
-      subject.delete(s)
-      subject.execute(r)
+  describe '#changes' do
+    it 'is a changeset' do
+      expect(subject.changes).to be_a RDF::Changeset
     end
 
-    it "inserts statements" do
-      statement = s.dup
-      statement.graph_name = (subject.graph_name rescue nil)
-      expect(r).not_to receive(:delete)
-      expect(r).to receive(:insert).with(statement)
-      subject.insert(s)
-      subject.execute(r)
+    it 'is initially empty' do
+      expect(subject.changes).to be_empty
+    end
+  end
+
+  describe "#delete" do
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    
+    it 'adds to deletes' do
+      subject.repository.insert(st)
+
+      expect do 
+        subject.delete(st)
+        subject.execute
+      end.to change { subject.repository.empty? }.from(false).to(true)
     end
 
-    context 'with graph names' do
-      let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-      let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
+    it 'adds multiple to deletes' do
+      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      subject.repository.insert(*sts)
+
+      expect do
+        subject.delete(*sts)
+        subject.execute
+      end.to change { subject.repository.empty? }.from(false).to(true)
+    end
+
+    it 'adds enumerable to deletes' do
+      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts.extend(RDF::Enumerable)
+      subject.repository.insert(sts)
+
+      expect do
+        subject.delete(sts)
+        subject.execute
+      end.to change { subject.repository.empty? }.from(false).to(true)
+    end
+  end
+
+  describe "#insert" do
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    
+    it 'adds to inserts' do
+      expect do
+        subject.insert(st)
+        subject.execute
+      end.to change { subject.repository.statements }
+              .to contain_exactly(st)
+    end
+
+    it 'adds multiple to inserts' do
+      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
       
-      it "deletes statements" do
-        statement = s.dup
-        statement.graph_name = subject.graph_name
-        expect(r).to receive(:delete).with(statement, s_with_c)
-        expect(r).not_to receive(:insert)
-        subject.delete(s)
-        subject.delete(s_with_c)
-        subject.execute(r)
-      end
-
-      it "inserts statements" do
-        statement = s.dup
-        statement.graph_name = subject.graph_name
-        expect(r).not_to receive(:delete)
-        expect(r).to receive(:insert).with(statement, s_with_c)
-        subject.insert(s)
-        subject.insert(s_with_c)
-        subject.execute(r)
-      end
+      expect do
+        subject.insert(*sts)
+        subject.execute
+      end.to change { subject.repository.statements }
+              .to contain_exactly(*sts)
     end
 
-    it "calls before_execute" do
-      is_expected.to receive(:before_execute).with(r, {})
-      subject.execute(r)
-    end
+    it 'adds enumerable to inserts' do
+      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts.extend(RDF::Enumerable)
 
-    it "calls after_execute" do
-      is_expected.to receive(:after_execute).with(r, {})
-      subject.execute(r)
-    end
-
-    it "returns self" do
-      expect(subject.execute(r)).to eq subject
+      expect do
+        subject.insert(sts)
+        subject.execute
+      end.to change { subject.repository.statements }
+              .to contain_exactly(*sts)
     end
   end
 
-  describe "#delete_statement" do
-    let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-    it "adds statement to #deletes" do
-      subject.delete(s)
-      expect(subject.deletes.to_a).to eq [s]
+  describe '#execute' do
+    context 'after rollback' do
+      before { subject.rollback }
+
+      it 'does not execute' do
+        expect { subject.execute }
+          .to raise_error RDF::Transaction::TransactionError
+      end
     end
   end
 
-  describe "#insert_statement" do
-    let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-    it "adds statement to #inserts" do
-      subject.insert(s)
-      expect(subject.inserts.to_a).to eq [s]
-    end
-  end
+  describe '#rollback' do
+    before { subject.insert(st); subject.delete(st) }
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
 
-  context 'with graph names' do
-    let(:s) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"))}
-    let(:s_with_c) {RDF::Statement.new(RDF::URI("s"), RDF::URI("p"), RDF::URI("o"), graph_name: RDF::URI('c_st'))}
-
-    describe "#delete_statement" do
-      it "adds statement to #deletes" do
-        subject.delete(s)
-        subject.delete(s_with_c)
-        expect(subject.deletes.to_a).to contain_exactly(s, s_with_c)
-      end
-    end
-
-    describe "#insert_statement" do
-      it "adds statement to #inserts" do
-        subject.insert(s)
-        subject.insert(s_with_c)
-        expect(subject.inserts.to_a).to contain_exactly(s, s_with_c)
-      end
+    it 'empties changes when available' do
+      expect { subject.rollback }.to change { subject.changes }.to be_empty
     end
   end
 end
