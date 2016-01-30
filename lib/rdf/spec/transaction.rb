@@ -132,6 +132,8 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe '#execute' do
+    # @todo: test isolation semantics!
+
     context 'after rollback' do
       before { subject.rollback }
 
