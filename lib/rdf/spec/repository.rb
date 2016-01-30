@@ -28,6 +28,15 @@ RSpec.shared_examples 'an RDF::Repository' do
 
     before { mutable.clear }
     it_behaves_like 'an RDF::Mutable'
+    
+    describe '#delete_insert' do
+      it 'updates transactionally' do
+        expect(subject).to receive(:commit_transaction).and_call_original
+        statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
+                                    
+        subject.delete_insert([statement], [statement])
+      end
+    end
   end
  
   context "as a durable repository" do
