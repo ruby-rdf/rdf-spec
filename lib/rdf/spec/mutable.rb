@@ -198,6 +198,18 @@ RSpec.shared_examples 'an RDF::Mutable' do
               .not_to change { subject.statements.count }
           end
         end
+
+        context 'when transactions are supported' do
+          it 'updates atomically' do
+            if subject.mutable? && subject.supports?(:transactions)
+              contents = subject.statements.to_a
+
+              expect { subject.delete_insert(@statements, [nil]) }
+                .to raise_error ArgumentError
+              expect(subject.statements).to contain_exactly(*contents)
+            end
+          end
+        end
       end
     end
     

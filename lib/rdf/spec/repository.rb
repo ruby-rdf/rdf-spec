@@ -15,36 +15,30 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
 
-  let(:countable) { repository }
-  let(:enumerable) { repository }
-  let(:queryable) { repository }
   let(:mutable) { repository }
+  let(:dataset) { repository }
 
-  context "when counting statements" do
-    require 'rdf/spec/countable'
-    it_behaves_like 'an RDF::Countable'
+  context 'as dataset' do
+    require 'rdf/spec/dataset'
+    it_behaves_like 'an RDF::Dataset'
   end
-
-  context "when enumerating statements" do
-    require 'rdf/spec/enumerable'
-    it_behaves_like 'an RDF::Enumerable'
-  end
-
-  context "when querying statements" do
-    require 'rdf/spec/queryable'
-    it_behaves_like 'an RDF::Queryable'
-  end
-
-  # FIXME: This should be condition on the repository being mutable
+  
   context "when updating" do
     require 'rdf/spec/mutable'
 
     before { mutable.clear }
-
     it_behaves_like 'an RDF::Mutable'
+    
+    describe '#delete_insert' do
+      it 'updates transactionally' do
+        expect(subject).to receive(:commit_transaction).and_call_original
+        statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
+                                    
+        subject.delete_insert([statement], [statement])
+      end
+    end
   end
  
-  # FIXME: This should be condition on the repository being mutable
   context "as a durable repository" do
     require 'rdf/spec/durable'
 
@@ -54,6 +48,37 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
 
     it_behaves_like 'an RDF::Durable'
+  end
+
+  describe "#transaction" do
+    it 'gives an immutable transaction' do
+      expect { subject.transaction { insert([]) } }.to raise_error TypeError
+    end
+
+    it 'commits a successful transaction' do
+      statement = RDF::Statement(:s, RDF.type, :o)
+      expect(subject).to receive(:commit_transaction).and_call_original
+    
+      expect do
+        subject.transaction(mutable: true) do
+          insert(statement)
+        end
+      end.to change { subject.statements }.to contain_exactly(statement)
+    end
+
+    it 'rolls back a failed transaction' do
+      original_contents = subject.statements
+      expect(subject).to receive(:rollback_transaction).and_call_original
+
+      expect do
+        subject.transaction(mutable: true) do
+          delete(*@statements)
+          raise 'my error'
+        end
+      end.to raise_error RuntimeError
+
+      expect(subject.statements).to contain_exactly(*original_contents)
+    end
   end
 
   context "with snapshot support" do

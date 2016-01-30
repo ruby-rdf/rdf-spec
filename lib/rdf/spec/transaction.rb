@@ -54,12 +54,6 @@ shared_examples "an RDF::Transaction" do |klass|
     expect { subject.clear }.to raise_error(NoMethodError)
   end
 
-  describe '#buffered?' do
-    it 'is false when changeset is empty' do
-      expect(subject).not_to be_buffered
-    end
-  end
-
   describe '#changes' do
     it 'is a changeset' do
       expect(subject.changes).to be_a RDF::Changeset
@@ -138,6 +132,8 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe '#execute' do
+    # @todo: test isolation semantics!
+
     context 'after rollback' do
       before { subject.rollback }
 
