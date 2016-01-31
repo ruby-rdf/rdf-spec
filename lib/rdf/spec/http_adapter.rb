@@ -214,7 +214,7 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
         end
         expect(WebMock).to have_requested(:get, uri)
       end
-    end
+    end unless ENV['CI']
 
     context "https" do
       let(:uri) {"https://some/secure/uri"}
