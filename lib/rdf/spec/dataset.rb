@@ -14,6 +14,7 @@ RSpec.shared_examples 'an RDF::Dataset' do
 
   let(:countable)  { dataset }
   let(:enumerable) { dataset }
+  let(:durable)    { dataset }
   let(:queryable)  { dataset }
 
   context "when counting statements" do
@@ -24,6 +25,11 @@ RSpec.shared_examples 'an RDF::Dataset' do
   context "when enumerating statements" do
     require 'rdf/spec/enumerable'
     it_behaves_like 'an RDF::Enumerable'
+  end
+
+  context "as durable" do
+    require 'rdf/spec/durable'
+    it_behaves_like 'an RDF::Durable'
   end
 
   context "when querying statements" do
