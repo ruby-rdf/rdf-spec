@@ -39,17 +39,6 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
  
-  context "as a durable repository" do
-    require 'rdf/spec/durable'
-
-    before :each do
-      repository.clear
-      @load_durable ||= lambda { repository }
-    end
-
-    it_behaves_like 'an RDF::Durable'
-  end
-
   describe "#transaction" do
     it 'gives an immutable transaction' do
       expect { subject.transaction { insert([]) } }.to raise_error TypeError

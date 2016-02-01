@@ -12,10 +12,9 @@ RSpec.shared_examples 'an RDF::Dataset' do
     end
   end
 
-  let(:countable)  { dataset }
-  let(:enumerable) { dataset }
-  let(:durable)    { dataset }
-  let(:queryable)  { dataset }
+  let(:countable)    { dataset }
+  let(:enumerable)   { dataset }
+  let(:queryable)    { dataset }
 
   context "when counting statements" do
     require 'rdf/spec/countable'
@@ -29,6 +28,8 @@ RSpec.shared_examples 'an RDF::Dataset' do
 
   context "as durable" do
     require 'rdf/spec/durable'
+    before { @load_durable ||= lambda { dataset } }
+
     it_behaves_like 'an RDF::Durable'
   end
 
