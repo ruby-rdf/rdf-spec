@@ -41,7 +41,7 @@ RSpec.shared_examples 'an RDF::Dataset' do
   describe '#isolation_level' do
     it 'is an allowable isolation level' do
       expect(described_class::ISOLATION_LEVELS)
-        .to include(subject.isolation_level)
+        .to include(dataset.isolation_level)
     end
   end
 end
