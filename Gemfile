@@ -14,6 +14,6 @@ group :debug do
 end
 
 group :development, :test do
-  gem 'simplecov',  require: false, platform: :mri_21 # Travis doesn't understand 22 yet.
-  gem 'coveralls',  require: false, platform: :mri_21 # Travis doesn't understand 22 yet.
+  gem 'simplecov',  require: false, platform: :mri
+  gem 'coveralls',  require: false, platform: :mri
 end

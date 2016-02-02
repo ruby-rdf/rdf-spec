@@ -14,6 +14,6 @@ module RDF; module Spec
 
     ##
     # @return [Array(String, String, String, String)]
-    def self.to_a() [MAJOR, MINOR, TINY, EXTRA].compact end
+    def self.to_a() STRING.split(".") end
   end
 end; end
