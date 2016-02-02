@@ -2,7 +2,8 @@ source "http://rubygems.org"
 
 gemspec
 
-gem "rdf", git: "git://github.com/ruby-rdf/rdf.git", branch: "develop"
+gem "rdf",            git: "git://github.com/ruby-rdf/rdf.git",            branch: "develop"
+gem "rdf-isomorphic", git: "git://github.com/ruby-rdf/rdf-isomorphic.git", branch: "develop"
 
 group :development do
   gem "wirble"
