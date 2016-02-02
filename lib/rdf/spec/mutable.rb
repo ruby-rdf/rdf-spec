@@ -84,6 +84,63 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
     end
 
+    context "when updating statements" do
+      let(:s1) { RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1")) }
+      let(:s2) { RDF::Statement(resource, RDF::URI.new("urn:predicate:2"), RDF::URI.new("urn:object:2")) }
+
+      before :each do
+        subject.insert(*[s1,s2])
+      end
+
+      after :each do
+        subject.delete(*[s1,s2])
+      end
+
+      it "should not raise errors" do
+        s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
+        expect { subject.update(s1_updated) }.not_to raise_error if subject.mutable?
+      end
+
+      it "should support updating one statement at a time with an object" do
+        if subject.mutable?
+          s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
+          subject.update(s1_updated)
+          expect(subject.has_statement?(s1_updated)).to be true
+          expect(subject.has_statement?(s1)).to be false
+        end
+      end
+
+      it "should support updating one statement at a time without an object" do
+        if subject.mutable?
+          s1_deleted = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), nil)
+          subject.update(s1_deleted)
+          expect(subject.has_statement?(s1)).to be false
+        end
+      end
+
+      it "should support updating an array of statements at a time" do
+        s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
+        s2_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:2"), RDF::URI.new("urn:object:3"))
+        subject.update(*[s1_updated, s2_updated])
+        expect(subject.has_statement?(s1_updated)).to be true
+        expect(subject.has_statement?(s2_updated)).to be true
+        expect(subject.has_statement?(s1)).to be false
+        expect(subject.has_statement?(s2)).to be false
+      end
+
+      it "should support updating an enumerable of statements at a time" do
+        s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
+        s2_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:2"), RDF::URI.new("urn:object:3"))
+        updates = [s1_updated, s2_updated]
+        updates.extend(RDF::Enumerable)
+        subject.update(updates)
+        expect(subject.has_statement?(s1_updated)).to be true
+        expect(subject.has_statement?(s2_updated)).to be true
+        expect(subject.has_statement?(s1)).to be false
+        expect(subject.has_statement?(s2)).to be false
+      end
+    end
+
     context "when deleting statements" do
       before :each do
         subject.insert(*@statements)
