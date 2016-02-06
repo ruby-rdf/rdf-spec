@@ -77,6 +77,13 @@ RSpec.shared_examples 'an RDF::Repository' do
       end
     end
 
+    it 'has repeatable read isolation or better' do
+      if repository.supports? :snapshots
+        good_isolation = [:repeatable_read, :snapshot, :serializable]
+        expect(good_isolation).to include repository.isolation_level
+      end
+    end
+
     it 'gives an accurate snapshot' do
       if repository.supports? :snapshots
         snap = repository.snapshot
