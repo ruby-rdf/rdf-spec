@@ -84,16 +84,6 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
     end
 
-    describe '#snapshot' do
-      it 'is implemented when #supports(:snapshots) is true' do
-        if mutable.supports?(:snapshots) 
-          expect(mutable.snapshot).to be_a RDF::Dataset
-        else
-          expect { mutable.snapshot }.to raise_error NotImplementedError
-        end
-      end
-    end
-
     context "when updating statements" do
       let(:s1) { RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1")) }
       let(:s2) { RDF::Statement(resource, RDF::URI.new("urn:predicate:2"), RDF::URI.new("urn:object:2")) }

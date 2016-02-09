@@ -17,6 +17,7 @@ RSpec.shared_examples 'an RDF::Repository' do
 
   let(:mutable) { repository }
   let(:dataset) { repository }
+  subject { repository }
 
   context 'as dataset' do
     require 'rdf/spec/dataset'
@@ -38,7 +39,7 @@ RSpec.shared_examples 'an RDF::Repository' do
       end
     end
   end
- 
+
   describe "#transaction" do
     it 'gives an immutable transaction' do
       expect { subject.transaction { insert([]) } }.to raise_error TypeError
@@ -71,9 +72,19 @@ RSpec.shared_examples 'an RDF::Repository' do
   end
 
   context "with snapshot support" do
+
+    describe '#snapshot' do
+      it 'is not implemented when #supports(:snapshots) is false' do
+        unless subject.supports?(:snapshots) 
+          expect { subject.snapshot }.to raise_error NotImplementedError
+        end
+      end
+    end
+
     it 'returns a queryable #snapshot' do
-      if repository.supports? :snapshots
-        expect(repository.snapshot).to be_a RDF::Queryable
+      if subject.supports? :snapshots
+        expect(subject.snapshot).to be_a RDF::Queryable
+        expect(mutable.snapshot).to be_a RDF::Dataset
       end
     end
 
@@ -85,17 +96,17 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
 
     it 'gives an accurate snapshot' do
-      if repository.supports? :snapshots
-        snap = repository.snapshot
+      if subject.supports? :snapshots
+        snap = subject.snapshot
         expect(snap.query([:s, :p, :o]))
-          .to contain_exactly(*repository.query([:s, :p, :o]))
+          .to contain_exactly(*subject.query([:s, :p, :o]))
       end
     end
 
     it 'gives static snapshot' do
-      if repository.supports? :snapshots
-        snap = repository.snapshot
-        expect { repository.clear }
+      if subject.supports? :snapshots
+        snap = subject.snapshot
+        expect { subject.clear }
           .not_to change { snap.query([:s, :p, :o]).to_a }
       end
     end
