@@ -42,7 +42,16 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
 
-  describe "#transaction" do
+  describe '#transaction' do
+    it 'is not implemented when #supports(:transactions) is false' do
+      unless subject.supports?(:transactions) 
+        expect { subject.transaction }.to raise_error NotImplementedError
+      end
+    end
+  end
+
+  context "with transaction support" do
+    before {skip "Does not support Transactions" unless subject.supports?(:transactions)}
     it 'gives an immutable transaction' do
       expect { subject.transaction { insert([]) } }.to raise_error TypeError
     end
@@ -73,15 +82,16 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
 
-  context "with snapshot support" do
-
-    describe '#snapshot' do
-      it 'is not implemented when #supports(:snapshots) is false' do
-        unless subject.supports?(:snapshots) 
-          expect { subject.snapshot }.to raise_error NotImplementedError
-        end
+  describe '#snapshot' do
+    it 'is not implemented when #supports(:snapshots) is false' do
+      unless subject.supports?(:snapshots) 
+        expect { subject.snapshot }.to raise_error NotImplementedError
       end
     end
+  end
+
+  context "with snapshot support" do
+    before {skip "Does not support Snapshots" unless subject.supports?(:snapshots)}
 
     it 'returns a queryable #snapshot' do
       if subject.supports? :snapshots
