@@ -42,30 +42,23 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
 
-  describe '#transaction' do
-    it 'is not implemented when #supports(:transactions) is false' do
-      unless subject.supports?(:transactions) 
-        expect { subject.transaction }.to raise_error NotImplementedError
-      end
-    end
-  end
-
-  context "with transaction support" do
-    before {skip "Does not support Transactions" unless subject.supports?(:transactions)}
+  describe "#transaction'" do
     it 'gives an immutable transaction' do
       expect { subject.transaction { insert([]) } }.to raise_error TypeError
     end
 
     it 'commits a successful transaction' do
-      subject.clear!
-      statement = RDF::Statement(:s, RDF.type, :o)
-      expect(subject).to receive(:commit_transaction).and_call_original
+      if subject.mutable?
+        subject.clear!
+        statement = RDF::Statement(:s, RDF.type, :o)
+        expect(subject).to receive(:commit_transaction).and_call_original
     
-      expect do
-        subject.transaction(mutable: true) do
-          insert(statement)
-        end
-      end.to change { subject.statements }.to contain_exactly(statement)
+        expect do
+          subject.transaction(mutable: true) do
+            insert(statement)
+          end
+        end.to change { subject.statements }.to contain_exactly(statement)
+      end
     end
 
     it 'rolls back a failed transaction' do
