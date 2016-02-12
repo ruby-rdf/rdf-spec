@@ -6,8 +6,7 @@ require 'rdf/spec'
 #describe RDF::DataObjects::Repository do
 #  context "The SQLite adapter" do
 #    before :each do
-#      @repository = RDF::DataObjects::Repository.new "sqlite3://:memory:"
-#      @load_durable = lambda { RDF::DataObjects::Repository.new "sqlite3:test.db" }
+#      @load_durable = lambda { RDF::DataObjects::Repository.new uri: "sqlite3:test.db" }
 #    end
 #
 #    after :each do
@@ -43,11 +42,10 @@ RSpec.shared_examples 'an RDF::Durable' do
 
   it "saves contents between instantiations" do
     if subject.durable?
-      new_instance = subject.class.new(subject.options.merge(uri: subject.uri))
+      subject.insert RDF::Statement(RDF::RDFS.Resource, RDF.value, "string") if subject.empty?
+      subject.close if subject.respond_to?(:close)
+      new_instance = @load_durable.call
       expect(new_instance).not_to be_empty
-      subject.clear!
-      expect(subject).to be_empty
-      expect(new_instance).to be_empty
     end
   end
 end
