@@ -8,6 +8,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
     raise 'mutable must be defined with let(:mutable)' unless
       defined? mutable
 
+    skip "Immutable resource" unless mutable.mutable?
     @statements = RDF::Spec.triples
     @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
   end
@@ -50,23 +51,21 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
 
       it "should accept a string filename argument" do
-        expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error if subject.mutable?
+        expect { subject.load(RDF::Spec::TRIPLES_FILE) }.not_to raise_error
       end
 
       it "should accept an optional hash argument" do
-        expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error if subject.mutable?
+        expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error
       end
 
       it "should load statements" do
-        if subject.mutable?
-          subject.load RDF::Spec::TRIPLES_FILE
-          expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
-          is_expected.to have_subject(resource)
-        end
+        subject.load RDF::Spec::TRIPLES_FILE
+        expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
+        is_expected.to have_subject(resource)
       end
 
       it "should load statements with a graph_name override" do
-        if subject.mutable? && @supports_named_graphs
+        if @supports_named_graphs
           subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
           is_expected.to have_graph(graph_name)
           expect(subject.query(graph_name: graph_name).size).to eq subject.size
@@ -98,24 +97,20 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
       it "should not raise errors" do
         s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
-        expect { subject.update(s1_updated) }.not_to raise_error if subject.mutable?
+        expect { subject.update(s1_updated) }.not_to raise_error
       end
 
       it "should support updating one statement at a time with an object" do
-        if subject.mutable?
-          s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
-          subject.update(s1_updated)
-          expect(subject.has_statement?(s1_updated)).to be true
-          expect(subject.has_statement?(s1)).to be false
-        end
+        s1_updated = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:2"))
+        subject.update(s1_updated)
+        expect(subject.has_statement?(s1_updated)).to be true
+        expect(subject.has_statement?(s1)).to be false
       end
 
       it "should support updating one statement at a time without an object" do
-        if subject.mutable?
-          s1_deleted = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), nil)
-          subject.update(s1_deleted)
-          expect(subject.has_statement?(s1)).to be false
-        end
+        s1_deleted = RDF::Statement(resource, RDF::URI.new("urn:predicate:1"), nil)
+        subject.update(s1_deleted)
+        expect(subject.has_statement?(s1)).to be false
       end
 
       it "should support updating an array of statements at a time" do
@@ -147,60 +142,52 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
 
       it "should not raise errors" do
-        expect { subject.delete(non_bnode_statements.first) }.not_to raise_error if subject.mutable?
+        expect { subject.delete(non_bnode_statements.first) }.not_to raise_error
       end
 
       it "should support deleting one statement at a time" do
-        if subject.mutable?
-          subject.delete(non_bnode_statements.first)
-          is_expected.not_to  have_statement(non_bnode_statements.first)
-        end
+        subject.delete(non_bnode_statements.first)
+        is_expected.not_to  have_statement(non_bnode_statements.first)
       end
 
       it "should support deleting multiple statements at a time" do
-        if subject.mutable?
-          subject.delete(*@statements)
-          expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
-        end
+        subject.delete(*@statements)
+        expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
       end
 
       it "should support wildcard deletions" do
-        if subject.mutable?
-          # nothing deleted
-          require 'digest/sha1'
-          count = subject.count
-          subject.delete([nil, nil, Digest::SHA1.hexdigest(File.read(__FILE__))])
-          is_expected.not_to  be_empty
-          expect(subject.count).to eq count
+        # nothing deleted
+        require 'digest/sha1'
+        count = subject.count
+        subject.delete([nil, nil, Digest::SHA1.hexdigest(File.read(__FILE__))])
+        is_expected.not_to  be_empty
+        expect(subject.count).to eq count
 
-          # everything deleted
-          subject.delete([nil, nil, nil])
-          is_expected.to be_empty
-        end
+        # everything deleted
+        subject.delete([nil, nil, nil])
+        is_expected.to be_empty
       end
 
       it "should only delete statements when the graph_name matches" do
-        if subject.mutable?
-          # Setup three statements identical except for graph_name
-          count = subject.count + (@supports_named_graphs ? 3 : 1)
-          s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
-          s2 = s1.dup
-          s2.graph_name = RDF::URI.new("urn:graph_name:1")
-          s3 = s1.dup
-          s3.graph_name = RDF::URI.new("urn:graph_name:2")
-          subject.insert(s1)
-          subject.insert(s2)
-          subject.insert(s3)
-          expect(subject.count).to eq count
+        # Setup three statements identical except for graph_name
+        count = subject.count + (@supports_named_graphs ? 3 : 1)
+        s1 = RDF::Statement.new(resource, RDF::URI.new("urn:predicate:1"), RDF::URI.new("urn:object:1"))
+        s2 = s1.dup
+        s2.graph_name = RDF::URI.new("urn:graph_name:1")
+        s3 = s1.dup
+        s3.graph_name = RDF::URI.new("urn:graph_name:2")
+        subject.insert(s1)
+        subject.insert(s2)
+        subject.insert(s3)
+        expect(subject.count).to eq count
 
-          # Delete one by one
-          subject.delete(s1)
-          expect(subject.count).to eq count - (@supports_named_graphs ? 1 : 1)
-          subject.delete(s2)
-          expect(subject.count).to eq count - (@supports_named_graphs ? 2 : 1)
-          subject.delete(s3)
-          expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
-        end
+        # Delete one by one
+        subject.delete(s1)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 1 : 1)
+        subject.delete(s2)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 2 : 1)
+        subject.delete(s3)
+        expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
       end
       
       describe '#delete_insert' do
@@ -211,41 +198,33 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
 
         it 'deletes and inserts' do
-          if subject.mutable?
-            subject.delete_insert(@statements, [statement])
-            is_expected.to contain_exactly statement
-          end
+          subject.delete_insert(@statements, [statement])
+          is_expected.to contain_exactly statement
         end
 
         it 'deletes before inserting' do
-          if subject.mutable?
-            subject.delete_insert(@statements, [@statements.first])
-            is_expected.to contain_exactly @statements.first
-          end
+          subject.delete_insert(@statements, [@statements.first])
+          is_expected.to contain_exactly @statements.first
         end
 
         it 'deletes patterns' do
-          if subject.mutable?
-            pattern = [non_bnode_statements.first.subject, nil, nil]
-            expect { subject.delete_insert([pattern], []) }
-              .to change { subject.has_subject?(non_bnode_statements.first.subject) }
-                   .from(true).to(false)
-          end
+          pattern = [non_bnode_statements.first.subject, nil, nil]
+          expect { subject.delete_insert([pattern], []) }
+            .to change { subject.has_subject?(non_bnode_statements.first.subject) }
+            .from(true).to(false)
         end
 
         it 'handles Enumerables' do
-          if subject.mutable?
-            dels = non_bnode_statements.take(10)
-            dels.extend(RDF::Enumerable)
-            ins = RDF::Graph.new << statement
-            expect { subject.delete_insert(dels, ins) }
-              .to change { dels.find { |s| subject.include?(s) } }.to be_nil
-            is_expected.to include statement
-          end
+          dels = non_bnode_statements.take(10)
+          dels.extend(RDF::Enumerable)
+          ins = RDF::Graph.new << statement
+          expect { subject.delete_insert(dels, ins) }
+            .to change { dels.find { |s| subject.include?(s) } }.to be_nil
+          is_expected.to include statement
         end
 
         it 'handles Graph names' do
-          if subject.mutable? && @supports_named_graphs
+          if @supports_named_graphs
             dels = non_bnode_statements.take(10).map do |st|
               RDF::Statement.from(st.to_hash.merge(graph_name: RDF::URI('fake')))
             end
@@ -258,7 +237,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         context 'when transactions are supported' do
           it 'updates atomically' do
-            if subject.mutable? && subject.supports?(:transactions)
+            if subject.supports?(:transactions)
               contents = subject.statements.to_a
 
               expect { subject.delete_insert(@statements, [nil]) }

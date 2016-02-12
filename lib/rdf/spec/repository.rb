@@ -27,15 +27,17 @@ RSpec.shared_examples 'an RDF::Repository' do
   context "when updating" do
     require 'rdf/spec/mutable'
 
-    before { mutable.clear }
+    before { mutable.clear if mutable.mutable? }
     it_behaves_like 'an RDF::Mutable'
     
     describe '#delete_insert' do
       it 'updates transactionally' do
-        expect(mutable).to receive(:commit_transaction).and_call_original
-        statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
+        if mutable.mutable?
+          expect(mutable).to receive(:commit_transaction).and_call_original
+          statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
                                     
-        mutable.delete_insert([statement], [statement])
+          mutable.delete_insert([statement], [statement])
+        end
       end
     end
   end
