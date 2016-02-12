@@ -57,6 +57,7 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
 
     it 'commits a successful transaction' do
+      subject.clear!
       statement = RDF::Statement(:s, RDF.type, :o)
       expect(subject).to receive(:commit_transaction).and_call_original
     
