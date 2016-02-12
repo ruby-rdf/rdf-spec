@@ -237,7 +237,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
         context 'when transactions are supported' do
           it 'updates atomically' do
-            if subject.supports?(:transactions)
+            if subject.mutable? && subject.supports?(:atomic_write)
               contents = subject.statements.to_a
 
               expect { subject.delete_insert(@statements, [nil]) }
