@@ -50,12 +50,10 @@ RSpec.shared_examples 'an RDF::Repository' do
     it 'commits a successful transaction' do
       statement = RDF::Statement(:s, RDF.type, :o)
       expect(subject).to receive(:commit_transaction).and_call_original
-    
+      
       expect do
-        subject.transaction(mutable: true) do
-          insert(statement)
-        end
-      end.to change { subject.statements }.to contain_exactly(statement)
+        subject.transaction(mutable: true) { insert(statement) }
+      end.to change { subject.statements }.to include(statement)
     end
 
     it 'rolls back a failed transaction' do
