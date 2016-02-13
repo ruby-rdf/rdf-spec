@@ -23,6 +23,12 @@ RSpec.shared_examples 'an RDF::Repository' do
     require 'rdf/spec/dataset'
     it_behaves_like 'an RDF::Dataset'
   end
+
+  context 'as transactable' do
+    require 'rdf/spec/transactable'
+    let(:transactable) { repository }
+    it_behaves_like 'an RDF::Transactable'
+  end
   
   context "when updating" do
     require 'rdf/spec/mutable'
