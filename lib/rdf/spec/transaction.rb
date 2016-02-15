@@ -2,7 +2,7 @@ require 'rdf/spec'
 
 # Pass in an instance of RDF::Transaction as follows:
 #
-#   it_behaves_like "RDF::Transaction", RDF::Transaction
+#   it_behaves_like "an RDF::Transaction", RDF::Transaction
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
@@ -40,6 +40,17 @@ shared_examples "an RDF::Transaction" do |klass|
     it 'allows mutability' do
       expect(klass.new(repository, mutable: true)).to be_mutable
     end
+
+    it 'accepts a graph_name' do
+      graph_uri = RDF::URI('http://example.com/graph_1')
+      
+      expect(klass.new(repository, graph_name: graph_uri).graph_name)
+        .to eq graph_uri
+    end
+
+    it 'defaults graph_name to nil' do
+      expect(klass.new(repository).graph_name).to be_nil
+    end
   end
 
   it "does not respond to #load" do
@@ -68,7 +79,7 @@ shared_examples "an RDF::Transaction" do |klass|
     let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
     
     it 'adds to deletes' do
-      subject.repository.insert(st)
+      repository.insert(st)
 
       expect do 
         subject.delete(st)
@@ -78,7 +89,7 @@ shared_examples "an RDF::Transaction" do |klass|
 
     it 'adds multiple to deletes' do
       sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
-      subject.repository.insert(*sts)
+      repository.insert(*sts)
 
       expect do
         subject.delete(*sts)
@@ -89,12 +100,54 @@ shared_examples "an RDF::Transaction" do |klass|
     it 'adds enumerable to deletes' do
       sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
       sts.extend(RDF::Enumerable)
-      subject.repository.insert(sts)
+      repository.insert(sts)
 
       expect do
         subject.delete(sts)
         subject.execute
       end.to change { subject.repository.empty? }.from(false).to(true)
+    end
+
+    context 'with a graph_name' do
+      subject { klass.new(repository, mutable: true, graph_name: graph_uri) }
+      
+      let(:graph_uri) { RDF::URI('http://example.com/graph_1') }
+      
+      it 'adds the graph_name to statements' do
+        repository.insert(st)
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+        repository.insert(with_name)
+
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).not_to have_statement(with_name)
+        expect(subject.repository).to have_statement(st)
+      end
+
+      it 'retains existing graph names' do
+        st.graph_name = RDF::URI('g')
+        repository.insert(st)
+        
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }.to be_empty
+      end
+
+      it 'retains existing default graph name' do
+        st.graph_name = false
+
+        repository.insert(st)
+        
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }.to be_empty
+      end
     end
   end
 
@@ -129,17 +182,125 @@ shared_examples "an RDF::Transaction" do |klass|
       end.to change { subject.repository.statements }
               .to contain_exactly(*sts)
     end
+
+    context 'with a graph_name' do
+      subject { klass.new(repository, mutable: true, graph_name: graph_uri) }
+      
+      let(:graph_uri) { RDF::URI('http://example.com/graph_1') }
+      
+      it 'adds the graph_name to statements' do
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository }
+
+        expect(subject.repository).to have_statement(with_name)
+      end
+
+      it 'retains existing graph names' do
+        st.graph_name = RDF::URI('g')
+        
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).to have_statement(st)
+      end
+
+      it 'retains existing default graph name' do
+        st.graph_name = false
+        
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).to have_statement(st)
+      end
+    end
   end
 
   describe '#execute' do
-    # @todo: test isolation semantics!
-
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+      
     context 'after rollback' do
       before { subject.rollback }
 
       it 'does not execute' do
         expect { subject.execute }
           .to raise_error RDF::Transaction::TransactionError
+      end
+    end
+
+    context 'when :read_committed' do
+      it 'does not read uncommitted statements' do
+        unless subject.isolation_level == :read_uncommitted
+          read_tx = klass.new(repository, mutable: true)
+          subject.insert(st)
+          
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+
+      it 'reads committed statements' do
+        if subject.isolation_level == :read_committed
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+          
+          expect(read_tx.statements).to include(st)
+        end
+      end
+    end
+
+    context 'when :repeatable_read' do
+      it 'does not read committed statements already read' do
+        if subject.isolation_level == :repeatable_read || 
+           subject.isolation_level == :snapshot        || 
+           subject.isolation_level == :serializable
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+    end
+
+    context 'when :snapshot' do
+      it 'does not read committed statements' do
+        if subject.isolation_level == :snapshot     ||
+           subject.isolation_level == :serializable
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+
+      it 'reads current transaction state' do
+        if subject.isolation_level == :snapshot     ||
+           subject.isolation_level == :serializable
+          subject.insert(st)
+          expect(subject.statements).to include(st)
+        end
+      end
+    end
+
+    context 'when :serializable' do
+      it 'raises an error if conflicting changes are present' do
+        if subject.isolation_level == :serializable
+          subject.insert(st)
+          repository.insert(st)
+          
+          expect { subject.execute }
+            .to raise_error RDF::Transaction::TransactionError
+        end
       end
     end
   end
