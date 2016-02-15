@@ -193,14 +193,82 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe '#execute' do
-    # @todo: test isolation semantics!
-
+    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+      
     context 'after rollback' do
       before { subject.rollback }
 
       it 'does not execute' do
         expect { subject.execute }
           .to raise_error RDF::Transaction::TransactionError
+      end
+    end
+
+    context 'when :read_committed' do
+      it 'does not read uncommitted statements' do
+        unless subject.isolation_level == :read_uncommitted
+          read_tx = klass.new(repository, mutable: true)
+          subject.insert(st)
+          
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+
+      it 'reads committed statements' do
+        if subject.isolation_level == :read_committed
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+          
+          expect(read_tx.statements).to include(st)
+        end
+      end
+    end
+
+    context 'when :repeatable_read' do
+      it 'does not read committed statements already read' do
+        if subject.isolation_level == :repeatable_read || 
+           subject.isolation_level == :snapshot        || 
+           subject.isolation_level == :serializable
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+    end
+
+    context 'when :snapshot' do
+      it 'does not read committed statements' do
+        if subject.isolation_level == :snapshot     ||
+           subject.isolation_level == :serializable
+          read_tx = klass.new(repository)
+          subject.insert(st)
+          subject.execute
+
+          expect(read_tx.statements).not_to include(st)
+        end
+      end
+
+      it 'reads current transaction state' do
+        if subject.isolation_level == :snapshot     ||
+           subject.isolation_level == :serializable
+          subject.insert(st)
+          expect(subject.statements).to include(st)
+        end
+      end
+    end
+
+    context 'when :serializable' do
+      it 'raises an error if conflicting changes are present' do
+        if subject.isolation_level == :serializable
+          subject.insert(st)
+          repository.insert(st)
+          
+          expect { subject.execute }
+            .to raise_error RDF::Transaction::TransactionError
+        end
       end
     end
   end
