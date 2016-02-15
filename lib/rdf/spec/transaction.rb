@@ -127,6 +127,27 @@ shared_examples "an RDF::Transaction" do |klass|
         expect(subject.repository).not_to have_statement(with_name)
         expect(subject.repository).to have_statement(st)
       end
+
+      it 'retains existing graph names' do
+        st.graph_name = RDF::URI('g')
+        repository.insert(st)
+        
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }.to be_empty
+      end
+
+      it 'retains existing default graph name' do
+        st.graph_name = false
+
+        repository.insert(st)
+        
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }.to be_empty
+      end
     end
   end
 
@@ -181,6 +202,17 @@ shared_examples "an RDF::Transaction" do |klass|
 
       it 'retains existing graph names' do
         st.graph_name = RDF::URI('g')
+        
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).to have_statement(st)
+      end
+
+      it 'retains existing default graph name' do
+        st.graph_name = false
         
         expect do 
           subject.insert(st)
