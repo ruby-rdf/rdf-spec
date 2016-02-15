@@ -79,7 +79,7 @@ shared_examples "an RDF::Transaction" do |klass|
     let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
     
     it 'adds to deletes' do
-      subject.repository.insert(st)
+      repository.insert(st)
 
       expect do 
         subject.delete(st)
@@ -89,7 +89,7 @@ shared_examples "an RDF::Transaction" do |klass|
 
     it 'adds multiple to deletes' do
       sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
-      subject.repository.insert(*sts)
+      repository.insert(*sts)
 
       expect do
         subject.delete(*sts)
@@ -100,7 +100,7 @@ shared_examples "an RDF::Transaction" do |klass|
     it 'adds enumerable to deletes' do
       sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
       sts.extend(RDF::Enumerable)
-      subject.repository.insert(sts)
+      repository.insert(sts)
 
       expect do
         subject.delete(sts)
@@ -114,10 +114,10 @@ shared_examples "an RDF::Transaction" do |klass|
       let(:graph_uri) { RDF::URI('http://example.com/graph_1') }
       
       it 'adds the graph_name to statements' do
-        subject.repository.insert(st)
+        repository.insert(st)
         with_name = st.dup
         with_name.graph_name = graph_uri
-        subject.repository.insert(with_name)
+        repository.insert(with_name)
 
         expect do 
           subject.delete(st)
