@@ -2,7 +2,7 @@ require 'rdf/spec'
 
 # Pass in an instance of RDF::Transaction as follows:
 #
-#   it_behaves_like "RDF::Transaction", RDF::Transaction
+#   it_behaves_like "an RDF::Transaction", RDF::Transaction
 shared_examples "an RDF::Transaction" do |klass|
   include RDF::Spec::Matchers
 
@@ -39,6 +39,17 @@ shared_examples "an RDF::Transaction" do |klass|
 
     it 'allows mutability' do
       expect(klass.new(repository, mutable: true)).to be_mutable
+    end
+
+    it 'accepts a graph_name' do
+      graph_uri = RDF::URI('http://example.com/graph_1')
+      
+      expect(klass.new(repository, graph_name: graph_uri).graph_name)
+        .to eq graph_uri
+    end
+
+    it 'defaults graph_name to nil' do
+      expect(klass.new(repository).graph_name).to be_nil
     end
   end
 
@@ -96,6 +107,27 @@ shared_examples "an RDF::Transaction" do |klass|
         subject.execute
       end.to change { subject.repository.empty? }.from(false).to(true)
     end
+
+    context 'with a graph_name' do
+      subject { klass.new(repository, mutable: true, graph_name: graph_uri) }
+      
+      let(:graph_uri) { RDF::URI('http://example.com/graph_1') }
+      
+      it 'adds the graph_name to statements' do
+        subject.repository.insert(st)
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+        subject.repository.insert(with_name)
+
+        expect do 
+          subject.delete(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).not_to have_statement(with_name)
+        expect(subject.repository).to have_statement(st)
+      end
+    end
   end
 
   describe "#insert" do
@@ -128,6 +160,35 @@ shared_examples "an RDF::Transaction" do |klass|
         subject.execute
       end.to change { subject.repository.statements }
               .to contain_exactly(*sts)
+    end
+
+    context 'with a graph_name' do
+      subject { klass.new(repository, mutable: true, graph_name: graph_uri) }
+      
+      let(:graph_uri) { RDF::URI('http://example.com/graph_1') }
+      
+      it 'adds the graph_name to statements' do
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository }
+
+        expect(subject.repository).to have_statement(with_name)
+      end
+
+      it 'retains existing graph names' do
+        st.graph_name = RDF::URI('g')
+        
+        expect do 
+          subject.insert(st)
+          subject.execute
+        end.to change { subject.repository.statements }
+
+        expect(subject.repository).to have_statement(st)
+      end
     end
   end
 
