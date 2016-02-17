@@ -7,7 +7,7 @@ RSpec.shared_examples 'an RDF::Dataset' do
     raise 'dataset must be set with `let(:dataset)' unless
       defined? dataset
 
-    if repository.empty?
+    if dataset.empty?
       raise "+dataset+ must respond be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before block"
     end
   end

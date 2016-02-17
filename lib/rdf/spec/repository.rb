@@ -16,7 +16,7 @@ RSpec.shared_examples 'an RDF::Repository' do
   end
 
   let(:mutable) { repository }
-  let(:dataset) { repository }
+  let(:dataset) { repository.supports?(:snapshots) ? repository.snapshot : repository }
   subject { repository }
 
   context 'as dataset' do
