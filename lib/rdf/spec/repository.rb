@@ -38,7 +38,7 @@ RSpec.shared_examples 'an RDF::Repository' do
     
     describe '#delete_insert' do
       it 'updates transactionally' do
-        if mutable.mutable?
+        if mutable.mutable? & mutable.supports?(:atomic_write)
           expect(mutable).to receive(:commit_transaction).and_call_original
           statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
                                     
