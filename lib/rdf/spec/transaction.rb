@@ -20,9 +20,29 @@ shared_examples "an RDF::Transaction" do |klass|
     require 'rdf/spec/queryable'
     let(:queryable) do
       repository.insert(*RDF::Spec.quads)
-      q = klass.new(repository, mutable: true)
+      klass.new(repository)
     end
     it_behaves_like 'an RDF::Queryable'
+
+    context 'with a graph_name' do
+      let(:queryable) do
+        graph_name = RDF::URI('g')
+        graph = RDF::Graph.new(graph_name: graph_name, data: repository)
+        graph.insert(*RDF::Spec.quads)
+        klass.new(repository, graph_name: graph_name)
+      end
+      it_behaves_like 'an RDF::Queryable'
+    end
+
+    context 'with a false graph_name' do
+      let(:queryable) do
+        graph = RDF::Graph.new(data: repository)
+        graph.insert(*RDF::Spec.quads)
+        graph_name = false
+        klass.new(repository, graph_name: graph_name)
+      end
+      it_behaves_like 'an RDF::Queryable'
+    end
   end
 
   describe "#initialize" do
@@ -128,17 +148,17 @@ shared_examples "an RDF::Transaction" do |klass|
         expect(subject.repository).to have_statement(st)
       end
 
-      it 'retains existing graph names' do
+      it 'overwrites existing graph names' do
         st.graph_name = RDF::URI('g')
         repository.insert(st)
         
         expect do 
           subject.delete(st)
           subject.execute
-        end.to change { subject.repository.statements }.to be_empty
+        end.not_to change { subject.repository.statements }
       end
 
-      it 'retains existing default graph name' do
+      it 'overwrites existing default graph name' do
         st.graph_name = false
 
         repository.insert(st)
@@ -146,7 +166,7 @@ shared_examples "an RDF::Transaction" do |klass|
         expect do 
           subject.delete(st)
           subject.execute
-        end.to change { subject.repository.statements }.to be_empty
+        end.not_to change { subject.repository.statements }
       end
     end
   end
@@ -200,26 +220,32 @@ shared_examples "an RDF::Transaction" do |klass|
         expect(subject.repository).to have_statement(with_name)
       end
 
-      it 'retains existing graph names' do
+      it 'overwrites existing graph names' do
         st.graph_name = RDF::URI('g')
-        
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+
         expect do 
           subject.insert(st)
           subject.execute
         end.to change { subject.repository.statements }
 
-        expect(subject.repository).to have_statement(st)
+        expect(subject.repository).not_to have_statement(st)
+        expect(subject.repository).to have_statement(with_name)
       end
 
-      it 'retains existing default graph name' do
+      it 'overwrites existing default graph name' do
         st.graph_name = false
-        
-        expect do 
+        with_name = st.dup
+        with_name.graph_name = graph_uri
+
+        expect do
           subject.insert(st)
           subject.execute
         end.to change { subject.repository.statements }
-
-        expect(subject.repository).to have_statement(st)
+        
+        expect(subject.repository).not_to have_statement(st)
+        expect(subject.repository).to have_statement(with_name)
       end
     end
   end
