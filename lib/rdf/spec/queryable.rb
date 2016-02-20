@@ -89,22 +89,27 @@ RSpec.shared_examples 'an RDF::Queryable' do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
           solutions = []
           subject.send(method, pattern) {|s| solutions << s}
-          named_statements = subject.statements.reject {|st| st.has_name?}.length
-          expect(solutions.size).to eq named_statements
+
+          named_statements = subject.statements
+          named_statements.reject! {|st| st.has_name?} unless
+            subject.respond_to?(:graph_name) && !subject.graph_name.nil?
+
+          expect(solutions.size).to eq named_statements.size
         end
 
-        it "returns statements from named graphss with variable graph_name" do
+        it "returns statements from named graphs with variable graph_name" do
           unless subject.graph_names.to_a.empty?
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
             solutions = []
             subject.send(method, pattern) {|s| solutions << s}
-            named_statements = subject.statements.select {|st| st.has_name?}.length
-            expect(solutions.size).to eq named_statements
+            named_statements = subject.statements.select {|st| st.has_name?}
+            expect(solutions.size).to eq named_statements.size
           end
         end
 
         it "returns statements from specific graph with URI graph_name" do
-          unless subject.graph_names.to_a.empty?
+          unless subject.graph_names.to_a.empty? || 
+                 (subject.respond_to?(:graph_name) && !subject.graph_name.nil?)
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
             solutions = []
             subject.send(method, pattern) {|s| solutions << s}
