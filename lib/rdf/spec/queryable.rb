@@ -85,7 +85,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
           expect(solutions.size).to eq @statements.size
         end
 
-        it "returns statements from unnamed graphss with false graph_name" do
+        it "returns statements from unnamed graphs with false graph_name" do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
           solutions = []
           subject.send(method, pattern) {|s| solutions << s}
