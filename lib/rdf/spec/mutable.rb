@@ -11,6 +11,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
     skip "Immutable resource" unless mutable.mutable?
     @statements = RDF::Spec.triples
     @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
+    @supports_literal_equality = mutable.respond_to?(:supports?) && mutable.supports?(:literal_equality)
   end
 
   let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
@@ -189,7 +190,30 @@ RSpec.shared_examples 'an RDF::Mutable' do
         subject.delete(s3)
         expect(subject.count).to eq count - (@supports_named_graphs ? 3 : 1)
       end
-      
+
+      it 'does not delete literal with different language' do
+        if subject.mutable?
+          en = RDF::Literal('abc', language: 'en')
+          fi = RDF::Literal('abc', language: 'fi')
+
+          subject.insert([RDF::URI('s'), RDF::URI('p'), en])
+          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), fi]) }
+            .not_to change { subject.count }
+        end
+      end
+
+      it 'does not delete literal with different datatype' do
+        if subject.mutable? && @supports_literal_equality
+          float = RDF::Literal::Float.new(1.0)
+          double = RDF::Literal::Double.new(1.0)
+
+          subject.insert([RDF::URI('s'), RDF::URI('p'), float])
+          
+          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), double]) }
+            .not_to change { subject.count }
+        end
+      end
+
       describe '#delete_insert' do
         let(:statement) do
           RDF::Statement.new(resource, 
