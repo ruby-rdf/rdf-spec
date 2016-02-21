@@ -204,12 +204,24 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
       it 'does not delete literal with different datatype' do
         if subject.mutable? && @supports_literal_equality
-          float = RDF::Literal::Float.new(1.0)
-          double = RDF::Literal::Double.new(1.0)
+          dec = RDF::Literal::Decimal.new(1)
+          int = RDF::Literal::Integer.new(1)
 
-          subject.insert([RDF::URI('s'), RDF::URI('p'), float])
+          subject.insert([RDF::URI('s'), RDF::URI('p'), dec])
           
-          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), double]) }
+          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), int]) }
+            .not_to change { subject.count }
+        end
+      end
+
+      it 'does not delete literal with different lexical value' do
+        if subject.mutable? && @supports_literal_equality
+          one      = RDF::Literal::Integer.new("1")
+          zero_one = RDF::Literal::Integer.new("01")
+
+          subject.insert([RDF::URI('s'), RDF::URI('p'), one])
+          
+          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), zero_one]) }
             .not_to change { subject.count }
         end
       end

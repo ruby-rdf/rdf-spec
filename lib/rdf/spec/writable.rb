@@ -103,10 +103,22 @@ RSpec.shared_examples 'an RDF::Writable' do
 
     it "should insert statement with literal with unique datatype" do
       if subject.writable? && supports_literal_equality
-        statement.object = RDF::Literal::Float.new(1.0)
+        statement.object = RDF::Literal::Decimal.new(1)
         subject.insert(statement)
 
-        statement.object = RDF::Literal::Double.new(1.0)
+        statement.object = RDF::Literal::Integer.new(1)
+        subject.insert(statement)
+
+        expect(subject.count).to eq 2
+      end
+    end
+
+    it 'inserts literal with unique lexical value' do
+      if subject.writable? && supports_literal_equality
+        statement.object = RDF::Literal::Integer.new("1")
+        subject.insert(statement)
+
+        statement.object = RDF::Literal::Integer.new("01")
         subject.insert(statement)
 
         expect(subject.count).to eq 2
