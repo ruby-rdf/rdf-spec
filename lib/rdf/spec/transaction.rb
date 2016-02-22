@@ -26,7 +26,7 @@ shared_examples "an RDF::Transaction" do |klass|
 
     context 'with a graph_name' do
       let(:queryable) do
-        graph_name = RDF::URI('g')
+        graph_name = RDF::URI('http://example.com/g')
         graph = RDF::Graph.new(graph_name: graph_name, data: repository)
         graph.insert(*RDF::Spec.quads)
         klass.new(repository, graph_name: graph_name)
@@ -96,7 +96,7 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe "#delete" do
-    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
     
     it 'adds to deletes' do
       repository.insert(st)
@@ -108,7 +108,7 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it 'adds multiple to deletes' do
-      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts = [st] << RDF::Statement(:x, RDF::URI('http://example.com/y'), 'z')
       repository.insert(*sts)
 
       expect do
@@ -118,7 +118,7 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it 'adds enumerable to deletes' do
-      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts = [st] << RDF::Statement(:x, RDF::URI('http://example.com/y'), 'z')
       sts.extend(RDF::Enumerable)
       repository.insert(sts)
 
@@ -149,7 +149,7 @@ shared_examples "an RDF::Transaction" do |klass|
       end
 
       it 'overwrites existing graph names' do
-        st.graph_name = RDF::URI('g')
+        st.graph_name = RDF::URI('http://example.com/g')
         repository.insert(st)
         
         expect do 
@@ -172,7 +172,7 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe "#insert" do
-    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
     
     it 'adds to inserts' do
       expect do
@@ -183,7 +183,7 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it 'adds multiple to inserts' do
-      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts = [st] << RDF::Statement(:x, RDF::URI('http://example.com/y'), 'z')
       
       expect do
         subject.insert(*sts)
@@ -193,7 +193,7 @@ shared_examples "an RDF::Transaction" do |klass|
     end
 
     it 'adds enumerable to inserts' do
-      sts = [st] << RDF::Statement(:x, RDF::URI('y'), 'z')
+      sts = [st] << RDF::Statement(:x, RDF::URI('http://example.com/y'), 'z')
       sts.extend(RDF::Enumerable)
 
       expect do
@@ -221,7 +221,7 @@ shared_examples "an RDF::Transaction" do |klass|
       end
 
       it 'overwrites existing graph names' do
-        st.graph_name = RDF::URI('g')
+        st.graph_name = RDF::URI('http://example.com/g')
         with_name = st.dup
         with_name.graph_name = graph_uri
 
@@ -251,7 +251,7 @@ shared_examples "an RDF::Transaction" do |klass|
   end
 
   describe '#execute' do
-    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
       
     context 'after rollback' do
       before { subject.rollback }
@@ -333,7 +333,7 @@ shared_examples "an RDF::Transaction" do |klass|
 
   describe '#rollback' do
     before { subject.insert(st); subject.delete(st) }
-    let(:st) { RDF::Statement(:s, RDF::URI('p'), 'o') }
+    let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
 
     it 'empties changes when available' do
       expect { subject.rollback }.to change { subject.changes }.to be_empty

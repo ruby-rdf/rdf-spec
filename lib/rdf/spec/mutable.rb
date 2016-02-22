@@ -196,8 +196,8 @@ RSpec.shared_examples 'an RDF::Mutable' do
           en = RDF::Literal('abc', language: 'en')
           fi = RDF::Literal('abc', language: 'fi')
 
-          subject.insert([RDF::URI('s'), RDF::URI('p'), en])
-          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), fi]) }
+          subject.insert([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), en])
+          expect { subject.delete([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), fi]) }
             .not_to change { subject.count }
         end
       end
@@ -207,9 +207,9 @@ RSpec.shared_examples 'an RDF::Mutable' do
           dec = RDF::Literal::Decimal.new(1)
           int = RDF::Literal::Integer.new(1)
 
-          subject.insert([RDF::URI('s'), RDF::URI('p'), dec])
+          subject.insert([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), dec])
           
-          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), int]) }
+          expect { subject.delete([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), int]) }
             .not_to change { subject.count }
         end
       end
@@ -219,9 +219,9 @@ RSpec.shared_examples 'an RDF::Mutable' do
           one      = RDF::Literal::Integer.new("1")
           zero_one = RDF::Literal::Integer.new("01")
 
-          subject.insert([RDF::URI('s'), RDF::URI('p'), one])
+          subject.insert([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), one])
           
-          expect { subject.delete([RDF::URI('s'), RDF::URI('p'), zero_one]) }
+          expect { subject.delete([RDF::URI('http://example.com/s'), RDF::URI('http://example.com/p'), zero_one]) }
             .not_to change { subject.count }
         end
       end
@@ -262,9 +262,9 @@ RSpec.shared_examples 'an RDF::Mutable' do
         it 'handles Graph names' do
           if @supports_named_graphs
             dels = non_bnode_statements.take(10).map do |st|
-              RDF::Statement.from(st.to_hash.merge(graph_name: RDF::URI('fake')))
+              RDF::Statement.from(st.to_hash.merge(graph_name: RDF::URI('http://example.com/fake')))
             end
-            dels.map! { |st| st.graph_name = RDF::URI('fake'); st }
+            dels.map! { |st| st.graph_name = RDF::URI('http://example.com/fake'); st }
             dels.extend(RDF::Enumerable)
             expect { subject.delete_insert(dels, []) }
               .not_to change { subject.statements.count }
