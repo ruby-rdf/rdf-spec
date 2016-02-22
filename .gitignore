@@ -6,3 +6,5 @@ tmp
 /*.gem
 /*.lock
 /doc/
+/coverage/
+/.byebug_history

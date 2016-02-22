@@ -10,6 +10,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       defined? writer
   end
   let(:writer_class) { writer.class }
+  let(:reader_class) { writer_class.format.reader}
 
   describe ".each" do
     it "yields each writer" do
@@ -24,6 +25,28 @@ RSpec.shared_examples 'an RDF::Writer' do
       expect(writer_class).to receive(:new)
       writer_class.buffer do |r|
         expect(r).to be_a(writer_class)
+      end
+    end
+
+    it "should serialize different BNodes sharing a common identifier to using different BNode ids" do
+      if reader_class
+        n1 = RDF::Node("a")
+        n2 = RDF::Node("a")
+        p = RDF::URI("http://example/pred")
+        s1 = RDF::Statement(n1, p, n1)
+        s2 = RDF::Statement(n2, p, n2)
+        s3 = RDF::Statement(n1, p, n2)
+        s4 = RDF::Statement(n2, p, n1)
+        graph = RDF::Graph.new.insert(s1, s2, s3, s4)
+        expect(graph.count).to eql 4
+        serialized = writer_class.buffer do |w|
+          w << graph
+        end
+        expect(serialized).not_to be_empty
+        graph2 = RDF::Graph.new do |g|
+          g << reader_class.new(serialized)
+        end
+        expect(graph2.count).to eql 4
       end
     end
   end
@@ -134,10 +157,34 @@ RSpec.shared_examples 'an RDF::Writer' do
       end
     end
 
+    it "raises WriterError if writing an invalid statement" do
+      file = StringIO.new
+      expect do
+        writer_class.new(file, logger: false) do |w|
+          w << RDF::Statement(
+                 RDF::URI("http://rubygems.org/gems/rdf"),
+                 RDF::URI("http://purl.org/dc/terms/creator"),
+                 nil)
+        end
+      end.to raise_error(RDF::WriterError)
+    end
+
+    it "raises WriterError on any logged error" do
+      file = StringIO.new
+      logger = RDF::Spec.logger
+      expect do
+        writer_class.new(file, logger: logger) do |w|
+          w.log_error("some error")
+        end
+      end.to raise_error(RDF::WriterError)
+      expect(logger.to_s).to include("ERROR")
+    end
+
+    # FIXME: RSpec seems to blead over __write_epilogue_without_any_instance__ to other specs
     #it "calls #write_prologue" do
     #  writer_mock = double("writer")
-    #  writer_mock.is_expected.to_receive(:got_here)
-    #  writer_class.any_instance.is_expected.to_receive(:write_prologue)
+    #  expect(writer_mock).to receive(:got_here)
+    #  expect_any_instance_of(writer_class).to receive(:write_epilogue)
     #  writer_class.new(StringIO.new) do |r|
     #    writer_mock.got_here
     #  end
@@ -145,8 +192,8 @@ RSpec.shared_examples 'an RDF::Writer' do
     #
     #it "calls #write_epilogue" do
     #  writer_mock = double("writer")
-    #  writer_mock.is_expected.to_receive(:got_here)
-    #  writer_class.any_instance.is_expected.to_receive(:write_epilogue)
+    #  expect(writer_mock).to receive(:got_here)
+    #  expect_any_instance_of(writer_class).to receive(:write_epilogue)
     #  writer_class.new(StringIO.new) do |r|
     #    writer_mock.got_here
     #  end
@@ -169,30 +216,6 @@ RSpec.shared_examples 'an RDF::Writer' do
       it "sets prefix(#{pfx}) to #{uri}" do
         expect(writer.prefix(pfx, uri)).to eq uri
         expect(writer.prefix(pfx)).to eq uri
-      end
-    end
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Writer"` instead
-module RDF_Writer
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Writer` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Writer'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Writer' do
-      let(:writer_class) { @writer_class }
-      let(:writer) { @writer }
-
-      before do
-        raise '@writer_class must be defined' unless defined?(writer_class)
-        raise '@writer must be defined' unless defined?(writer)
       end
     end
   end

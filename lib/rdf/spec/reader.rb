@@ -7,6 +7,7 @@ RSpec.shared_examples 'an RDF::Reader' do
     raise 'reader must be defined with let(:reader)' unless defined? reader
     raise 'reader_input must be defined with let(:reader_input)' unless defined? reader_input
     raise 'reader_count must be defined with let(:reader_count)' unless defined? reader_count
+    # define reader_invalid_input for invalid input
   end
 
   let(:reader_class) { reader.class }
@@ -107,9 +108,28 @@ RSpec.shared_examples 'an RDF::Reader' do
       end
     end
 
-    it "sets validate given validate: true" do
+    it "validates given validate: true" do
       reader_class.new(reader_input, validate: true) do |r|
         expect(r).to be_valid
+      end
+    end
+
+    it "invalidates on any logged error if validate: true" do
+      logger = RDF::Spec.logger
+      reader_class.new(reader_input, validate: true, logger: logger) do |r|
+        expect(r).to be_valid
+        r.log_error("some error")
+        expect(r).not_to be_valid
+      end
+      expect(logger.to_s).to include("ERROR")
+    end
+
+    it "invalidates given invalid input and validate: true" do
+      invalid_input = reader_invalid_input rescue "!!invalid input??"
+      logger = RDF::Spec.logger
+      reader_class.new(invalid_input, validate: true, logger: logger) do |r|
+        expect(r).not_to be_valid
+        expect(logger.to_s).to include("ERROR")
       end
     end
 
@@ -202,33 +222,5 @@ RSpec.shared_examples 'an RDF::Reader' do
       reader_class.new(reader_input) {|r| expect(r.enum_quad.count).to eq reader_count}
     end
 
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Reader"` instead
-module RDF_Reader
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Reader` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Reader'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Reader' do
-      let(:reader) { @reader }
-      let(:reader_input) { @reader_input }
-      let(:reader_count) { @reader_count }
-      let(:reader_class) { @reader_class }
-
-      before do
-        raise '@reader must be defined' unless defined?(reader)
-        raise '@reader_input must be defined' unless defined?(reader_input)
-        raise '@reader_count must be defined' unless defined?(reader_count)
-        raise '@reader_class must be defined' unless defined?(reader_class)
-      end
-    end
   end
 end

@@ -6,8 +6,7 @@ require 'rdf/spec'
 #describe RDF::DataObjects::Repository do
 #  context "The SQLite adapter" do
 #    before :each do
-#      @repository = RDF::DataObjects::Repository.new "sqlite3://:memory:"
-#      @load_durable = lambda { RDF::DataObjects::Repository.new "sqlite3:test.db" }
+#      @load_durable = lambda { RDF::DataObjects::Repository.new uri: "sqlite3:test.db" }
 #    end
 #
 #    after :each do
@@ -29,38 +28,24 @@ RSpec.shared_examples 'an RDF::Durable' do
 
   it { is_expected.to respond_to(:durable?) }
 
-  it "is_expected.to support #durable?" do
+  it "supports #durable?" do
     expect([true,false]).to be_member(subject.durable?)
   end
 
   it {is_expected.to respond_to(:nondurable?)}
 
-  it "is_expected.to support #nondurable?" do
+  it "supports #nondurable?" do
     expect([true,false]).to be_member(@load_durable.call.nondurable?)
   end
 
   its(:nondurable?) {is_expected.to_not eq subject.durable?}
 
-  it "is_expected.to save contents between instantiations" do
+  it "saves contents between instantiations" do
     if subject.durable?
-      subject.load(RDF::Spec::TRIPLES_FILE)
-      expect(subject.count).to eq File.readlines(RDF::Spec::TRIPLES_FILE).size
+      subject.insert RDF::Statement(RDF::RDFS.Resource, RDF.value, "string") if subject.empty?
+      subject.close if subject.respond_to?(:close)
+      new_instance = @load_durable.call
+      expect(new_instance).not_to be_empty
     end
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Durable"` instead
-module RDF_Durable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Durable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Durable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Durable'
   end
 end

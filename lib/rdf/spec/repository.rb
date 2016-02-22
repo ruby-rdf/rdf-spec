@@ -15,65 +15,105 @@ RSpec.shared_examples 'an RDF::Repository' do
     end
   end
 
-  let(:countable) { repository }
-  let(:enumerable) { repository }
-  let(:queryable) { repository }
   let(:mutable) { repository }
+  let(:dataset) { repository.supports?(:snapshots) ? repository.snapshot : repository }
+  subject { repository }
 
-  context "when counting statements" do
-    require 'rdf/spec/countable'
-    it_behaves_like 'an RDF::Countable'
+  context 'as dataset' do
+    require 'rdf/spec/dataset'
+    it_behaves_like 'an RDF::Dataset'
   end
 
-  context "when enumerating statements" do
-    require 'rdf/spec/enumerable'
-    it_behaves_like 'an RDF::Enumerable'
+  context 'as transactable' do
+    require 'rdf/spec/transactable'
+    let(:transactable) { repository }
+    it_behaves_like 'an RDF::Transactable'
   end
-
-  context "when querying statements" do
-    require 'rdf/spec/queryable'
-    it_behaves_like 'an RDF::Queryable'
-  end
-
-  # FIXME: This should be condition on the repository being mutable
+  
   context "when updating" do
     require 'rdf/spec/mutable'
 
-    before { mutable.clear }
-
+    before { mutable.clear if mutable.mutable? }
     it_behaves_like 'an RDF::Mutable'
+    
+    describe '#delete_insert' do
+      it 'updates transactionally' do
+        if mutable.mutable? && mutable.supports?(:atomic_writes)
+          expect(mutable).to receive(:commit_transaction).and_call_original
+          statement = RDF::Statement(:s, RDF::URI.new("urn:predicate:1"), :o)
+
+          mutable.delete_insert([statement], [statement])
+        end
+      end
+    end
   end
 
-  # FIXME: This should be condition on the repository being mutable
-  context "as a durable repository" do
-    require 'rdf/spec/durable'
-
-    before :each do
-      repository.clear
-      @load_durable ||= lambda { repository }
+  describe "#transaction" do
+    it 'gives an immutable transaction' do
+      expect { subject.transaction { insert([]) } }.to raise_error TypeError
     end
 
-    it_behaves_like 'an RDF::Durable'
+    it 'commits a successful transaction' do
+      statement = RDF::Statement(:s, RDF.type, :o)
+      expect(subject).to receive(:commit_transaction).and_call_original
+      
+      expect do
+        subject.transaction(mutable: true) { insert(statement) }
+      end.to change { subject.statements }.to include(statement)
+    end
+
+    it 'rolls back a failed transaction' do
+      original_contents = subject.statements
+      expect(subject).to receive(:rollback_transaction).and_call_original
+
+      expect do
+        subject.transaction(mutable: true) do
+          delete(*@statements)
+          raise 'my error'
+        end
+      end.to raise_error RuntimeError
+
+      expect(subject.statements).to contain_exactly(*original_contents)
+    end
   end
-end
 
-##
-# @deprecated use `it_behaves_like "an RDF::Repository"` instead
-module RDF_Repository
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
+  context "with snapshot support" do
 
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Repository` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Repository'`"
-  end
+    describe '#snapshot' do
+      it 'is not implemented when #supports(:snapshots) is false' do
+        unless subject.supports?(:snapshots) 
+          expect { subject.snapshot }.to raise_error NotImplementedError
+        end
+      end
+    end
 
-  describe 'examples for' do
-    include_examples 'an RDF::Repository' do
-      let(:repository) { @repository }
+    it 'returns a queryable #snapshot' do
+      if subject.supports? :snapshots
+        expect(subject.snapshot).to be_a RDF::Queryable
+        expect(mutable.snapshot).to be_a RDF::Dataset
+      end
+    end
 
-      before do
-        raise '@repository must be defined' unless defined?(repository)
+    it 'has repeatable read isolation or better' do
+      if repository.supports? :snapshots
+        good_isolation = [:repeatable_read, :snapshot, :serializable]
+        expect(good_isolation).to include repository.isolation_level
+      end
+    end
+
+    it 'gives an accurate snapshot' do
+      if subject.supports? :snapshots
+        snap = subject.snapshot
+        expect(snap.query([:s, :p, :o]))
+          .to contain_exactly(*subject.query([:s, :p, :o]))
+      end
+    end
+
+    it 'gives static snapshot' do
+      if subject.supports? :snapshots
+        snap = subject.snapshot
+        expect { subject.clear }
+          .not_to change { snap.query([:s, :p, :o]).to_a }
       end
     end
   end

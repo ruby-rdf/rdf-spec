@@ -1,4 +1,5 @@
 require 'rdf'   # @see http://rubygems.org/gems/rdf
+require 'rdf/isomorphic' # @see http://rubygems.org/gems/rdf-isomorphic
 require 'rspec' # @see http://rubygems.org/gems/rspec
 require 'rdf/spec/inspects'
 require 'rspec/its'
@@ -67,6 +68,23 @@ module RDF
     def self.triples
       require 'rdf/ntriples'
       (@triples ||=  RDF::NTriples::Reader.new(File.open(TRIPLES_FILE)).to_a).dup
+    end
+
+    # Logger used for Specs; allows clearing and converting to string
+    require 'logger'
+    def self.logger
+      logger = Logger.new(StringIO.new)
+      def logger.clear
+        @logdev.instance_variable_set(:@dev, StringIO.new)
+      end
+      def logger.to_s
+        dev = @logdev.instance_variable_get(:@dev)
+        dev.rewind
+        dev.read
+      end
+      logger.level = Logger::DEBUG
+      logger.formatter = lambda {|severity, datetime, progname, msg| "#{severity} #{msg}\n"}
+      logger
     end
   end # Spec
 end # RDF

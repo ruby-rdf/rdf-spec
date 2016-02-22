@@ -18,28 +18,6 @@ RSpec.shared_examples 'an RDF::Indexable' do
   end
 
   it "returns self on #index!" do
-    expect(subject.index!).to be
-  end
-end
-
-##
-# @deprecated use `it_behaves_like "an RDF::Indexable"` instead
-module RDF_Indexable
-  extend RSpec::SharedContext
-  include RDF::Spec::Matchers
-
-  def self.included(mod)
-    warn "[DEPRECATION] `RDF_Indexable` is deprecated. "\
-         "Please use `it_behaves_like 'an RDF::Indexable'`"
-  end
-
-  describe 'examples for' do
-    include_examples 'an RDF::Indexable' do
-      let(:indexable) { @indexable }
-
-      before do
-        raise '@indexable must be defined' unless defined?(indexable)
-      end
-    end
+    expect(subject.index!).to eql(subject)
   end
 end
