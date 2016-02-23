@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
 
   gem.name               = 'rdf-spec'
   gem.homepage           = 'http://ruby-rdf.github.com/rdf-spec/'
-  gem.license            = 'Public Domain' if gem.respond_to?(:license=)
+  gem.license            = 'Unlicense'
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb extension that provides RSpec matchers and shared examples for RDF objects.'
   gem.rubyforge_project  = 'rdf'
@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.email              = 'public-rdf-ruby@w3.org'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(AUTHORS CREDITS README UNLICENSE VERSION) + Dir.glob('etc/*') + Dir.glob('lib/**/*.rb') + Dir.glob('spec/*.rb')
+  gem.files              = %w(AUTHORS CREDITS README.md UNLICENSE VERSION) + Dir.glob('etc/*') + Dir.glob('lib/**/*.rb') + Dir.glob('spec/*.rb')
   gem.bindir             = %q(bin)
   gem.executables        = %w()
   gem.default_executable = gem.executables.first
@@ -28,7 +28,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version      = '>= 2.0'
   gem.requirements               = []
   gem.add_runtime_dependency     'rdf',             '>= 2.0.0.beta', '< 3'
-  gem.add_runtime_dependency     'rdf-isomorphic',  '>= 1.99', '< 3'
+  gem.add_runtime_dependency     'rdf-isomorphic',  '>= 2.0.0.beta', '< 3'
   gem.add_runtime_dependency     'rspec',           '~> 3.0'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.0'
   gem.add_runtime_dependency     'webmock',         '~> 1.17'
