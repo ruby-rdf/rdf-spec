@@ -39,5 +39,17 @@ RSpec.shared_examples 'an RDF::Transactable' do
 
       expect(subject.statements).to contain_exactly(*original_contents)
     end
+
+    context 'without block given' do
+      it 'returns a transaction' do
+        expect(subject.transaction).to be_a RDF::Transaction
+      end
+
+      it 'the returned transaction is live' do
+        tx = subject.transaction(mutable: true)
+        tx.insert(RDF::Statement(:s, RDF.type, :o))
+        expect { tx.execute }.not_to raise_error
+      end
+    end
   end
 end
