@@ -35,7 +35,8 @@ RSpec.shared_examples 'an RDF::Format' do
   describe ".reader" do
     it "returns a reader" do
       subject.each do |f|
-        expect(f.reader).not_to  be_nil
+        format_namespace = f.name.split('::')[0..-2].inject(Kernel) {|base, const| base.const_get(const)}
+        expect(f.reader).not_to be_nil if format_namespace.const_defined?(:Reader)
       end
     end
   end
@@ -46,7 +47,7 @@ RSpec.shared_examples 'an RDF::Format' do
     it "returns a writer" do
       subject.each do |f|
         format_namespace = f.name.split('::')[0..-2].inject(Kernel) {|base, const| base.const_get(const)}
-        expect(f.writer).not_to  be_nil if format_namespace.const_defined?(:Writer)
+        expect(f.writer).not_to be_nil if format_namespace.const_defined?(:Writer)
       end
     end
   end
