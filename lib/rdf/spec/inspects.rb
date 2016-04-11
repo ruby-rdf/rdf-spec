@@ -38,8 +38,8 @@ class Array
       string = "[\n"
       each do |item|
         string += "  {\n"
-          item.keys.map(&:to_s).sort.each do |key|
-            string += "      #{key}: #{item[key.to_sym].inspect}\n"
+          item.keys.sort_by(&:to_s).each do |key|
+            string += "      #{key.inspect}: #{item[key].inspect}\n"
           end
         string += "  },\n"
       end
@@ -49,8 +49,8 @@ class Array
       string = "[\n"
       each do |item|
         string += "  {\n"
-          item.bindings.keys.map(&:to_s).sort.each do |key|
-            string += "      #{key}: #{item.bindings[key.to_sym].inspect}\n"
+          item.bindings.keys.sort_by(&:to_s).each do |key|
+            string += "      #{key.inspect}: #{item.bindings[key].inspect}\n"
           end
         string += "  },\n"
       end
