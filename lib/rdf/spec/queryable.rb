@@ -85,18 +85,6 @@ RSpec.shared_examples 'an RDF::Queryable' do
           expect(solutions.size).to eq @statements.size
         end
 
-        it "returns statements from unnamed graphs with false graph_name" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
-          solutions = []
-          subject.send(method, pattern) {|s| solutions << s}
-
-          named_statements = subject.statements
-          named_statements.reject! {|st| st.has_name?} unless
-            subject.respond_to?(:graph_name) && !subject.graph_name.nil?
-
-          expect(solutions.size).to eq named_statements.size
-        end
-
         it "returns statements from named graphs with variable graph_name" do
           unless subject.graph_names.to_a.empty?
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
