@@ -314,8 +314,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_execute, true ) }
 
       it "defines a protected #query_execute method" do
-        expect(subject.class.protected_method_defined?(:query_execute))
-          .to be_truthy
+        expect(subject.protected_methods).to include :query_execute
       end
 
       include_examples 'query execution', :query_execute
@@ -327,7 +326,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_pattern, true ) }
 
       it "defines a protected #query_pattern method" do
-        expect(subject.class.protected_method_defined?(:query_pattern)).to be_truthy
+        expect(subject.protected_methods).to include :query_pattern
       end
       
       include_examples 'query pattern', :query_pattern 
