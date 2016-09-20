@@ -85,18 +85,6 @@ RSpec.shared_examples 'an RDF::Queryable' do
           expect(solutions.size).to eq @statements.size
         end
 
-        it "returns statements from unnamed graphs with false graph_name" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
-          solutions = []
-          subject.send(method, pattern) {|s| solutions << s}
-
-          named_statements = subject.statements
-          named_statements.reject! {|st| st.has_name?} unless
-            subject.respond_to?(:graph_name) && !subject.graph_name.nil?
-
-          expect(solutions.size).to eq named_statements.size
-        end
-
         it "returns statements from named graphs with variable graph_name" do
           unless subject.graph_names.to_a.empty?
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: :c)
@@ -314,8 +302,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_execute, true ) }
 
       it "defines a protected #query_execute method" do
-        expect(subject.class.protected_method_defined?(:query_execute))
-          .to be_truthy
+        expect(subject.protected_methods).to include :query_execute
       end
 
       include_examples 'query execution', :query_execute
@@ -327,7 +314,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_pattern, true ) }
 
       it "defines a protected #query_pattern method" do
-        expect(subject.class.protected_method_defined?(:query_pattern)).to be_truthy
+        expect(subject.protected_methods).to include :query_pattern
       end
       
       include_examples 'query pattern', :query_pattern 
