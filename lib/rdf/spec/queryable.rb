@@ -60,18 +60,31 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
       context "with specific patterns" do
         # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
-        {
-          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-          [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-          [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
-        }.each do |pattern, result|
-          pattern = RDF::Query::Pattern.from(pattern)
+        patterns =
+          { [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+            [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+            [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
+          }
+
+        literal_eq_patterns = 
+          [[nil, RDF::URI("http://example.org/p"), 1], 
+           [nil, nil, 1], 
+           [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")]]
+        
+        patterns.each do |pattern, result|
           it "returns #{result.inspect} given #{pattern.inspect}" do
+            unless subject.supports?(:literal_equality)
+              next if literal_eq_patterns.include?(pattern)
+            end
+
+            pattern = RDF::Query::Pattern.from(pattern)
             solutions = []
+
             subject.send(method, pattern) {|s| solutions << s}
+
             expect(solutions).to contain_exactly(*result)
           end
         end
@@ -264,7 +277,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
               end
 
               it 'has two solutions' do
-                expect(result.count).to eq 2
+                if subject.supports?(:literal_equality)
+                  expect(result.count).to eq 2
+                end
               end
 
               it "has xi1 as a solution" do
@@ -284,7 +299,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
               end
 
               it 'has one solution' do
-                expect(result.count).to eq 1
+                if subject.supports?(:literal_equality)
+                  expect(result.count).to eq 1
+                end
               end
 
               it "has xd1 as a solution" do

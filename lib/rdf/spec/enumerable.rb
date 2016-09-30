@@ -391,11 +391,16 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:each_term) {is_expected.to be_an_enumerator}
     context "#each_term" do
-      specify {
-        expect(subject.each_term.reject(&:node?).size).to eq non_bnode_terms.length
-      }
-      specify {expect(subject.each_term).to all(be_a_term)}
-      specify {subject.each_term {|value| expect(non_bnode_terms).to include(value) unless value.node?}}
+      it 'has correct number of terms' do
+        expected_count = non_bnode_terms.length
+        expected_count = expected_count - 3 unless 
+          subject.supports?(:literal_equality)
+
+        expect(subject.each_term.reject(&:node?).size).to eq expected_count
+      end
+
+      specify { expect(subject.each_term).to all(be_a_term) }
+      specify { subject.each_term {|value| expect(non_bnode_terms).to include(value) unless value.node?} }
     end
 
     its(:enum_term) {is_expected.to be_an_enumerator}
