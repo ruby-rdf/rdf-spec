@@ -512,11 +512,23 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
 
   context "when converting" do
-    it {is_expected.to respond_to(:to_hash)}
-    its(:to_hash) {is_expected.to be_instance_of(Hash)}
-    context "#to_hash" do
+    it {is_expected.to respond_to(:to_h)}
+    it {is_expected.not_to respond_to(:to_hash)}
+    its(:to_hash) {
+      expect {
+        is_expected.to be_instance_of(Hash)
+      }.to write("DEPRECATION").to(:error)
+    }
+    describe "#to_h" do
       it "should have as many keys as subjects" do
-        expect(subject.to_hash.keys.size).to eq enumerable.subjects.to_a.size
+        expect(subject.to_h.keys.size).to eq enumerable.subjects.to_a.size
+      end
+    end
+    describe "#to_h" do
+      it "should have as many keys as subjects (with deprecation)" do
+        expect {
+          expect(subject.to_hash.keys.size).to eq enumerable.subjects.to_a.size
+        }.to write("DEPRECATION").to(:error)
       end
     end
   end
