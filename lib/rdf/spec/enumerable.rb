@@ -391,11 +391,16 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:each_term) {is_expected.to be_an_enumerator}
     context "#each_term" do
-      specify {
-        expect(subject.each_term.reject(&:node?).size).to eq non_bnode_terms.length
-      }
-      specify {expect(subject.each_term).to all(be_a_term)}
-      specify {subject.each_term {|value| expect(non_bnode_terms).to include(value) unless value.node?}}
+      it 'has correct number of terms' do
+        expected_count = non_bnode_terms.length
+        expected_count = expected_count - 3 unless 
+          subject.supports?(:literal_equality)
+
+        expect(subject.each_term.reject(&:node?).size).to eq expected_count
+      end
+
+      specify { expect(subject.each_term).to all(be_a_term) }
+      specify { subject.each_term {|value| expect(non_bnode_terms).to include(value) unless value.node?} }
     end
 
     its(:enum_term) {is_expected.to be_an_enumerator}
@@ -507,11 +512,23 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
 
   context "when converting" do
-    it {is_expected.to respond_to(:to_hash)}
-    its(:to_hash) {is_expected.to be_instance_of(Hash)}
-    context "#to_hash" do
+    it {is_expected.to respond_to(:to_h)}
+    it {is_expected.not_to respond_to(:to_hash)}
+    its(:to_hash) {
+      expect {
+        is_expected.to be_instance_of(Hash)
+      }.to write("DEPRECATION").to(:error)
+    }
+    describe "#to_h" do
       it "should have as many keys as subjects" do
-        expect(subject.to_hash.keys.size).to eq enumerable.subjects.to_a.size
+        expect(subject.to_h.keys.size).to eq enumerable.subjects.to_a.size
+      end
+    end
+    describe "#to_h" do
+      it "should have as many keys as subjects (with deprecation)" do
+        expect {
+          expect(subject.to_hash.keys.size).to eq enumerable.subjects.to_a.size
+        }.to write("DEPRECATION").to(:error)
       end
     end
   end

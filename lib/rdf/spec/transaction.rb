@@ -250,6 +250,26 @@ shared_examples "an RDF::Transaction" do |klass|
     end
   end
 
+  describe '#mutated?' do
+    let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
+
+    it 'returns true after a successful insert' do
+      begin 
+        expect { subject.insert(st) }
+          .to change { subject.mutated? }.from(false).to(true)
+      rescue NotImplementedError; end
+    end
+
+    it 'returns true after a successful delete' do
+      repository.insert(st)
+
+      begin 
+        expect { subject.delete(st) }
+          .to change { subject.mutated? }.from(false).to(true)
+      rescue NotImplementedError; end
+    end
+  end
+
   describe '#execute' do
     let(:st) { RDF::Statement(:s, RDF::URI('http://example.com/p'), 'o') }
       

@@ -60,18 +60,31 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
       context "with specific patterns" do
         # Note that "01" should not match 1, per data-r2/expr-equal/sameTerm
-        {
-          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
-          [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-          [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
-          [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
-        }.each do |pattern, result|
-          pattern = RDF::Query::Pattern.from(pattern)
+        patterns =
+          { [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), nil] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [RDF::URI("http://example.org/xi1"), nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1])],
+            [nil, RDF::URI("http://example.org/p"), 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+            [nil, nil, 1] => [RDF::Statement.from([RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1]), RDF::Statement.from([RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1])],
+            [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")] => [RDF::Statement.from([RDF::URI("http://example.org/xd1"), RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")])],
+          }
+
+        literal_eq_patterns = 
+          [[nil, RDF::URI("http://example.org/p"), 1], 
+           [nil, nil, 1], 
+           [nil, RDF::URI("http://example.org/p"), RDF::Literal::Double.new("1.0e0")]]
+        
+        patterns.each do |pattern, result|
           it "returns #{result.inspect} given #{pattern.inspect}" do
+            unless subject.supports?(:literal_equality)
+              next if literal_eq_patterns.include?(pattern)
+            end
+
+            pattern = RDF::Query::Pattern.from(pattern)
             solutions = []
+
             subject.send(method, pattern) {|s| solutions << s}
+
             expect(solutions).to contain_exactly(*result)
           end
         end
@@ -83,18 +96,6 @@ RSpec.shared_examples 'an RDF::Queryable' do
           solutions = []
           subject.send(method, pattern) {|s| solutions << s}
           expect(solutions.size).to eq @statements.size
-        end
-
-        it "returns statements from unnamed graphs with false graph_name" do
-          pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: false)
-          solutions = []
-          subject.send(method, pattern) {|s| solutions << s}
-
-          named_statements = subject.statements
-          named_statements.reject! {|st| st.has_name?} unless
-            subject.respond_to?(:graph_name) && !subject.graph_name.nil?
-
-          expect(solutions.size).to eq named_statements.size
         end
 
         it "returns statements from named graphs with variable graph_name" do
@@ -276,7 +277,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
               end
 
               it 'has two solutions' do
-                expect(result.count).to eq 2
+                if subject.supports?(:literal_equality)
+                  expect(result.count).to eq 2
+                end
               end
 
               it "has xi1 as a solution" do
@@ -296,7 +299,9 @@ RSpec.shared_examples 'an RDF::Queryable' do
               end
 
               it 'has one solution' do
-                expect(result.count).to eq 1
+                if subject.supports?(:literal_equality)
+                  expect(result.count).to eq 1
+                end
               end
 
               it "has xd1 as a solution" do
@@ -314,8 +319,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_execute, true ) }
 
       it "defines a protected #query_execute method" do
-        expect(subject.class.protected_method_defined?(:query_execute))
-          .to be_truthy
+        expect(subject.protected_methods).to include :query_execute
       end
 
       include_examples 'query execution', :query_execute
@@ -327,7 +331,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       before { skip unless subject.respond_to?(:query_pattern, true ) }
 
       it "defines a protected #query_pattern method" do
-        expect(subject.class.protected_method_defined?(:query_pattern)).to be_truthy
+        expect(subject.protected_methods).to include :query_pattern
       end
       
       include_examples 'query pattern', :query_pattern 

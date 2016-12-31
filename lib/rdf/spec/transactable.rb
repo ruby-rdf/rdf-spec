@@ -18,7 +18,9 @@ RSpec.shared_examples 'an RDF::Transactable' do
     end
 
     it 'commits a successful transaction' do
-      statement = RDF::Statement(:s, RDF.type, :o)
+      statement = RDF::Statement(RDF::URI('http://example.com/s'), 
+                                 RDF.type, 
+                                 RDF::URI('http://example.com/o'))
       expect(subject).to receive(:commit_transaction).and_call_original
       
       expect do
