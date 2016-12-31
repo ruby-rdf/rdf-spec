@@ -27,9 +27,9 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version      = '>= 2.2.2'
   gem.requirements               = []
-  gem.add_runtime_dependency     'rdf',             '~> 2.0'
+  gem.add_runtime_dependency     'rdf',             '~> 2.1'
   gem.add_runtime_dependency     'rdf-isomorphic',  '~> 2.0'
-  gem.add_runtime_dependency     'rspec',           '~> 3.0'
+  gem.add_runtime_dependency     'rspec',           '~> 3.5'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.0'
   gem.add_runtime_dependency     'webmock',         '~> 2.3'
   gem.add_development_dependency 'yard' ,           '~> 0.8'
