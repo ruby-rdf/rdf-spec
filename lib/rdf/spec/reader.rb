@@ -1,4 +1,5 @@
 require 'rdf/spec'
+require 'webmock/rspec'
 
 RSpec.shared_examples 'an RDF::Reader' do
   include RDF::Spec::Matchers
@@ -24,10 +25,6 @@ RSpec.shared_examples 'an RDF::Reader' do
   describe ".open" do
     it "yields reader given file_name" do
       allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(reader_input))
-    end
-
-    it "yields reader given file_name" do
-      reader_class.format.each do |f|
       format_class.file_extensions.each_pair do |sym, content_type|
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
@@ -35,7 +32,6 @@ RSpec.shared_examples 'an RDF::Reader' do
         RDF::Reader.open("foo.#{sym}") do |r|
           expect(r).to be_a(reader_class)
           reader_mock.got_here
-          end
         end
       end
     end
@@ -77,12 +73,67 @@ RSpec.shared_examples 'an RDF::Reader' do
         end
       end
     end
+
+    it "yields reader when returned content_type matches" do
+      format_class.content_types.each_pair do |content_type, formats|
+        uri = "http://example/foo"
+        reader_mock = double("reader")
+        expect(reader_mock).to receive(:got_here)
+        expect(RDF::Reader).to receive(:for).and_return(reader_class)
+
+        WebMock.stub_request(:get, uri).
+          to_return(body: "BODY",
+                    status: 200,
+                    headers: { 'Content-Type' => content_type})
+
+        RDF::Reader.open(uri) do |r|
+          expect(r).to be_a(reader_class)
+          reader_mock.got_here
+        end
+      end
+    end
+
+    it "sets Accept header from reader" do
+      uri = "http://example/foo"
+      accept = (format_class.accept_type + %w(*/*;q=0.1)).join(", ")
+      reader_mock = double("reader")
+      expect(reader_mock).to receive(:got_here)
+      WebMock.stub_request(:get, uri).with do |request|
+        expect(request.headers['Accept']).to eql accept
+      end.to_return(body: "foo")
+
+      reader_class.open(uri) do |r|
+        expect(r).to be_a(reader_class)
+        reader_mock.got_here
+      end
+    end
+
+    it "sets Accept header from symbol" do
+      uri = "http://example/foo"
+      sym = format_class.to_sym  # Like RDF::NTriples::Format => :ntriples
+      accept = (format_class.accept_type + %w(*/*;q=0.1)).join(", ")
+      reader_mock = double("reader")
+      expect(reader_mock).to receive(:got_here)
+      WebMock.stub_request(:get, uri).with do |request|
+        expect(request.headers['Accept']).to eql accept
+      end.to_return(body: "foo")
+      expect(RDF::Reader).to receive(:for).with(sym).and_return(reader_class)
+
+      RDF::Reader.open(uri, format: sym) do |r|
+        expect(r).to be_a(reader_class)
+        reader_mock.got_here
+      end
+    end
   end
 
   describe ".format" do
-    it "returns itself even if given explicit format" do
+    it "returns a format class if given no format" do
+      expect(reader_class.format).not_to be_nil
+    end
+
+    it "returns nil if given a format" do
       other_format = reader_class == RDF::NTriples::Reader ? :nquads : :ntriples
-      expect(reader_class.for(other_format)).to eq reader_class
+      expect(reader_class.format(other_format)).to be_nil
     end
   end
 
