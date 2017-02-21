@@ -11,6 +11,7 @@ RSpec.shared_examples 'an RDF::Writer' do
   end
   let(:writer_class) { writer.class }
   let(:reader_class) { writer_class.format.reader}
+  let(:format_class) { writer_class.format }
 
   describe ".each" do
     it "yields each writer" do
@@ -63,56 +64,48 @@ RSpec.shared_examples 'an RDF::Writer' do
     end
 
     it "yields writer given file_name" do
-      writer_class.format.each do |f|
-        f.file_extensions.each_pair do |sym, content_type|
-          writer_mock = double("writer")
-          expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
-          writer_class.open("#{@basename}.#{sym}") do |r|
-            expect(r).to be_a(RDF::Writer)
-            writer_mock.got_here
-          end
-        end
-      end
-    end
-
-    it "yields writer given symbol" do
-      writer_class.format.each do |f|
-        sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
+      format_class.file_extensions.each_pair do |sym, content_type|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(sym).and_return(writer_class)
-        writer_class.open("#{@basename}.#{sym}", format: sym) do |r|
+        expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
+        writer_class.open("#{@basename}.#{sym}") do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
         end
       end
     end
 
+    it "yields writer given symbol" do
+      sym = format_class.to_sym  # Like RDF::NTriples::Format => :ntriples
+      writer_mock = double("writer")
+      expect(writer_mock).to receive(:got_here)
+      expect(writer_class).to receive(:for).with(sym).and_return(writer_class)
+      writer_class.open("#{@basename}.#{sym}", format: sym) do |r|
+        expect(r).to be_a(RDF::Writer)
+        writer_mock.got_here
+      end
+    end
+
     it "yields writer given {file_name: file_name}" do
-      writer_class.format.each do |f|
-        f.file_extensions.each_pair do |sym, content_type|
-          writer_mock = double("writer")
-          expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
-          writer_class.open("#{@basename}.#{sym}", file_name: "#{@basename}.#{sym}") do |r|
-            expect(r).to be_a(RDF::Writer)
-            writer_mock.got_here
-          end
+      format_class.file_extensions.each_pair do |sym, content_type|
+        writer_mock = double("writer")
+        expect(writer_mock).to receive(:got_here)
+        expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
+        writer_class.open("#{@basename}.#{sym}", file_name: "#{@basename}.#{sym}") do |r|
+          expect(r).to be_a(RDF::Writer)
+          writer_mock.got_here
         end
       end
     end
 
     it "yields writer given {content_type: 'a/b'}" do
-      writer_class.format.each do |f|
-        f.content_types.each_pair do |content_type, formats|
-          writer_mock = double("writer")
-          expect(writer_mock).to receive(:got_here)
-          expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @basename).and_return(writer_class)
-          writer_class.open(@basename, content_type: content_type) do |r|
-            expect(r).to be_a(RDF::Writer)
-            writer_mock.got_here
-          end
+      format_class.content_types.each_pair do |content_type, formats|
+        writer_mock = double("writer")
+        expect(writer_mock).to receive(:got_here)
+        expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @basename).and_return(writer_class)
+        writer_class.open(@basename, content_type: content_type) do |r|
+          expect(r).to be_a(RDF::Writer)
+          writer_mock.got_here
         end
       end
     end
