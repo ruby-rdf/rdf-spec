@@ -314,6 +314,19 @@ module RDF; module Spec
         "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
+
+      failure_message_when_negated do |actual|
+        format = case
+        when RDF.const_defined?(:TriG) then :trig
+        when RDF.const_defined?(:Turtle) then :ttl
+        else :nquads
+        end
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+        "Graphs identical\n" +
+        "\n#{info + "\n" unless info.empty?}" +
+        "Results:\n#{actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "\nDebug:\n#{@info.logger}"
+      end
     end
 
     require 'json'
@@ -343,6 +356,15 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
         "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "\n#{info + "\n" unless info.empty?}" +
+        "\nDebug:\n#{@info.logger}"
+      end
+
+      failure_message_when_negated do |actual|
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+
+        "Expected not to produce the following:\n" + 
         "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
