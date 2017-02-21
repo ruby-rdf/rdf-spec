@@ -11,6 +11,7 @@ RSpec.shared_examples 'an RDF::Reader' do
   end
 
   let(:reader_class) { reader.class }
+  let(:format_class) { reader_class.format }
 
   describe ".each" do
     it "yields each reader" do
@@ -21,61 +22,58 @@ RSpec.shared_examples 'an RDF::Reader' do
   end
 
   describe ".open" do
-    before(:each) do
+    it "yields reader given file_name" do
       allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(reader_input))
     end
 
     it "yields reader given file_name" do
       reader_class.format.each do |f|
-        f.file_extensions.each_pair do |sym, content_type|
-          reader_mock = double("reader")
-          expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
-          reader_class.open("foo.#{sym}") do |r|
-            expect(r).to be_a(RDF::Reader)
-            reader_mock.got_here
+      format_class.file_extensions.each_pair do |sym, content_type|
+        reader_mock = double("reader")
+        expect(reader_mock).to receive(:got_here)
+        expect(RDF::Reader).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
+        RDF::Reader.open("foo.#{sym}") do |r|
+          expect(r).to be_a(reader_class)
+          reader_mock.got_here
           end
         end
       end
     end
 
     it "yields reader given symbol" do
-      reader_class.format.each do |f|
-        sym = f.to_sym  # Like RDF::NTriples::Format => :ntriples
+      allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(reader_input))
+      sym = format_class.to_sym  # Like RDF::NTriples::Format => :ntriples
+      reader_mock = double("reader")
+      expect(reader_mock).to receive(:got_here)
+      expect(RDF::Reader).to receive(:for).with(sym).and_return(reader_class)
+      RDF::Reader.open("foo.#{sym}", format: sym) do |r|
+        expect(r).to be_a(reader_class)
+        reader_mock.got_here
+      end
+    end
+
+    it "yields reader given {file_name: file_name}" do
+      allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(reader_input))
+      format_class.file_extensions.each_pair do |sym, content_type|
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        expect(reader_class).to receive(:for).with(sym).and_return(reader_class)
-        reader_class.open("foo.#{sym}", format: sym) do |r|
-          expect(r).to be_a(RDF::Reader)
+        expect(RDF::Reader).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
+        RDF::Reader.open("foo.#{sym}", file_name: "foo.#{sym}") do |r|
+          expect(r).to be_a(reader_class)
           reader_mock.got_here
         end
       end
     end
 
-    it "yields reader given {file_name: file_name}" do
-      reader_class.format.each do |f|
-        f.file_extensions.each_pair do |sym, content_type|
-          reader_mock = double("reader")
-          expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
-          reader_class.open("foo.#{sym}", file_name: "foo.#{sym}") do |r|
-            expect(r).to be_a(RDF::Reader)
-            reader_mock.got_here
-          end
-        end
-      end
-    end
-
     it "yields reader given {content_type: 'a/b'}" do
-      reader_class.format.each do |f|
-        f.content_types.each_pair do |content_type, formats|
-          reader_mock = double("reader")
-          expect(reader_mock).to receive(:got_here)
-          expect(reader_class).to receive(:for).with(content_type: content_type, file_name: "foo").and_return(reader_class)
-          reader_class.open("foo", content_type: content_type) do |r|
-            expect(r).to be_a(RDF::Reader)
-            reader_mock.got_here
-          end
+      allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new(reader_input))
+      format_class.content_types.each_pair do |content_type, formats|
+        reader_mock = double("reader")
+        expect(reader_mock).to receive(:got_here)
+        expect(RDF::Reader).to receive(:for).with(content_type: content_type, file_name: "foo").and_return(reader_class)
+        RDF::Reader.open("foo", content_type: content_type) do |r|
+          expect(r).to be_a(reader_class)
+          reader_mock.got_here
         end
       end
     end
