@@ -10,6 +10,8 @@ RSpec.shared_examples 'an RDF::Reader' do
     raise 'reader_count must be defined with let(:reader_count)' unless defined? reader_count
     # define reader_invalid_input for invalid input
   end
+  before(:each) {WebMock.disable_net_connect!}
+  after(:each) {WebMock.allow_net_connect!}
 
   let(:reader_class) { reader.class }
   let(:format_class) { reader_class.format }
