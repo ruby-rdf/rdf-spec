@@ -9,6 +9,8 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
     raise '`http_adapter` must be defined with `let(:http_adapter`' unless
       defined? http_adapter
   end
+  before(:each) {WebMock.disable_net_connect!}
+  after(:each) {WebMock.allow_net_connect!}
 
   let(:uri) {"http://ruby-rdf.github.com/rdf/etc/doap.nt"}
 
