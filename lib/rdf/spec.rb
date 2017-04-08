@@ -3,6 +3,8 @@ require 'rdf/isomorphic' # @see http://rubygems.org/gems/rdf-isomorphic
 require 'rspec' # @see http://rubygems.org/gems/rspec
 require 'rdf/spec/inspects'
 require 'rspec/its'
+require 'webmock'
+WebMock.allow_net_connect!
 
 module RDF
   ##
