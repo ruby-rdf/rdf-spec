@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gemspec
 
-gem 'rdf',            github: "ruby-rdf/rdf",             branch: "feature/3.0-dev"
+gem 'rdf',            github: "ruby-rdf/rdf",             branch: "develop"
 gem 'rdf-isomorphic', github: "ruby-rdf/rdf-isomorphic",  branch: "develop"
 
 group :debug do
