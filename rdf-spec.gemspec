@@ -10,7 +10,6 @@ Gem::Specification.new do |gem|
   gem.license            = 'Unlicense'
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb extension that provides RSpec matchers and shared examples for RDF objects.'
-  gem.rubyforge_project  = 'rdf'
 
   gem.authors            = ['Arto Bendiken', 'Ben Lavender', 'Gregg Kellogg']
   gem.email              = 'public-rdf-ruby@w3.org'
@@ -27,11 +26,11 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version      = '>= 2.2.2'
   gem.requirements               = []
-  gem.add_runtime_dependency     'rdf',             '~> 2.2'
-  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 2.0'
-  gem.add_runtime_dependency     'rspec',           '~> 3.5'
-  gem.add_runtime_dependency     'rspec-its',       '~> 1.0'
-  gem.add_runtime_dependency     'webmock',         '~> 2.3'
-  gem.add_development_dependency 'yard' ,           '~> 0.8'
+  gem.add_runtime_dependency     'rdf',             '~> 3.0'
+  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.0'
+  gem.add_runtime_dependency     'rspec',           '~> 3.7'
+  gem.add_runtime_dependency     'rspec-its',       '~> 1.2'
+  gem.add_runtime_dependency     'webmock',         '~> 3.1'
+  gem.add_development_dependency 'yard' ,           '~> 0.9.12'
   gem.post_install_message       = nil
 end

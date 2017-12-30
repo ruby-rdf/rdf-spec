@@ -269,20 +269,6 @@ module RDF; module Spec
 
     RSpec::Matchers.define :be_equivalent_graph do |expected, info|
       match do |actual|
-        def normalize(graph)
-          case graph
-          when RDF::Enumerable then graph
-          when IO, StringIO
-            RDF::Repository.new(graph, base_uri: @info.action)
-          else
-            # Figure out which parser to use
-            r = RDF::Repository.new
-            reader_class = RDF::Reader.for() {graph}
-            reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
-            r
-          end
-        end
-
         @info = if (info.id rescue false)
           info
         elsif info.is_a?(Logger)
@@ -314,6 +300,33 @@ module RDF; module Spec
         "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
+
+      failure_message_when_negated do |actual|
+        format = case
+        when RDF.const_defined?(:TriG) then :trig
+        when RDF.const_defined?(:Turtle) then :ttl
+        else :nquads
+        end
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+        "Graphs identical\n" +
+        "\n#{info + "\n" unless info.empty?}" +
+        "Results:\n#{actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "\nDebug:\n#{@info.logger}"
+      end
+
+      def normalize(graph)
+        case graph
+        when RDF::Enumerable then graph
+        when IO, StringIO
+          RDF::Repository.new(graph, base_uri: @info.action)
+        else
+          # Figure out which parser to use
+          r = RDF::Repository.new
+          reader_class = RDF::Reader.for() {graph}
+          reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
+          r
+        end
+      end
     end
 
     require 'json'
@@ -343,6 +356,15 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
         "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "\n#{info + "\n" unless info.empty?}" +
+        "\nDebug:\n#{@info.logger}"
+      end
+
+      failure_message_when_negated do |actual|
+        info = @info.respond_to?(:information) ? @info.information : @info.inspect
+
+        "Expected not to produce the following:\n" + 
         "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
