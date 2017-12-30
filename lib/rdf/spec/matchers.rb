@@ -269,20 +269,6 @@ module RDF; module Spec
 
     RSpec::Matchers.define :be_equivalent_graph do |expected, info|
       match do |actual|
-        def normalize(graph)
-          case graph
-          when RDF::Enumerable then graph
-          when IO, StringIO
-            RDF::Repository.new(graph, base_uri: @info.action)
-          else
-            # Figure out which parser to use
-            r = RDF::Repository.new
-            reader_class = RDF::Reader.for() {graph}
-            reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
-            r
-          end
-        end
-
         @info = if (info.id rescue false)
           info
         elsif info.is_a?(Logger)
@@ -326,6 +312,20 @@ module RDF; module Spec
         "\n#{info + "\n" unless info.empty?}" +
         "Results:\n#{actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
+      end
+
+      def normalize(graph)
+        case graph
+        when RDF::Enumerable then graph
+        when IO, StringIO
+          RDF::Repository.new(graph, base_uri: @info.action)
+        else
+          # Figure out which parser to use
+          r = RDF::Repository.new
+          reader_class = RDF::Reader.for() {graph}
+          reader_class.new(graph, base_uri: @info.action).each {|s| r << s}
+          r
+        end
       end
     end
 
