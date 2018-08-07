@@ -13,6 +13,27 @@ RSpec.shared_examples 'an RDF::Writer' do
   let(:reader_class) { writer_class.format.reader}
   let(:format_class) { writer_class.format }
 
+  let(:graph) do
+    @graph ||= begin
+      n1 = RDF::Node("a")
+      n2 = RDF::Node("a")
+      p = RDF::URI("http://example/pred")
+      s1 = RDF::Statement(n1, p, n1)
+      s2 = RDF::Statement(n2, p, n2)
+      s3 = RDF::Statement(n1, p, n2)
+      s4 = RDF::Statement(n2, p, n1)
+      RDF::Graph.new.insert(s1, s2, s3, s4)
+    end
+  end
+
+  let(:serialized) do
+    @serialized ||= begin
+      writer_class.buffer do |w|
+        w << graph
+      end
+    end
+  end
+
   describe ".each" do
     it "yields each writer" do
       writer_class.each do |r|
@@ -31,24 +52,30 @@ RSpec.shared_examples 'an RDF::Writer' do
 
     it "should serialize different BNodes sharing a common identifier to using different BNode ids" do
       if reader_class
-        n1 = RDF::Node("a")
-        n2 = RDF::Node("a")
-        p = RDF::URI("http://example/pred")
-        s1 = RDF::Statement(n1, p, n1)
-        s2 = RDF::Statement(n2, p, n2)
-        s3 = RDF::Statement(n1, p, n2)
-        s4 = RDF::Statement(n2, p, n1)
-        graph = RDF::Graph.new.insert(s1, s2, s3, s4)
-        expect(graph.count).to eql 4
-        serialized = writer_class.buffer do |w|
-          w << graph
-        end
         expect(serialized).not_to be_empty
         graph2 = RDF::Graph.new do |g|
           g << reader_class.new(serialized)
         end
         expect(graph2.count).to eql 4
       end
+    end
+
+    it "returns a string" do
+      expect(serialized).to be_a(String)
+    end
+
+    it "should use encoding defined for format by default" do
+      writer_class.new do |w|
+        expect(serialized.encoding).to eql w.encoding
+      end
+    end
+
+    it "should use provided encoding if specified" do
+      str = writer_class.buffer(encoding: Encoding::ASCII_8BIT) do |w|
+        w << graph
+      end
+
+      expect(str.encoding).to eql Encoding::ASCII_8BIT
     end
   end
 
