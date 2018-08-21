@@ -9,14 +9,14 @@ RSpec.shared_examples 'an RDF::Mutable' do
       defined? mutable
 
     skip "Immutable resource" unless mutable.mutable?
-    @statements = RDF::Spec.triples
+    @rdf_mutable_iv_statements = RDF::Spec.triples
     @supports_named_graphs = mutable.respond_to?(:supports?) && mutable.supports?(:graph_name)
     @supports_literal_equality = mutable.respond_to?(:supports?) && mutable.supports?(:literal_equality)
   end
 
   let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
   let(:graph_name) { RDF::URI('http://example.org/graph_name') }
-  let(:non_bnode_statements) {@statements.reject(&:node?)}
+  let(:non_bnode_statements) {@rdf_mutable_iv_statements.reject(&:node?)}
 
   describe RDF::Mutable do
     subject { mutable }
@@ -139,7 +139,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
 
     context "when deleting statements" do
       before :each do
-        subject.insert(*@statements)
+        subject.insert(*@rdf_mutable_iv_statements)
       end
 
       it "should not raise errors" do
@@ -152,7 +152,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
 
       it "should support deleting multiple statements at a time" do
-        subject.delete(*@statements)
+        subject.delete(*@rdf_mutable_iv_statements)
         expect(subject.find { |s| subject.has_statement?(s) }).to be_nil
       end
 
@@ -234,13 +234,13 @@ RSpec.shared_examples 'an RDF::Mutable' do
         end
 
         it 'deletes and inserts' do
-          subject.delete_insert(@statements, [statement])
+          subject.delete_insert(@rdf_mutable_iv_statements, [statement])
           is_expected.to contain_exactly statement
         end
 
         it 'deletes before inserting' do
-          subject.delete_insert(@statements, [@statements.first])
-          is_expected.to contain_exactly @statements.first
+          subject.delete_insert(@rdf_mutable_iv_statements, [@rdf_mutable_iv_statements.first])
+          is_expected.to contain_exactly @rdf_mutable_iv_statements.first
         end
 
         it 'deletes patterns' do
@@ -276,7 +276,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
             if subject.mutable? && subject.supports?(:atomic_write)
               contents = subject.statements.to_a
 
-              expect { subject.delete_insert(@statements, [nil]) }
+              expect { subject.delete_insert(@rdf_mutable_iv_statements, [nil]) }
                 .to raise_error ArgumentError
               expect(subject.statements).to contain_exactly(*contents)
             end

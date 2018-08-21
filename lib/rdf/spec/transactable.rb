@@ -3,7 +3,7 @@ require 'rdf/spec'
 RSpec.shared_examples 'an RDF::Transactable' do
   include RDF::Spec::Matchers
 
-  let(:statements) { RDF::Spec.quads }
+  let(:statements) { @rdf_transactable_iv_statements = RDF::Spec.quads }
 
   before do
     raise '`transactable` must be set with `let(:transactable)`' unless
@@ -34,7 +34,7 @@ RSpec.shared_examples 'an RDF::Transactable' do
 
       expect do
         subject.transaction(mutable: true) do
-          delete(*@statements)
+          delete(*statements)
           raise 'my error'
         end
       end.to raise_error RuntimeError

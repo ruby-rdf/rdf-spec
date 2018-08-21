@@ -7,25 +7,24 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     raise 'enumerable must be set with `let(:enumerable)' unless
       defined? enumerable
 
-    @statements ||= RDF::Spec.quads
+    @rdf_enumerable_iv_statements ||= RDF::Spec.quads
 
     if enumerable.empty?
       if (enumerable.writable? rescue false)
-        enumerable.insert(*@statements)
+        enumerable.insert(*@rdf_enumerable_iv_statements)
       elsif enumerable.respond_to?(:<<)
-        @statements.each { |statement| enumerable << statement }
+        @rdf_enumerable_iv_statements.each { |statement| enumerable << statement }
       else
         raise "@enumerable must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
       end
     end
-
-    @supports_named_graphs = enumerable.supports?(:graph_name) rescue true
   end
 
-  let(:subject_count) {@statements.map(&:subject).uniq.length}
-  let(:bnode_subject_count) {@statements.map(&:subject).uniq.select(&:node?).length}
-  let(:non_bnode_statements) {@statements.reject(&:node?)}
-  let(:non_bnode_terms) {@statements.map(&:to_quad).flatten.compact.reject(&:node?).uniq}
+  let(:supports_named_graphs) {enumerable.supports?(:graph_name) rescue true}
+  let(:subject_count) {@rdf_enumerable_iv_statements.map(&:subject).uniq.length}
+  let(:bnode_subject_count) {@rdf_enumerable_iv_statements.map(&:subject).uniq.select(&:node?).length}
+  let(:non_bnode_statements) {@rdf_enumerable_iv_statements.reject(&:node?)}
+  let(:non_bnode_terms) {@rdf_enumerable_iv_statements.map(&:to_quad).flatten.compact.reject(&:node?).uniq}
 
   subject { enumerable }
   it {is_expected.to respond_to(:supports?)}
@@ -57,9 +56,9 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:empty?)}
     it {is_expected.to_not be_empty}
     it {is_expected.to respond_to(:count)}
-    its(:count) {is_expected.to eq @statements.size}
+    its(:count) {is_expected.to eq @rdf_enumerable_iv_statements.size}
     it {is_expected.to respond_to(:size)}
-    its(:size) {is_expected.to eq @statements.size}
+    its(:size) {is_expected.to eq @rdf_enumerable_iv_statements.size}
 
     context "and empty" do
       subject {[].extend(RDF::Enumerable)}
@@ -74,7 +73,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:statements) {is_expected.to be_a(Array)}
 
     context "#statements" do
-      specify {expect(subject.statements.size).to eq @statements.size}
+      specify {expect(subject.statements.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.statements).to all(be_a_statement)}
     end
 
@@ -89,7 +88,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
 
       it "does not have statement in different named graph" do
-        if @supports_named_graphs
+        if supports_named_graphs
           graph_name = RDF::URI.new("urn:graph_name:1")
           non_bnode_statements.each do |statement|
             s = statement.dup
@@ -132,7 +131,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:triples) {is_expected.to be_a(Array)}
     context "#triples" do
-      specify {expect(subject.triples.size).to eq @statements.size}
+      specify {expect(subject.triples.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.triples).to all(be_a_triple)}
     end
 
@@ -176,13 +175,13 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:quads) {is_expected.to be_a(Array)}
     context "#quads" do
-      specify {expect(subject.quads.size).to eq @statements.size}
+      specify {expect(subject.quads.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.quads).to all(be_a_quad)}
     end
 
     context "#has_quad?" do
       specify do
-        if @supports_named_graphs
+        if supports_named_graphs
           non_bnode_statements.each do |statement|
             is_expected.to have_quad(statement.to_quad)
           end
@@ -265,7 +264,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
   end
 
   context "when enumerating predicates" do
-    let(:predicates) {@statements.map { |s| s.predicate }.uniq}
+    let(:predicates) {@rdf_enumerable_iv_statements.map { |s| s.predicate }.uniq}
     it {is_expected.to respond_to(:predicates)}
     it {is_expected.to respond_to(:has_predicate?)}
     it {is_expected.to respond_to(:each_predicate)}
@@ -285,7 +284,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     context "#has_predicate?" do
       specify do
         checked = []
-        @statements.each do |statement|
+        @rdf_enumerable_iv_statements.each do |statement|
           expect(enumerable).to have_predicate(statement.predicate) unless checked.include?(statement.predicate)
           checked << statement.predicate
         end
@@ -434,8 +433,8 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     it "should implement #has_graph?" do
-      if @supports_named_graphs
-        @statements.each do |statement|
+      if supports_named_graphs
+        @rdf_enumerable_iv_statements.each do |statement|
           if statement.has_graph?
             expect(enumerable).to have_graph(statement.graph_name)
           end
@@ -480,21 +479,21 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
       context "non-existing graph" do
         let(:graph_name) {RDF::URI.new('http://example.org/does/not/have/this/uri')}
-        specify {expect(subject.project_graph(graph_name)).to be_empty if @supports_named_graphs}
+        specify {expect(subject.project_graph(graph_name)).to be_empty if supports_named_graphs}
       end
     end
 
     its(:each_graph) {is_expected.to be_an_enumerator}
 
     describe "#each_graph" do
-      let(:graph_names) {@statements.map { |s| s.graph_name }.uniq.compact}
+      let(:graph_names) {@rdf_enumerable_iv_statements.map { |s| s.graph_name }.uniq.compact}
       subject { enumerable.each_graph }
       it {is_expected.to be_an_enumerator}
-      specify {is_expected.to all(be_a_graph) if @supports_named_graphs}
+      specify {is_expected.to all(be_a_graph) if supports_named_graphs}
  
       it "has appropriate number of graphs" do
-        if @supports_named_graphs
-          graph_names = @statements.map { |s| s.graph_name }.uniq.compact
+        if supports_named_graphs
+          graph_names = @rdf_enumerable_iv_statements.map { |s| s.graph_name }.uniq.compact
           expect(subject.to_a.size).to eq (graph_names.size + 1)
         end
       end
@@ -505,7 +504,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       it {is_expected.to be_an_enumerator}
       it {is_expected.to be_countable}
       it "enumerates the same as #each_graph" do
-        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if @supports_named_graphs # expect with match problematic
+        expect(subject.to_a).to include(*enumerable.each_graph.to_a) if supports_named_graphs # expect with match problematic
       end
     end
   end

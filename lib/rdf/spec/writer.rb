@@ -14,7 +14,7 @@ RSpec.shared_examples 'an RDF::Writer' do
   let(:format_class) { writer_class.format }
 
   let(:graph) do
-    @graph ||= begin
+    @rdf_writer_iv_graph ||= begin
       n1 = RDF::Node("a")
       n2 = RDF::Node("a")
       p = RDF::URI("http://example/pred")
@@ -27,7 +27,7 @@ RSpec.shared_examples 'an RDF::Writer' do
   end
 
   let(:serialized) do
-    @serialized ||= begin
+    @rdf_writer_iv_serialized ||= begin
       writer_class.buffer do |w|
         w << graph
       end
@@ -82,20 +82,20 @@ RSpec.shared_examples 'an RDF::Writer' do
   describe ".open" do
     before(:each) do
       allow(RDF::Util::File).to receive(:open_file).and_yield(StringIO.new("foo"))
-      @dir = Dir.mktmpdir
-      @basename = File.join(@dir, "foo")
+      @rdf_writer_iv_dir = Dir.mktmpdir
+      @rdf_writer_iv_basename = File.join(@rdf_writer_iv_dir, "foo")
     end
 
     after(:each) do
-      FileUtils.rm_rf(@dir)
+      FileUtils.rm_rf(@rdf_writer_iv_dir)
     end
 
     it "yields writer given file_name" do
       format_class.file_extensions.each_pair do |sym, content_type|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
-        writer_class.open("#{@basename}.#{sym}") do |r|
+        expect(writer_class).to receive(:for).with(file_name: "#{@rdf_writer_iv_basename}.#{sym}").and_return(writer_class)
+        writer_class.open("#{@rdf_writer_iv_basename}.#{sym}") do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
         end
@@ -107,7 +107,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       writer_mock = double("writer")
       expect(writer_mock).to receive(:got_here)
       expect(writer_class).to receive(:for).with(sym).and_return(writer_class)
-      writer_class.open("#{@basename}.#{sym}", format: sym) do |r|
+      writer_class.open("#{@rdf_writer_iv_basename}.#{sym}", format: sym) do |r|
         expect(r).to be_a(RDF::Writer)
         writer_mock.got_here
       end
@@ -117,8 +117,8 @@ RSpec.shared_examples 'an RDF::Writer' do
       format_class.file_extensions.each_pair do |sym, content_type|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(file_name: "#{@basename}.#{sym}").and_return(writer_class)
-        writer_class.open("#{@basename}.#{sym}", file_name: "#{@basename}.#{sym}") do |r|
+        expect(writer_class).to receive(:for).with(file_name: "#{@rdf_writer_iv_basename}.#{sym}").and_return(writer_class)
+        writer_class.open("#{@rdf_writer_iv_basename}.#{sym}", file_name: "#{@rdf_writer_iv_basename}.#{sym}") do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
         end
@@ -129,8 +129,8 @@ RSpec.shared_examples 'an RDF::Writer' do
       format_class.content_types.each_pair do |content_type, formats|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @basename).and_return(writer_class)
-        writer_class.open(@basename, content_type: content_type) do |r|
+        expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @rdf_writer_iv_basename).and_return(writer_class)
+        writer_class.open(@rdf_writer_iv_basename, content_type: content_type) do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
         end

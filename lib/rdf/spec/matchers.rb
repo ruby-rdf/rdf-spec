@@ -193,7 +193,7 @@ module RDF; module Spec
     end
 
     RSpec::Matchers.define :write do |message|
-      chain(:to) { |io| @io = io }
+      chain(:to) { |io| @rdf_matcher_iv_io = io }
 
       supports_block_expectations { true }
 
@@ -256,7 +256,7 @@ module RDF; module Spec
 
       # default IO is standard output
       def io
-        @io ||= :output
+        @rdf_matcher_iv_io ||= :output
       end
 
       # IO name is used for description message

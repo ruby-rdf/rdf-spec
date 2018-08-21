@@ -7,9 +7,8 @@ RSpec.shared_examples 'an RDF::Repository' do
     raise 'repository must be set with `let(:repository)' unless
       defined? repository
 
-    @statements = RDF::Spec.quads
     if repository.empty? && repository.writable?
-      repository.insert(*@statements)
+      repository.insert(*RDF::Spec.quads)
     elsif repository.empty?
       raise "+@repository+ must respond to #<< or be pre-populated with the statements in #{RDF::Spec::TRIPLES_FILE} in a before(:each) block"
     end
