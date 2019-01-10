@@ -207,7 +207,7 @@ RSpec.shared_examples 'an RDF::Reader' do
       expect(reader_mock).to receive(:got_here)
       reader_class.new(reader_input, prefixes: {a: "b"}) do |r|
         reader_mock.got_here
-        expect(r.prefixes).to eq({a: "b"})
+        expect(r.prefixes).to include({a: "b"})
       end
     end
   end
