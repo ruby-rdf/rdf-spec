@@ -63,6 +63,24 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
       end
     end
 
+    it "adds User-Agent header using default" do
+      WebMock.stub_request(:get, uri).with do |request|
+        expect(request.headers['User-Agent']).to eq "Ruby RDF.rb/#{RDF::VERSION}"
+      end.to_return(body: "foo")
+      RDF::Util::File.open_file(uri) do |f|
+        opened.opened
+      end
+    end
+
+    it "used provided User-Agent header" do
+      WebMock.stub_request(:get, uri).with do |request|
+        expect(request.headers["User-Agent"]).to eq "Foo"
+      end.to_return(body: "foo")
+      RDF::Util::File.open_file(uri, headers: {"User-Agent" => "Foo"}) do |f|
+        opened.opened
+      end
+    end
+
     it "sets content_type and encoding to utf-8 if absent" do
       WebMock.stub_request(:get, uri).to_return(body: "foo", headers: {"Content-Type" => "text/turtle"})
       RDF::Util::File.open_file(uri) do |f|
