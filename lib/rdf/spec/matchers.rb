@@ -265,7 +265,7 @@ module RDF; module Spec
       end
     end
 
-    Info = Struct.new(:id, :logger, :action, :result)
+    Info = Struct.new(:id, :logger, :action, :result, :format)
 
     RSpec::Matchers.define :be_equivalent_graph do |expected, info|
       match do |actual|
@@ -274,9 +274,14 @@ module RDF; module Spec
         elsif info.is_a?(Logger)
           Info.new("", info)
         elsif info.is_a?(Hash)
-          Info.new(info[:id], info[:logger], info[:action], info[:result])
+          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:format])
         else
           Info.new(info)
+        end
+        @info.format ||= case
+        when RDF.const_defined?(:TriG) then :trig
+        when RDF.const_defined?(:Turtle) then :ttl
+        else :nquads
         end
         @expected = normalize(expected)
         @actual = normalize(actual)
@@ -284,11 +289,6 @@ module RDF; module Spec
       end
 
       failure_message do |actual|
-        format = case
-        when RDF.const_defined?(:TriG) then :trig
-        when RDF.const_defined?(:Turtle) then :ttl
-        else :nquads
-        end
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
           "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
@@ -296,8 +296,8 @@ module RDF; module Spec
           "Graphs differ\n"
         end +
         "\n#{info + "\n" unless info.empty?}" +
-        "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
-        "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "Expected:\n#{@expected.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
+        "Results:\n#{@actual.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
 
@@ -310,7 +310,7 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         "Graphs identical\n" +
         "\n#{info + "\n" unless info.empty?}" +
-        "Results:\n#{actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "Results:\n#{actual.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
 
