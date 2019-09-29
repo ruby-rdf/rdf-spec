@@ -187,7 +187,7 @@ module RDF; module Spec
     RSpec::Matchers.define :write_each do |*messages|
       supports_block_expectations { true }
 
-      match do |block|
+      match(notify_expectation_failures: true) do |block|
         messages.each { |message| expect(&block).to write(message) }
       end
     end
@@ -197,7 +197,7 @@ module RDF; module Spec
 
       supports_block_expectations { true }
 
-      match do |block|
+      match(notify_expectation_failures: true) do |block|
         @output =
           case io
           when :output then fake_stdout(&block)
