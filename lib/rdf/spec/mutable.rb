@@ -56,7 +56,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
       end
 
       it "should accept an optional hash argument" do
-        expect { subject.load(RDF::Spec::TRIPLES_FILE, {}) }.not_to raise_error
+        expect { subject.load(RDF::Spec::TRIPLES_FILE, **{}) }.not_to raise_error
       end
 
       it "should load statements" do
