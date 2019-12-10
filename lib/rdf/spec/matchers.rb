@@ -1,4 +1,5 @@
 require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
+require 'awesome_print'
 
 module RDF; module Spec
   ##
@@ -329,15 +330,6 @@ module RDF; module Spec
       end
     end
 
-    require 'json'
-    JSON_STATE = ::JSON::State.new(
-       indent:        "  ",
-       space:         " ",
-       space_before:  "",
-       object_nl:     "\n",
-       array_nl:      "\n"
-     )
-
     RSpec::Matchers.define :produce do |expected, info|
       match do |actual|
         @info = if (info.id rescue false)
@@ -355,8 +347,8 @@ module RDF; module Spec
       failure_message do |actual|
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
-        "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
-        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Expected: #{expected.ai}\n" +
+        "Actual  : #{actual.ai}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
       end
@@ -365,7 +357,7 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
         "Expected not to produce the following:\n" + 
-        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Actual  : #{actual.ai}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
       end
