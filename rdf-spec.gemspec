@@ -22,10 +22,10 @@ Gem::Specification.new do |gem|
   gem.requirements               = []
   gem.add_runtime_dependency     'rdf',             '~> 3.1'
   gem.add_runtime_dependency     'awesome_print',   '~> 1.8'
-  gem.add_development_dependency 'rdf-isomorphic',  '~> 3.0'
-  gem.add_development_dependency 'rspec',           '~> 3.9'
-  gem.add_development_dependency 'rspec-its',       '~> 1.3'
-  gem.add_development_dependency 'webmock',         '~> 3.7'
+  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.0'
+  gem.add_runtime_dependency     'rspec',           '~> 3.9'
+  gem.add_runtime_dependency     'rspec-its',       '~> 1.3'
+  gem.add_runtime_dependency     'webmock',         '~> 3.7'
   gem.add_development_dependency 'yard' ,           '~> 0.9.20'
-  gem.post_install_message       = nil
+  gem.post_install_message        = nil
 end
