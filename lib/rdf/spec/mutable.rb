@@ -69,7 +69,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
         if @supports_named_graphs
           subject.load RDF::Spec::TRIPLES_FILE, graph_name: graph_name
           is_expected.to have_graph(graph_name)
-          expect(subject.query(graph_name: graph_name).size).to eq subject.size
+          expect(subject.query({graph_name: graph_name}).size).to eq subject.size
         end
       end
     end
