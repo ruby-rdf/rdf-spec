@@ -7,16 +7,16 @@ RSpec.shared_examples 'an RDF::Queryable' do
     raise 'querable must be set with `let(:queryable)' unless
       defined? queryable
 
-    @doap = RDF::Spec::QUADS_FILE
-    @statements = RDF::Spec.quads
+    @rdf_queryable_iv_doap = RDF::Spec::QUADS_FILE
+    @rdf_queryable_iv_statements = RDF::Spec.quads
 
     if queryable.empty?
       if (queryable.writable? rescue false)
-        queryable.insert(*@statements)
+        queryable.insert(*@rdf_queryable_iv_statements)
       elsif queryable.respond_to?(:<<)
-        @statements.each { |statement| queryable << statement }
+        @rdf_queryable_iv_statements.each { |statement| queryable << statement }
       else
-        raise "queryable must respond to #<< or be pre-populated with the statements in #{@doap} in a before(:each) block"
+        raise "queryable must respond to #<< or be pre-populated with the statements in #{@rdf_queryable_iv_doap} in a before(:each) block"
       end
     end
   end
@@ -95,7 +95,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
           pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: nil)
           solutions = []
           subject.send(method, pattern) {|s| solutions << s}
-          expect(solutions.size).to eq @statements.size
+          expect(solutions.size).to eq @rdf_queryable_iv_statements.size
         end
 
         it "returns statements from named graphs with variable graph_name" do
@@ -114,7 +114,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
             pattern = RDF::Query::Pattern.new(nil, nil, nil, graph_name: RDF::URI("http://ar.to/#self"))
             solutions = []
             subject.send(method, pattern) {|s| solutions << s}
-            expect(solutions.size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+            expect(solutions.size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/ar.to\/\#self>/).size
           end
         end
       end
@@ -233,22 +233,22 @@ RSpec.shared_examples 'an RDF::Queryable' do
             end
 
             it "returns the correct number of results for array queries" do
-              expect(subject.query([nil, nil, nil]).size).to eq @statements.size
-              expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-              expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@doap).grep(/^<http:\/\/ar.to\/\#self>/).size
+              expect(subject.query([nil, nil, nil]).size).to eq @rdf_queryable_iv_statements.size
+              expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/ar.to\/\#self>/).size
               expect(subject.query([resource, RDF::URI("http://usefulinc.com/ns/doap#name"), nil]).size).to eq 1
               expect(subject.query([nil, nil, RDF::URI("http://usefulinc.com/ns/doap#Project")]).size).to eq 1
             end
 
             it "returns the correct number of results for hash queries" do
-              expect(subject.query({}).size).to eq @statements.size
-              expect(subject.query(subject: resource).size).to eq File.readlines(@doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
-              expect(subject.query(subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name")).size).to eq 1
-              expect(subject.query(object: RDF::URI("http://usefulinc.com/ns/doap#Project")).size).to eq 1
+              expect(subject.query({}).size).to eq @rdf_queryable_iv_statements.size
+              expect(subject.query({subject: resource}).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query({subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name")}).size).to eq 1
+              expect(subject.query({object: RDF::URI("http://usefulinc.com/ns/doap#Project")}).size).to eq 1
             end
 
             it "returns the correct number of results for query queries" do
-              expect(subject.query(query).size).to eq @statements.size
+              expect(subject.query(query).size).to eq @rdf_queryable_iv_statements.size
             end
           end
         end
@@ -256,13 +256,13 @@ RSpec.shared_examples 'an RDF::Queryable' do
         context "with specific patterns from SPARQL" do
           context "triple pattern combinations" do
             it "?s p o" do
-              expect(subject.query(predicate: RDF::URI("http://example.org/p"), object: RDF::Literal.new(1)).to_a).to(
+              expect(subject.query({predicate: RDF::URI("http://example.org/p"), object: RDF::Literal.new(1)}).to_a).to(
                 include *[RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
               )
             end
 
             it "s ?p o" do
-              expect(subject.query(subject: RDF::URI("http://example.org/xi2"), object: RDF::Literal.new(1)).to_a).to(
+              expect(subject.query({subject: RDF::URI("http://example.org/xi2"), object: RDF::Literal.new(1)}).to_a).to(
                 include *[RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
               )
             end
@@ -272,8 +272,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
           context "data/r2/expr-equals" do
             context "graph-1" do
               let(:result) do
-                queryable.query(predicate: RDF::URI("http://example.org/p"),
-                                object: RDF::Literal::Integer.new(1)).to_a
+                queryable.query({predicate: RDF::URI("http://example.org/p"),
+                                 object: RDF::Literal::Integer.new(1)}).to_a
               end
 
               it 'has two solutions' do
@@ -293,8 +293,8 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
             context "graph-2" do
               let(:result) do
-                queryable.query(predicate: RDF::URI("http://example.org/p"),
-                                object: RDF::Literal::Double.new("1.0e0"))
+                queryable.query({predicate: RDF::URI("http://example.org/p"),
+                                 object: RDF::Literal::Double.new("1.0e0")})
                   .to_a
               end
 

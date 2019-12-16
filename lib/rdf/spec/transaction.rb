@@ -212,10 +212,10 @@ shared_examples "an RDF::Transaction" do |klass|
         with_name = st.dup
         with_name.graph_name = graph_uri
 
-        expect do 
+        expect do
           subject.insert(st)
           subject.execute
-        end.to change { subject.repository }
+        end.to change { subject.repository.statements }
 
         expect(subject.repository).to have_statement(with_name)
       end

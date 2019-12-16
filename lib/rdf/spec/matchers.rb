@@ -1,4 +1,5 @@
 require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
+require 'awesome_print'
 
 module RDF; module Spec
   ##
@@ -187,17 +188,17 @@ module RDF; module Spec
     RSpec::Matchers.define :write_each do |*messages|
       supports_block_expectations { true }
 
-      match do |block|
+      match(notify_expectation_failures: true) do |block|
         messages.each { |message| expect(&block).to write(message) }
       end
     end
 
     RSpec::Matchers.define :write do |message|
-      chain(:to) { |io| @io = io }
+      chain(:to) { |io| @rdf_matcher_iv_io = io }
 
       supports_block_expectations { true }
 
-      match do |block|
+      match(notify_expectation_failures: true) do |block|
         @output =
           case io
           when :output then fake_stdout(&block)
@@ -256,7 +257,7 @@ module RDF; module Spec
 
       # default IO is standard output
       def io
-        @io ||= :output
+        @rdf_matcher_iv_io ||= :output
       end
 
       # IO name is used for description message
@@ -265,7 +266,7 @@ module RDF; module Spec
       end
     end
 
-    Info = Struct.new(:id, :logger, :action, :result)
+    Info = Struct.new(:id, :logger, :action, :result, :format)
 
     RSpec::Matchers.define :be_equivalent_graph do |expected, info|
       match do |actual|
@@ -274,9 +275,14 @@ module RDF; module Spec
         elsif info.is_a?(Logger)
           Info.new("", info)
         elsif info.is_a?(Hash)
-          Info.new(info[:id], info[:logger], info[:action], info[:result])
+          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:format])
         else
           Info.new(info)
+        end
+        @info.format ||= case
+        when RDF.const_defined?(:TriG) then :trig
+        when RDF.const_defined?(:Turtle) then :ttl
+        else :nquads
         end
         @expected = normalize(expected)
         @actual = normalize(actual)
@@ -284,11 +290,6 @@ module RDF; module Spec
       end
 
       failure_message do |actual|
-        format = case
-        when RDF.const_defined?(:TriG) then :trig
-        when RDF.const_defined?(:Turtle) then :ttl
-        else :nquads
-        end
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
           "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
@@ -296,8 +297,8 @@ module RDF; module Spec
           "Graphs differ\n"
         end +
         "\n#{info + "\n" unless info.empty?}" +
-        "Expected:\n#{@expected.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
-        "Results:\n#{@actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "Expected:\n#{@expected.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @expected.inspect}" +
+        "Results:\n#{@actual.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
 
@@ -310,7 +311,7 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         "Graphs identical\n" +
         "\n#{info + "\n" unless info.empty?}" +
-        "Results:\n#{actual.dump(format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
+        "Results:\n#{actual.dump(@info.format, standard_prefixes: true, literal_shorthand: false, validate: false) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
 
@@ -329,15 +330,6 @@ module RDF; module Spec
       end
     end
 
-    require 'json'
-    JSON_STATE = ::JSON::State.new(
-       indent:        "  ",
-       space:         " ",
-       space_before:  "",
-       object_nl:     "\n",
-       array_nl:      "\n"
-     )
-
     RSpec::Matchers.define :produce do |expected, info|
       match do |actual|
         @info = if (info.id rescue false)
@@ -355,8 +347,8 @@ module RDF; module Spec
       failure_message do |actual|
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
-        "Expected: #{expected.is_a?(String) ? expected : expected.to_json(JSON_STATE) rescue 'malformed json'}\n" +
-        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Expected: #{expected.ai}\n" +
+        "Actual  : #{actual.ai}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
       end
@@ -365,7 +357,7 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
 
         "Expected not to produce the following:\n" + 
-        "Actual  : #{actual.is_a?(String) ? actual : actual.to_json(JSON_STATE) rescue 'malformed json'}\n" +
+        "Actual  : #{actual.ai}\n" +
         "\n#{info + "\n" unless info.empty?}" +
         "\nDebug:\n#{@info.logger}"
       end
