@@ -24,13 +24,13 @@ task :clean do
 end
 
 file "etc/doap.nt" do
-  sh "rdf serialize http://ruby-rdf.github.com/rdf/etc/doap.ttl --output etc/doap.nt"
+  sh "rdf serialize https://ruby-rdf.github.com/rdf/etc/doap.ttl --output etc/doap.nt"
 end
 
 FOAF_SUBJECTS = {
-  "bendiken" => "<http://ar.to/#self>",
-  "bhuga"    => "<http://bhuga.net/#ben>",
-  "gkellogg" => "<http://greggkellogg.net/foaf#me>"
+  "artob"    => "<https://ar.to/#self>",
+  "bhuga"    => "<https://bhuga.net/#ben>",
+  "gkellogg" => "<https://greggkellogg.net/foaf#me>"
 }
 FOAF_SUBJECTS.each do |n, u|
   nt, nq = "etc/#{n}.nt", "etc/#{n}.nq"
@@ -56,7 +56,7 @@ FOAF_SUBJECTS.each do |n, u|
 end
 
 desc "Build etc/quads.nq from component files"
-file "etc/quads.nq" => %w(etc/doap.nt etc/bendiken.nq etc/bhuga.nq etc/gkellogg.nq etc/test-data.nt) do |t|
+file "etc/quads.nq" => %w(etc/doap.nt etc/artob.nq etc/bhuga.nq etc/gkellogg.nq etc/test-data.nt) do |t|
   File.open("etc/quads.nq", "w") do |output|
     t.prerequisites.each do |input_file|
       lines = File.readlines(input_file)

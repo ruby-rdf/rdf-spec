@@ -31,12 +31,12 @@ Note that in most cases, if the instance is empty and mutable, the appropriate s
 
 ## Dependencies
 
-* [RDF.rb](http://rubygems.org/gems/rdf) (~> 3.0)
-* [RSpec](http://rubygems.org/gems/rspec) (~> 3.7)
+* [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.0)
+* [RSpec](https://rubygems.org/gems/rspec) (~> 3.7)
 
 ## Installation
 
-The recommended installation method is via [RubyGems](http://rubygems.org/).
+The recommended installation method is via [RubyGems](https://rubygems.org/).
 To install the latest official release of the `RDF::Spec` gem, do:
 
     % [sudo] gem install rdf-spec
@@ -54,7 +54,7 @@ follows:
 
 ## Authors
 
-* [Arto Bendiken](http://github.com/bendiken) - <http://ar.to/>
+* [Arto Bendiken](http://github.com/artob) - <http://ar.to/>
 * [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
 * [Gregg Kellogg](http://github.com/gkellogg) - <http://greggkellogg.net/>
 
@@ -84,7 +84,7 @@ License
 This is free and unencumbered public domain software. For more information,
 see <http://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 
-[RDF.rb]:    http://rubygems.org/gems/rdf
+[RDF.rb]:    https://rubygems.org/gems/rdf
 [RSpec]:     http://rspec.info/
 [RubySpec]:  http://rubyspec.org/wiki/rubyspec/Style_Guide
 [PDD]:       http://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html

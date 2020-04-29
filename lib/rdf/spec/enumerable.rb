@@ -40,7 +40,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     it "returns false if any statement is invalid" do
       if subject.respond_to?(:<<) && (subject.writable? rescue true)
-        s = RDF::Statement(RDF::URI("http://rubygems.org/gems/rdf"), RDF::Literal("literal"), RDF::URI("http://ar.to/#self"))
+        s = RDF::Statement(RDF::URI("https://rubygems.org/gems/rdf"), RDF::Literal("literal"), RDF::URI("http://ar.to/#self"))
         if subject.supports?(:validity)
           expect(s).not_to  be_valid
           subject << s

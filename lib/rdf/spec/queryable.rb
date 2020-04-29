@@ -23,7 +23,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
   describe RDF::Queryable do
     subject {queryable}
-    let(:resource) {RDF::URI('http://rubygems.org/gems/rdf')}
+    let(:resource) {RDF::URI('https://rubygems.org/gems/rdf')}
     let(:literal) {RDF::Literal.new('J. Random Hacker')}
     let(:query) {RDF::Query.new {pattern [:s, :p, :o]}}
     
@@ -234,7 +234,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
             it "returns the correct number of results for array queries" do
               expect(subject.query([nil, nil, nil]).size).to eq @rdf_queryable_iv_statements.size
-              expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query([resource, nil, nil]).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<https:\/\/rubygems\.org\/gems\/rdf>/).size
               expect(subject.query([RDF::URI("http://ar.to/#self"), nil, nil]).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/ar.to\/\#self>/).size
               expect(subject.query([resource, RDF::URI("http://usefulinc.com/ns/doap#name"), nil]).size).to eq 1
               expect(subject.query([nil, nil, RDF::URI("http://usefulinc.com/ns/doap#Project")]).size).to eq 1
@@ -242,7 +242,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
 
             it "returns the correct number of results for hash queries" do
               expect(subject.query({}).size).to eq @rdf_queryable_iv_statements.size
-              expect(subject.query({subject: resource}).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<http:\/\/rubygems\.org\/gems\/rdf>/).size
+              expect(subject.query({subject: resource}).size).to eq File.readlines(@rdf_queryable_iv_doap).grep(/^<https:\/\/rubygems\.org\/gems\/rdf>/).size
               expect(subject.query({subject: resource, predicate: RDF::URI("http://usefulinc.com/ns/doap#name")}).size).to eq 1
               expect(subject.query({object: RDF::URI("http://usefulinc.com/ns/doap#Project")}).size).to eq 1
             end
@@ -384,7 +384,7 @@ RSpec.shared_examples 'an RDF::Queryable' do
       end
 
       it "returns an appropriate value when the pattern matches" do
-        matching_patterns = [[nil, nil, nil], [RDF::URI("http://rubygems.org/gems/rdf"), nil, nil]]
+        matching_patterns = [[nil, nil, nil], [RDF::URI("https://rubygems.org/gems/rdf"), nil, nil]]
         matching_patterns.each do |matching_pattern|
           matching_values = subject.query(matching_pattern).map(&:subject)
           expect(matching_values).to include subject.first_subject(matching_pattern)

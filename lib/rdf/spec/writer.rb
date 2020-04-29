@@ -182,7 +182,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       expect do
         writer_class.new(file, logger: false) do |w|
           w << RDF::Statement(
-                 RDF::URI("http://rubygems.org/gems/rdf"),
+                 RDF::URI("https://rubygems.org/gems/rdf"),
                  RDF::URI("http://purl.org/dc/terms/creator"),
                  nil)
         end
