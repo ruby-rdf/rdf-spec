@@ -44,10 +44,10 @@ module RDF
   #   end
   #
   # @see https://rubygems.org/gems/rdf
-  # @see http://rspec.info/
+  # @see https://rspec.info/
   #
-  # @author [Arto Bendiken](http://ar.to/)
-  # @author [Ben Lavender](http://bhuga.net/)
+  # @author [Arto Bendiken](https://ar.to/)
+  # @author [Ben Lavender](https://bhuga.net/)
   module Spec
     autoload :Matchers, 'rdf/spec/matchers'
     autoload :VERSION,  'rdf/spec/version'
@@ -76,13 +76,15 @@ module RDF
     require 'logger'
     def self.logger
       logger = Logger.new(StringIO.new)
-      def logger.clear
-        @logdev.instance_variable_set(:@dev, StringIO.new)
-      end
-      def logger.to_s
-        dev = @logdev.instance_variable_get(:@dev)
-        dev.rewind
-        dev.read
+      logger.instance_eval do
+        def clear
+          @logdev.instance_variable_set(:@dev, StringIO.new)
+        end
+        def to_s
+          dev = @logdev.instance_variable_get(:@dev)
+          dev.rewind
+          dev.read
+        end
       end
       logger.level = Logger::DEBUG
       logger.formatter = lambda {|severity, datetime, progname, msg| "#{severity} #{msg}\n"}

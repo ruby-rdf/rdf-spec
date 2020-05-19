@@ -3,10 +3,10 @@
 This is an [RDF.rb][] extension that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
 
-* <http://github.com/ruby-rdf/rdf-spec>
+* <https://github.com/ruby-rdf/rdf-spec>
 
-[![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](http://badge.fury.io/rb/rdf-spec)
-[![Build Status](https://travis-ci.org/ruby-rdf/rdf-spec.png?branch=master)](http://travis-ci.org/ruby-rdf/rdf-spec)
+[![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](https://badge.fury.io/rb/rdf-spec)
+[![Build Status](https://travis-ci.org/ruby-rdf/rdf-spec.png?branch=master)](https://travis-ci.org/ruby-rdf/rdf-spec)
 [![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/r/ruby-rdf/rdf-spec)
 
 ## Documentation
@@ -50,17 +50,17 @@ To get a local working copy of the development repository, do:
 Alternatively, download the latest development version as a tarball as
 follows:
 
-    % wget http://github.com/ruby-rdf/rdf-spec/tarball/master
+    % wget https://github.com/ruby-rdf/rdf-spec/tarball/master
 
 ## Authors
 
-* [Arto Bendiken](http://github.com/artob) - <http://ar.to/>
-* [Ben Lavender](http://github.com/bhuga) - <http://bhuga.net/>
-* [Gregg Kellogg](http://github.com/gkellogg) - <http://greggkellogg.net/>
+* [Arto Bendiken](https://github.com/artob) - <https://ar.to/>
+* [Ben Lavender](https://github.com/bhuga) - <https://bhuga.net/>
+* [Gregg Kellogg](https://github.com/gkellogg) - <https://greggkellogg.net/>
 
 ## Contributors
 
-* [John Fieber](http://github.com/jfieber) - <http://github.com/jfieber>
+* [John Fieber](https://github.com/jfieber) - <https://github.com/jfieber>
 * [Tom Johnson](https://github.com/no-reply) - <https://github.com/no-reply>
 
 ## Contributing
@@ -82,9 +82,9 @@ License
 -------
 
 This is free and unencumbered public domain software. For more information,
-see <http://unlicense.org/> or the accompanying {file:UNLICENSE} file.
+see <https://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 
 [RDF.rb]:    https://rubygems.org/gems/rdf
-[RSpec]:     http://rspec.info/
-[RubySpec]:  http://rubyspec.org/wiki/rubyspec/Style_Guide
-[PDD]:       http://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html
+[RSpec]:     https://rspec.info/
+[RubySpec]:  https://rubyspec.org/wiki/rubyspec/Style_Guide
+[PDD]:       https://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html
