@@ -14,7 +14,7 @@ RSpec.shared_examples 'an RDF::Mutable' do
     @supports_literal_equality = mutable.respond_to?(:supports?) && mutable.supports?(:literal_equality)
   end
 
-  let(:resource) { RDF::URI('http://rubygems.org/gems/rdf') }
+  let(:resource) { RDF::URI('https://rubygems.org/gems/rdf') }
   let(:graph_name) { RDF::URI('http://example.org/graph_name') }
   let(:non_bnode_statements) {@rdf_mutable_iv_statements.reject(&:node?)}
 

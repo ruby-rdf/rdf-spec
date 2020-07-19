@@ -1,4 +1,4 @@
-require 'rspec/matchers' # @see http://rubygems.org/gems/rspec
+require 'rspec/matchers' # @see https://rubygems.org/gems/rspec
 require 'awesome_print'
 
 module RDF; module Spec

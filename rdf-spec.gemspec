@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.date               = File.mtime('VERSION').strftime('%Y-%m-%d')
 
   gem.name               = 'rdf-spec'
-  gem.homepage           = 'http://ruby-rdf.github.com/rdf-spec/'
+  gem.homepage           = 'https://github.com/ruby-rdf/rdf-spec/'
   gem.license            = 'Unlicense'
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb extension that provides RSpec matchers and shared examples for RDF objects.'
@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.requirements               = []
   gem.add_runtime_dependency     'rdf',             '~> 3.1'
   gem.add_runtime_dependency     'awesome_print',   '~> 1.8'
-  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.0'
+  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.1'
   gem.add_runtime_dependency     'rspec',           '~> 3.9'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.3'
   gem.add_runtime_dependency     'webmock',         '~> 3.7'

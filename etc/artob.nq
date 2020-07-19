@@ -1,0 +1,6 @@
+<https://ar.to/#self> <http://xmlns.com/foaf/0.1/mbox_sha1sum> "a033f652c84a4d73b8c26d318c2395699dd2bdfb" <https://ar.to/#self> .
+<https://ar.to/#self> <http://xmlns.com/foaf/0.1/name> "Arto Bendiken" <https://ar.to/#self> .
+<https://ar.to/#self> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <https://ar.to/#self> .
+<https://ar.to/#self> <http://xmlns.com/foaf/0.1/mbox> <mailto:arto@bendiken.net> <https://ar.to/#self> .
+<https://ar.to/#self> <http://xmlns.com/foaf/0.1/homepage> <https://ar.to/> <https://ar.to/#self> .
+<https://ar.to/#self> <http://xmlns.com/foaf/0.1/made> <https://rubygems.org/gems/rdf> <https://ar.to/#self> .
