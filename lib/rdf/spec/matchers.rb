@@ -266,9 +266,7 @@ module RDF; module Spec
       end
     end
 
-    Info = Struct.new(:id, :logger, :action, :result, :format, :options)  do
-      def initialize(id:, logger: nil, action: nil, result: nil, format: nil, options: {}); super end
-    end
+    Info = Struct.new(:id, :logger, :action, :result, :format, :base, :prefixes)
 
     RSpec::Matchers.define :be_equivalent_graph do |expected, info|
       match do |actual|
@@ -277,7 +275,7 @@ module RDF; module Spec
         elsif info.is_a?(Logger)
           Info.new(logger: info)
         elsif info.is_a?(Hash)
-          Info.new(options: info, **info)
+          Info.new(info[:id], info[:logger], info[:action], info[:result], info[:format], info[:base], info[:prefixes])
         else
           Info.new(info)
         end
@@ -292,7 +290,13 @@ module RDF; module Spec
       end
 
       failure_message do |actual|
-        dump_opts = {standard_prefixes: true, literal_shorthand: false, validate: false}.merge(@info.options)
+        dump_opts = {
+          standard_prefixes: true,
+          literal_shorthand: false,
+          validate: false,
+          base_uri: @info.base,
+          prefixes: @info.prefixes
+        }
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         if @expected.is_a?(RDF::Enumerable) && @actual.size != @expected.size
           "Graph entry counts differ:\nexpected: #{@expected.size}\nactual:   #{@actual.size}\n"
@@ -306,7 +310,13 @@ module RDF; module Spec
       end
 
       failure_message_when_negated do |actual|
-        dump_opts = {standard_prefixes: true, literal_shorthand: false, validate: false}.merge(@info.options)
+        dump_opts = {
+          standard_prefixes: true,
+          literal_shorthand: false,
+          validate: false,
+          base: @info.base,
+          prefixes: @info.prefixes
+        }
         format = case
         when RDF.const_defined?(:TriG) then :trig
         when RDF.const_defined?(:Turtle) then :ttl
