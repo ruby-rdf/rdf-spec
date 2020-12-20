@@ -3,12 +3,10 @@
 This is an [RDF.rb][] extension that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
 
-* <https://github.com/ruby-rdf/rdf-spec>
-
 [![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](https://badge.fury.io/rb/rdf-spec)
-![Build Status](https://github.com/ruby-rdf/rdf-spec/workflows/CI/badge.svg?branch=develop)
-![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)
-![Join the chat at https://gitter.im/ruby-rdf/rdf](https://badges.gitter.im/Join%20Chat.svg)
+[![Build Status](https://github.com/ruby-rdf/rdf-spec/workflows/CI/badge.svg?branch=develop)](https://github.com/ruby-rdf/rdf-spec/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/github/ruby-rdf/rdf-spec)
+[![Gitter chat](https://badges.gitter.im/ruby-rdf/rdf.png)](https://gitter.im/ruby-rdf/rdf)
 
 ## Documentation
 
