@@ -3,11 +3,10 @@
 This is an [RDF.rb][] extension that provides RDF-specific [RSpec][] matchers
 and shared examples for Ruby projects that use RDF.rb and RSpec.
 
-* <https://github.com/ruby-rdf/rdf-spec>
-
 [![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](https://badge.fury.io/rb/rdf-spec)
-[![Build Status](https://travis-ci.org/ruby-rdf/rdf-spec.png?branch=master)](https://travis-ci.org/ruby-rdf/rdf-spec)
-[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/r/ruby-rdf/rdf-spec)
+[![Build Status](https://github.com/ruby-rdf/rdf-spec/workflows/CI/badge.svg?branch=develop)](https://github.com/ruby-rdf/rdf-spec/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/github/ruby-rdf/rdf-spec)
+[![Gitter chat](https://badges.gitter.im/ruby-rdf/rdf.png)](https://gitter.im/ruby-rdf/rdf)
 
 ## Documentation
 
@@ -76,7 +75,9 @@ follows:
   enough, be assured we will eventually add you in there.
 * Do note that in order for us to merge any non-trivial changes (as a rule
   of thumb, additions larger than about 15 lines of code), we need an
-  explicit [public domain dedication][PDD] on record from you.
+  explicit [public domain dedication][PDD] on record from you,
+  which you will be asked to agree to on the first commit to a repo within the organization.
+  Note that the agreement applies to all repos in the [Ruby RDF](https://github.com/ruby-rdf/) organization.
 
 License
 -------
@@ -87,4 +88,4 @@ see <https://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 [RDF.rb]:    https://rubygems.org/gems/rdf
 [RSpec]:     https://rspec.info/
 [RubySpec]:  https://rubyspec.org/wiki/rubyspec/Style_Guide
-[PDD]:       https://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html
+[PDD]:              https://unlicense.org/#unlicensing-contributions

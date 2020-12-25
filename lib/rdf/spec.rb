@@ -87,7 +87,7 @@ module RDF
         end
       end
       logger.level = Logger::DEBUG
-      logger.formatter = lambda {|severity, datetime, progname, msg| "#{severity} #{msg}\n"}
+      logger.formatter = lambda {|severity, datetime, progname, msg| "%5s %s\n" % [severity, msg]}
       logger
     end
   end # Spec
