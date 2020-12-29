@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version      = '>= 2.4'
   gem.requirements               = []
   gem.add_runtime_dependency     'rdf',             '~> 3.1', '>= 3.1.8'
-  gem.add_runtime_dependency     'awesome_print',   '~> 1.8'
+  gem.add_runtime_dependency     'amazing_print',   '~> 1.2'
   gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.1'
   gem.add_runtime_dependency     'rspec',           '~> 3.9'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.3'
