@@ -3,7 +3,7 @@ require 'rdf'
 
 class RDF::Literal
   def inspect
-    "\"#{escape(value)}\" R:L:(#{self.class.to_s.match(/([^:]*)$/)})"
+    "\"#{escape(value)}\"#{('@' + self.language.to_s) if self.language?} R:L:(#{self.class.to_s.match(/([^:]*)$/)})"
   end
 end
 
