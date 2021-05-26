@@ -3,7 +3,9 @@ require 'rdf'
 
 class RDF::Literal
   def inspect
-    "\"#{escape(value)}\"#{('@' + self.language.to_s) if self.language?} R:L:(#{self.class.to_s.match(/([^:]*)$/)})"
+    klass = self.class.to_s.match(/([^:]*)$/).to_s
+    dt = self.datatype
+    "\"#{escape(value)}\"#{('@' + self.language.to_s) if self.language?} R:L:(#{klass == 'Literal' && dt ? dt : klass})"
   end
 end
 
