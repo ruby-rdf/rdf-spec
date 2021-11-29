@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.requirements               = []
   gem.add_runtime_dependency     'rdf',             '~> 3.2'
   gem.add_runtime_dependency     'amazing_print',   '~> 1.4'
-  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.1'
+  gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.2'
   gem.add_runtime_dependency     'rspec',           '~> 3.10'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.3'
   gem.add_runtime_dependency     'rexml',           '~> 3.2'  # For Webmock
