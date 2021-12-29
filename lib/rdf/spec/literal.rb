@@ -5,6 +5,7 @@
 # include the examples for `RDF::Literal`, `RDF::Literal validation`,
 # `RDF::Literal canonicalization`, and `RDF::Literal lookup`.
 
+# @private
 shared_examples 'RDF::Literal' do |value, datatype_uri|
   include_examples 'RDF::Literal with datatype and grammar', value, datatype_uri
   include_examples 'RDF::Literal equality', value, value
