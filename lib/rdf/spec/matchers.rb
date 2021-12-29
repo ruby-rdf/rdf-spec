@@ -273,7 +273,7 @@ module RDF; module Spec
         @info = if (info.id rescue false)
           info
         elsif info.is_a?(Logger)
-          Info.new(logger: info)
+          Info.new({logger: info})
         elsif info.is_a?(Hash)
           Info.new(info[:id], info[:logger], info[:action], info[:result], info[:format], info[:base], info[:prefixes])
         else
