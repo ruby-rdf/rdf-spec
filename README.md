@@ -5,7 +5,7 @@ and shared examples for Ruby projects that use RDF.rb and RSpec.
 
 [![Gem Version](https://badge.fury.io/rb/rdf-spec.png)](https://badge.fury.io/rb/rdf-spec)
 [![Build Status](https://github.com/ruby-rdf/rdf-spec/workflows/CI/badge.svg?branch=develop)](https://github.com/ruby-rdf/rdf-spec/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg)](https://coveralls.io/github/ruby-rdf/rdf-spec)
+[![Coverage Status](https://coveralls.io/repos/ruby-rdf/rdf-spec/badge.svg?branch=develop)](https://coveralls.io/github/ruby-rdf/rdf-spec?branch=develop)
 [![Gitter chat](https://badges.gitter.im/ruby-rdf/rdf.png)](https://gitter.im/ruby-rdf/rdf)
 
 ## Documentation
@@ -30,8 +30,8 @@ Note that in most cases, if the instance is empty and mutable, the appropriate s
 
 ## Dependencies
 
-* [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.0)
-* [RSpec](https://rubygems.org/gems/rspec) (~> 3.7)
+* [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.2)
+* [RSpec](https://rubygems.org/gems/rspec) (~> 3.10)
 
 ## Installation
 
