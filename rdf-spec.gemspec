@@ -10,6 +10,13 @@ Gem::Specification.new do |gem|
   gem.license            = 'Unlicense'
   gem.summary            = 'RSpec extensions for RDF.rb.'
   gem.description        = 'RDF.rb extension that provides RSpec matchers and shared examples for RDF objects.'
+  gem.metadata           = {
+    "documentation_uri" => "https://ruby-rdf.github.io/rdf-spec",
+    "bug_tracker_uri"   => "https://github.com/ruby-rdf/rdf-spec/issues",
+    "homepage_uri"      => "https://github.com/ruby-rdf/rdf-spec",
+    "mailing_list_uri"  => "https://lists.w3.org/Archives/Public/public-rdf-ruby/",
+    "source_code_uri"   => "https://github.com/ruby-rdf/rdf-spec",
+  }
 
   gem.authors            = ['Arto Bendiken', 'Ben Lavender', 'Gregg Kellogg']
   gem.email              = 'public-rdf-ruby@w3.org'
