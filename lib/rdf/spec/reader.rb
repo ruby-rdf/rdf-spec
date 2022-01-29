@@ -30,7 +30,7 @@ RSpec.shared_examples 'an RDF::Reader' do
       format_class.file_extensions.each_pair do |sym, content_type|
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        expect(RDF::Reader).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
+        expect(RDF::Reader).to receive(:for).with({file_name: "foo.#{sym}"}).and_return(reader_class)
         RDF::Reader.open("foo.#{sym}") do |r|
           expect(r).to be_a(reader_class)
           reader_mock.got_here
@@ -55,7 +55,7 @@ RSpec.shared_examples 'an RDF::Reader' do
       format_class.file_extensions.each_pair do |sym, content_type|
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        expect(RDF::Reader).to receive(:for).with(file_name: "foo.#{sym}").and_return(reader_class)
+        expect(RDF::Reader).to receive(:for).with({file_name: "foo.#{sym}"}).and_return(reader_class)
         RDF::Reader.open("foo.#{sym}", file_name: "foo.#{sym}") do |r|
           expect(r).to be_a(reader_class)
           reader_mock.got_here
@@ -68,7 +68,7 @@ RSpec.shared_examples 'an RDF::Reader' do
       format_class.content_types.each_pair do |content_type, formats|
         reader_mock = double("reader")
         expect(reader_mock).to receive(:got_here)
-        expect(RDF::Reader).to receive(:for).with(content_type: content_type, file_name: "foo").and_return(reader_class)
+        expect(RDF::Reader).to receive(:for).with({content_type: content_type, file_name: "foo"}).and_return(reader_class)
         RDF::Reader.open("foo", content_type: content_type) do |r|
           expect(r).to be_a(reader_class)
           reader_mock.got_here
