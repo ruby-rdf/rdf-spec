@@ -257,13 +257,13 @@ RSpec.shared_examples 'an RDF::Queryable' do
           context "triple pattern combinations" do
             it "?s p o" do
               expect(subject.query({predicate: RDF::URI("http://example.org/p"), object: RDF::Literal.new(1)}).to_a).to(
-                include *[RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
+                include(*[RDF::Statement.new(RDF::URI("http://example.org/xi1"), RDF::URI("http://example.org/p"), 1), RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)])
               )
             end
 
             it "s ?p o" do
               expect(subject.query({subject: RDF::URI("http://example.org/xi2"), object: RDF::Literal.new(1)}).to_a).to(
-                include *[RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)]
+                include(*[RDF::Statement.new(RDF::URI("http://example.org/xi2"), RDF::URI("http://example.org/p"), 1)])
               )
             end
           end
