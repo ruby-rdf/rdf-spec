@@ -29,7 +29,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
   subject { enumerable }
   it {is_expected.to respond_to(:supports?)}
 
-  describe "valid?" do
+  describe "#valid?" do
     it "reports validity" do
       if subject.supports?(:validity)
         is_expected.to be_valid
@@ -72,13 +72,13 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:statements)}
     its(:statements) {is_expected.to be_a(Array)}
 
-    context "#statements" do
+    describe "#statements" do
       specify {expect(subject.statements.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.statements).to all(be_a_statement)}
     end
 
     it {is_expected.to respond_to(:has_statement?)}
-    context "#has_statement?" do
+    describe "#has_statement?" do
       let(:unknown_statement) {RDF::Statement.new(RDF::Node.new, RDF::URI.new("http://example.org/unknown"), RDF::Node.new)}
       it "should have all statements" do
         # Don't check for BNodes, as equivalence depends on their being exactly the same, not just the same identifier. If subject is loaded separately, these won't match.
@@ -112,13 +112,23 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     its(:enum_statement) {is_expected.to be_countable}
     its(:enum_statement) {is_expected.to be_enumerable}
     its(:enum_statement) {is_expected.to be_queryable}
-    context "#enum_statement" do
+    describe "#enum_statement" do
       it "should enumerate all statements" do
         expect(subject.enum_statement.count).to eq enumerable.each_statement.count
         subject.enum_statement.each do |s|
           expect(s).to be_a_statement
           expect(enumerable.each_statement.to_a).to include(s) unless s.node?
         end
+      end
+    end
+
+    its(:canonicalize) {is_expected.to be_an_enumerator}
+    describe "#canonicalize" do
+      specify {expect(subject.canonicalize.count).to eq @rdf_enumerable_iv_statements.size}
+      specify {expect(subject.canonicalize).to all(be_a_statement)}
+
+      its "terms should all be in canonical form" do
+        subject.canonicalize.terms.all? {|t| t.eql?(t.canonicalize)}
       end
     end
   end
@@ -130,12 +140,12 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:enum_triple)}
 
     its(:triples) {is_expected.to be_a(Array)}
-    context "#triples" do
+    describe "#triples" do
       specify {expect(subject.triples.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.triples).to all(be_a_triple)}
     end
 
-    context "#has_triple?" do
+    describe "#has_triple?" do
       specify do
         non_bnode_statements.each do |statement|
           is_expected.to have_triple(statement.to_triple)
@@ -144,7 +154,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_triple) {is_expected.to be_an_enumerator}
-    context "#each_triple" do
+    describe "#each_triple" do
       specify {expect(subject.each_triple).to all(be_a_triple)}
       it "should iterate over all triples" do
         subject.each_triple do |*triple|
@@ -156,7 +166,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_triple) {is_expected.to be_an_enumerator}
     its(:enum_triple) {is_expected.to be_countable}
-    context "#enum_triple" do
+    describe "#enum_triple" do
       it "should enumerate all triples" do
         expect(subject.enum_triple.count).to eq enumerable.each_triple.count
         subject.enum_triple.each do |s, p, o|
@@ -174,12 +184,12 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:enum_quad)}
 
     its(:quads) {is_expected.to be_a(Array)}
-    context "#quads" do
+    describe "#quads" do
       specify {expect(subject.quads.size).to eq @rdf_enumerable_iv_statements.size}
       specify {expect(subject.quads).to all(be_a_quad)}
     end
 
-    context "#has_quad?" do
+    describe "#has_quad?" do
       specify do
         if supports_named_graphs
           non_bnode_statements.each do |statement|
@@ -190,7 +200,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_quad) {is_expected.to be_an_enumerator}
-    context "#each_quad" do
+    describe "#each_quad" do
       specify {expect(subject.each_quad).to all(be_a_quad)}
       it "should iterate over all quads" do
         subject.each_quad do |*quad|
@@ -202,7 +212,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_quad) {is_expected.to be_an_enumerator}
     its(:enum_quad) {is_expected.to be_countable}
-    context "#enum_quad" do
+    describe "#enum_quad" do
       it "should enumerate all quads" do
         expect(subject.enum_quad.count).to eq enumerable.each_quad.count
         subject.enum_quad.each do |s, p, o, c|
@@ -220,7 +230,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:each_subject)}
     it {is_expected.to respond_to(:enum_subject)}
 
-    context "#subjects" do
+    describe "#subjects" do
       subject { enumerable.subjects }
       specify {is_expected.to be_a(Array)}
       specify {is_expected.to all(be_a_resource)}
@@ -231,7 +241,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
     end
 
-    context "#has_subject?" do
+    describe "#has_subject?" do
       specify do
         checked = []
         non_bnode_statements.each do |statement|
@@ -244,7 +254,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_subject) {is_expected.to be_an_enumerator}
-    context "#each_subject" do
+    describe "#each_subject" do
       specify {expect(subject.each_subject.reject(&:node?).size).to eq subjects.reject(&:node?).size}
       specify {expect(subject.each_subject).to all(be_a_resource)}
       specify {subject.each_subject {|value| expect(subjects).to include(value) unless value.node?}}
@@ -252,7 +262,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_subject) {is_expected.to be_an_enumerator}
     its(:enum_subject) {is_expected.to be_countable}
-    context "#enum_subject" do
+    describe "#enum_subject" do
       specify {expect(subject.enum_subject.to_a.reject(&:node?).size).to eq subjects.reject(&:node?).size}
       it "should enumerate all subjects" do
         subject.enum_subject.each do |s|
@@ -270,7 +280,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:each_predicate)}
     it {is_expected.to respond_to(:enum_predicate)}
 
-    context "#predicates" do
+    describe "#predicates" do
       subject { enumerable.predicates }
       specify {is_expected.to be_a(Array)}
       specify {is_expected.to all(be_a_uri)}
@@ -281,7 +291,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
     end
 
-    context "#has_predicate?" do
+    describe "#has_predicate?" do
       specify do
         checked = []
         @rdf_enumerable_iv_statements.each do |statement|
@@ -294,7 +304,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_predicate) {is_expected.to be_an_enumerator}
-    context "#each_predicate" do
+    describe "#each_predicate" do
       specify {expect(subject.each_predicate.to_a.size).to eq predicates.size}
       specify {expect(subject.each_predicate).to all(be_a_uri)}
       specify {subject.each_predicate {|value| expect(predicates).to include(value)}}
@@ -302,7 +312,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_predicate) {is_expected.to be_an_enumerator}
     its(:enum_predicate) {is_expected.to be_countable}
-    context "#enum_predicate" do
+    describe "#enum_predicate" do
       it "should enumerate all predicates" do
         expect(subject.enum_predicate.to_a).to include(*predicates)
       end
@@ -316,7 +326,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:each_object)}
     it {is_expected.to respond_to(:enum_object)}
 
-    context "#objects" do
+    describe "#objects" do
       subject { enumerable.objects }
       specify {is_expected.to be_a(Array)}
       specify {is_expected.to all(be_a_term)}
@@ -327,7 +337,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
     end
 
-    context "#has_object?" do
+    describe "#has_object?" do
       specify do
         checked = []
         non_bnode_statements.each do |statement|
@@ -340,7 +350,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_object) {is_expected.to be_an_enumerator}
-    context "#each_object" do
+    describe "#each_object" do
       specify {expect(subject.each_object.reject(&:node?).size).to eq objects.size}
       specify {expect(subject.each_object).to all(be_a_term)}
       specify {subject.each_object {|value| expect(objects).to include(value) unless value.node?}}
@@ -348,7 +358,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_object) {is_expected.to be_an_enumerator}
     its(:enum_object) {is_expected.to be_countable}
-    context "#enum_object" do
+    describe "#enum_object" do
       it "should enumerate all objects" do
         subject.enum_object.each do |o|
           expect(o).to be_a_term
@@ -365,7 +375,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     it {is_expected.to respond_to(:each_term)}
     it {is_expected.to respond_to(:enum_term)}
 
-    context "#terms" do
+    describe "#terms" do
       subject { enumerable.terms }
       specify {is_expected.to be_a(Array)}
       specify {is_expected.to all(be_a_term)}
@@ -376,7 +386,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
       end
     end
 
-    context "#has_term?" do
+    describe "#has_term?" do
       specify do
         checked = {}
         non_bnode_terms.each do |term|
@@ -389,7 +399,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
     end
 
     its(:each_term) {is_expected.to be_an_enumerator}
-    context "#each_term" do
+    describe "#each_term" do
       it 'has correct number of terms' do
         expected_count = non_bnode_terms.length
         expected_count = expected_count - 3 unless 
@@ -404,7 +414,7 @@ RSpec.shared_examples 'an RDF::Enumerable' do
 
     its(:enum_term) {is_expected.to be_an_enumerator}
     its(:enum_term) {is_expected.to be_countable}
-    context "#enum_term" do
+    describe "#enum_term" do
       it "should enumerate all terms" do
         subject.enum_term.each do |o|
           expect(o).to be_a_term
