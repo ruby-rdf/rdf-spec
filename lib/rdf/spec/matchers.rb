@@ -325,7 +325,7 @@ module RDF; module Spec
         info = @info.respond_to?(:information) ? @info.information : @info.inspect
         "Graphs identical\n" +
         "\n#{info + "\n" unless info.empty?}" +
-        "Results:\n#{actual.dump(@info.format, **dump_opts) rescue @actual.inspect}" +
+        "Results:\n#{actual.dump((@info.format || format), **dump_opts) rescue @actual.inspect}" +
         "\nDebug:\n#{@info.logger}"
       end
 
