@@ -30,8 +30,8 @@ Note that in most cases, if the instance is empty and mutable, the appropriate s
 
 ## Dependencies
 
-* [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.2)
-* [RSpec](https://rubygems.org/gems/rspec) (~> 3.10)
+* [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.3)
+* [RSpec](https://rubygems.org/gems/rspec) (~> 3.12)
 
 ## Installation
 
