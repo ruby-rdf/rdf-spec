@@ -12,7 +12,7 @@ RSpec.shared_examples 'an RDF::HttpAdapter' do
   before(:each) {WebMock.disable_net_connect!}
   after(:each) {WebMock.allow_net_connect!}
 
-  let(:uri) {"http://ruby-rdf.github.com/rdf/etc/doap.nt"}
+  let(:uri) {"https://ruby-rdf.github.io/rdf/etc/doap.nt"}
 
   let(:opened) {double("opened")}
   before(:each) do

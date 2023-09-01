@@ -24,7 +24,7 @@ task :clean do
 end
 
 file "etc/doap.nt" do
-  sh "rdf serialize https://ruby-rdf.github.com/rdf/etc/doap.ttl --output etc/doap.nt"
+  sh "rdf serialize https://ruby-rdf.github.io/rdf/etc/doap.ttl --output etc/doap.nt"
 end
 
 FOAF_SUBJECTS = {

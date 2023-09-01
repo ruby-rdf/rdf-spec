@@ -94,7 +94,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       format_class.file_extensions.each_pair do |sym, content_type|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(file_name: "#{@rdf_writer_iv_basename}.#{sym}").and_return(writer_class)
+        expect(writer_class).to receive(:for).with({file_name: "#{@rdf_writer_iv_basename}.#{sym}"}).and_return(writer_class)
         writer_class.open("#{@rdf_writer_iv_basename}.#{sym}") do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
@@ -117,7 +117,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       format_class.file_extensions.each_pair do |sym, content_type|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(file_name: "#{@rdf_writer_iv_basename}.#{sym}").and_return(writer_class)
+        expect(writer_class).to receive(:for).with({file_name: "#{@rdf_writer_iv_basename}.#{sym}"}).and_return(writer_class)
         writer_class.open("#{@rdf_writer_iv_basename}.#{sym}", file_name: "#{@rdf_writer_iv_basename}.#{sym}") do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here
@@ -129,7 +129,7 @@ RSpec.shared_examples 'an RDF::Writer' do
       format_class.content_types.each_pair do |content_type, formats|
         writer_mock = double("writer")
         expect(writer_mock).to receive(:got_here)
-        expect(writer_class).to receive(:for).with(content_type: content_type, file_name: @rdf_writer_iv_basename).and_return(writer_class)
+        expect(writer_class).to receive(:for).with({content_type: content_type, file_name: @rdf_writer_iv_basename}).and_return(writer_class)
         writer_class.open(@rdf_writer_iv_basename, content_type: content_type) do |r|
           expect(r).to be_a(RDF::Writer)
           writer_mock.got_here

@@ -94,7 +94,7 @@ shared_examples 'RDF::Literal canonicalization' do |datatype, pairs|
         .to eq str
     end
 
-    it "humanizes '#{value}' to '#{str}'" do
+    it "humanizes '#{value}' to '#{human}'" do
       expect(RDF::Literal.new(value,
                               datatype: datatype,
                               canonicalize: false).humanize)
