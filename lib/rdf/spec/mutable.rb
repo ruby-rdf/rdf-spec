@@ -59,6 +59,12 @@ RSpec.shared_examples 'an RDF::Mutable' do
         expect { subject.load(RDF::Spec::TRIPLES_FILE, **{}) }.not_to raise_error
       end
 
+      it "should prefer base_uri argument over resource location" do
+        expect(RDF::Reader).to receive(:open)
+          .with(RDF::Spec::TRIPLES_FILE, base_uri: "http://example.org/location")
+        expect { subject.load(RDF::Spec::TRIPLES_FILE, base_uri: "http://example.org/location") }.not_to raise_error
+      end
+
       it "should load statements" do
         subject.load RDF::Spec::TRIPLES_FILE
         expect(subject.size).to eq  File.readlines(RDF::Spec::TRIPLES_FILE).size
