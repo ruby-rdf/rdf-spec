@@ -33,6 +33,10 @@ Note that in most cases, if the instance is empty and mutable, the appropriate s
 * [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.3)
 * [RSpec](https://rubygems.org/gems/rspec) (~> 3.12)
 
+## Change Log
+
+See [Release Notes on GitHub](https://github.com/ruby-rdf/rdf-spec/releases)
+
 ## Installation
 
 The recommended installation method is via [RubyGems](https://rubygems.org/).
