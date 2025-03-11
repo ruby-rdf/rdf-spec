@@ -32,7 +32,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency     'rdf-isomorphic',  '~> 3.3'
   gem.add_runtime_dependency     'rspec',           '~> 3.12'
   gem.add_runtime_dependency     'rspec-its',       '~> 1.3'
-  gem.add_runtime_dependency     'rexml',           '~> 3.2'  # For Webmock
+  gem.add_runtime_dependency     'rexml',           '~> 3.4'  # For Webmock
   gem.add_runtime_dependency     'webmock',         '~> 3.19'
   gem.add_development_dependency 'yard' ,           '~> 0.9'
   gem.post_install_message        = nil
